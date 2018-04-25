@@ -1,0 +1,27 @@
+{
+  "name": "gitstatista",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@vx/group": "0.0.153",
+    "@vx/mock-data": "0.0.153",
+    "@vx/scale": "0.0.153",
+    "@vx/shape": "0.0.160",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
+    "react-redux": "^5.0.7",
+    "react-scripts": "1.1.4",
+    "redux": "^4.0.0",
+    "redux-logger": "^3.0.6",
+    "redux-persist": "^5.9.1",
+    "redux-saga": "^0.16.0",
+    "redux-thunk": "^2.2.0",
+    "semantic-ui-react": "^0.79.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
