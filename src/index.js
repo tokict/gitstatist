@@ -10,7 +10,7 @@ import { PersistGate } from "redux-persist/es/integration/react";
 import { Icon } from "semantic-ui-react";
 import storage from "redux-persist/lib/storage";
 import rootReducer from "./reducers/rootReducer";
-
+import "semantic-ui-css/semantic.min.css";
 const persistConfig = {
   key: "root",
   storage

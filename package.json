@@ -3,10 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@vx/group": "0.0.153",
-    "@vx/mock-data": "0.0.153",
-    "@vx/scale": "0.0.153",
-    "@vx/shape": "0.0.160",
+    "chart.js": "^2.7.2",
+    "palette.js": "^0.0.5",
+    "rc-slider": "^8.6.1",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-redux": "^5.0.7",
@@ -16,6 +15,7 @@
     "redux-persist": "^5.9.1",
     "redux-saga": "^0.16.0",
     "redux-thunk": "^2.2.0",
+    "semantic-ui-css": "^2.3.1",
     "semantic-ui-react": "^0.79.1"
   },
   "scripts": {
