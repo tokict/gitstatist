@@ -4,11 +4,12 @@
 /* eslint-disable global-require */
 /* eslint-disable no-undef */
 import { createStore, compose, applyMiddleware } from "redux";
-import thunk from "redux-thunk";
+import createSagaMiddleware from "redux-saga";
 import { createLogger } from "redux-logger";
 import { initialState } from "./initial";
 
-let middleware = [thunk];
+export const sagaMiddleware = createSagaMiddleware();
+let middleware = [sagaMiddleware];
 
 if (1) {
   const logger = createLogger({
@@ -19,7 +20,7 @@ if (1) {
   middleware = [...middleware];
 }
 
-export default function configureStore(persistedReducer) {
+export function configureStore(persistedReducer) {
   return createStore(
     persistedReducer,
     initialState,

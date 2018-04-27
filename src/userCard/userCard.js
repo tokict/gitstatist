@@ -15,7 +15,7 @@ import {
 export const UserCard = props => (
   <Item.Group>
     <Item>
-      <Item.Image size="tiny" src={props.image} />
+      <Item.Image size="tiny" src={props.image} className={"userImage"} />
       <Item.Content>
         <Item.Header>
           <span style={{ color: "gray", fontSize: 16 }}>#{props.order}</span>{" "}

@@ -21,5 +21,7 @@
 
 .App-usersection-header {
   text-align: center;
-  border-bottom: 1px solid #222;
+  font-weight: 400;
+  color: gray;
+  border-bottom: 1px solid silver;
 }

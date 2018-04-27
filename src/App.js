@@ -6,6 +6,9 @@ import Slider from "rc-slider";
 import Tooltip from "rc-tooltip";
 import "rc-slider/assets/index.css";
 import Graph from "./graph/graph";
+import faker from "faker";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 
 const Handle = Slider.Handle;
 const handle = props => {
@@ -79,7 +82,7 @@ class App extends Component {
             }}
             max={100}
             step={25}
-            onChange={() => null}
+            onChange={() => this.props.actions.fetchUsers()}
             defaultValue={20}
           />
         </div>
@@ -90,9 +93,9 @@ class App extends Component {
               <h1 className="App-usersection-header">Commits</h1>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
@@ -100,9 +103,9 @@ class App extends Component {
               <h1 className="App-usersection-header">Refactoring</h1>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
@@ -110,9 +113,9 @@ class App extends Component {
               <h1 className="App-usersection-header">New code</h1>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
@@ -120,9 +123,9 @@ class App extends Component {
               <h1 className="App-usersection-header">Commit comments</h1>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
@@ -130,9 +133,9 @@ class App extends Component {
               <h1 className="App-usersection-header">Merge requests</h1>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
@@ -140,9 +143,9 @@ class App extends Component {
               <h1 className="App-usersection-header">Failed tests</h1>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
@@ -150,9 +153,9 @@ class App extends Component {
               <h1 className="App-usersection-header">Total productivity</h1>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
@@ -162,63 +165,63 @@ class App extends Component {
             <Grid.Column>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
             <Grid.Column>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
             <Grid.Column>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
             <Grid.Column>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
             <Grid.Column>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
             <Grid.Column>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
             <Grid.Column>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
@@ -228,63 +231,63 @@ class App extends Component {
             <Grid.Column>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
             <Grid.Column>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
             <Grid.Column>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
             <Grid.Column>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
             <Grid.Column>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
             <Grid.Column>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
             <Grid.Column>
               <UserCard
                 order={1}
-                name="Tino"
-                number={345}
-                image="http://via.placeholder.com/350x150"
+                name={faker.name.findName()}
+                number={faker.random.number({ min: 10, max: 500 })}
+                image={faker.image.imageUrl()}
                 description="This is just a description"
               />
             </Grid.Column>
@@ -296,4 +299,22 @@ class App extends Component {
   }
 }
 
-export default App;
+const userActions = {
+  fetchUsers: function() {
+    return { type: "FETCH_USERS" };
+  }
+};
+
+function mapStateToProps(state, ownProps) {
+  return {
+    users: state.Users
+  };
+}
+
+function mapDispatchToProps(dispatch, props) {
+  return {
+    actions: bindActionCreators(userActions, dispatch)
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

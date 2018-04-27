@@ -4,7 +4,8 @@ import "./index.css";
 import App from "./App";
 import registerServiceWorker from "./registerServiceWorker";
 import { Provider } from "react-redux";
-import configureStore from "./reducers/store";
+import { sagaMiddleware, configureStore } from "./reducers/store";
+import rootSaga from "./sagas";
 import { persistReducer, persistStore } from "redux-persist";
 import { PersistGate } from "redux-persist/es/integration/react";
 import { Icon } from "semantic-ui-react";
@@ -18,6 +19,7 @@ const persistConfig = {
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const store = configureStore(persistedReducer);
+sagaMiddleware.run(rootSaga);
 const persistor = persistStore(store);
 
 const onBeforeLift = () => {
