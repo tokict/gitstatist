@@ -1,23 +1,18 @@
 import React from "react";
 import PropTypes from "prop-types";
 import styles from "./styles.css";
-import {
-  Item,
-  Header,
-  Image,
-  Description,
-  Extra,
-  Content,
-  Meta,
-  Group
-} from "semantic-ui-react";
+import { Item } from "semantic-ui-react";
 
 export const UserCard = props => (
   <Item.Group>
     <Item>
-      <Item.Image size="tiny" src={props.image} className={"userImage"} />
+      <Item.Image
+        size="tiny"
+        src={props.image || "/images/default-user-icon.png"}
+        className={"userImage"}
+      />
       <Item.Content>
-        <Item.Header>
+        <Item.Header style={{ fontSize: "1.1em" }}>
           <span style={{ color: "gray", fontSize: 16 }}>#{props.order}</span>{" "}
           {props.name}
         </Item.Header>

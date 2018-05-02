@@ -1,0 +1,17 @@
+.container {
+  width: 800px;
+  margin: auto;
+}
+
+.url {
+  margin-bottom: 50px;
+}
+
+.token {
+  margin: auto;
+  margin-bottom: 50px;
+}
+
+.nextButton {
+  margin-top: 50px;
+}

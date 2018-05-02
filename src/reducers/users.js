@@ -1,14 +1,18 @@
 import { initialState } from "./initial";
 
-const FETCH_USERS = "FETCH_USERS";
-const USERS_FETCHED = "USERS_FETCHED";
-
 export default function(state = initialState.Users, action) {
   switch (action.type) {
-    case USERS_FETCHED:
+    case "USERS_FETCHED":
       return {
         ...state,
-        users: action.users
+        data: action.users,
+        loading: false
+      };
+
+    case "FETCHING_USERS":
+      return {
+        ...state,
+        loading: true
       };
 
     default:

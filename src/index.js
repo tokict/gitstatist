@@ -14,10 +14,11 @@ import rootReducer from "./reducers/rootReducer";
 import "semantic-ui-css/semantic.min.css";
 const persistConfig = {
   key: "root",
-  storage
+  storage,
+  blacklist: ["users.loading"]
 };
 const persistedReducer = persistReducer(persistConfig, rootReducer);
-
+window.gitstatista = {};
 const store = configureStore(persistedReducer);
 sagaMiddleware.run(rootSaga);
 const persistor = persistStore(store);

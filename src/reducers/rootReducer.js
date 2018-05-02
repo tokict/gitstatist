@@ -3,7 +3,8 @@
  */
 import { combineReducers } from "redux";
 import Users from "./users";
+import Server from "./server";
 
-const rootReducer = combineReducers({ Users });
+const rootReducer = combineReducers({ Users, Server });
 
 export default rootReducer;
