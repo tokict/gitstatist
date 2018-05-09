@@ -9,6 +9,19 @@ export default function(state = initialState.Users, action) {
         loading: false
       };
 
+    case "USERS_UPDATED":
+      return {
+        ...state,
+        data: action.users,
+        loading: false
+      };
+
+    case "UNKNOWN_USERS_UPDATED":
+      return {
+        ...state,
+        unknown: action.unknown
+      };
+
     case "FETCHING_USERS":
       return {
         ...state,

@@ -2,7 +2,14 @@ import React, { Component } from "react";
 import "./App.css";
 import { UserCard } from "./userCard/userCard";
 import ServerPicker from "./serverPicker/serverPicker";
-import { Grid, Divider } from "semantic-ui-react";
+import {
+  Grid,
+  Divider,
+  Dimmer,
+  Loader,
+  Segment,
+  Message
+} from "semantic-ui-react";
 import Slider from "rc-slider";
 import Tooltip from "rc-tooltip";
 import "rc-slider/assets/index.css";
@@ -67,26 +74,82 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.startApp = this.startApp.bind(this);
+    this.dismissMessage = this.dismissMessage.bind(this);
+
+    if (this.props.Ui.messages.new.length) {
+      this.props.actions.showMessage(
+        this.props.Ui.messages.new[0],
+        this.props.Ui.messages
+      );
+    }
+  }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.Ui.messages.new.length != this.props.Ui.messages.new.length) {
+      if (this.props.Ui.messages.new.length) {
+        this.props.actions.showMessage(
+          this.props.Ui.messages.new[0],
+          this.props.Ui.messages
+        );
+      }
+    }
+
+    if (nextProps.Users.data && !this.props.Users.data) {
+      this.props.actions.fetchProjects();
+    }
+
+    if (nextProps.Users.unknown && !this.props.Users.unknown) {
+      this.props.actions.showMessage("unknownUsers", nextProps.Ui.messages);
+    }
   }
 
+  componentWillMount() {
+    this.props.actions.fetchProjects();
+  }
   startApp = (url, token, provider) => {
     this.props.actions.fetchUsers(url, token, provider);
   };
 
+  renderLoader = () => (
+    <Segment size="massive" style={{ height: "500px" }}>
+      <Dimmer active inverted>
+        <Loader>Loading</Loader>
+      </Dimmer>
+    </Segment>
+  );
+
   renderUserList = type => {
-    const list = this.props.Users.data.map((user, index) => (
-      <UserCard
-        key={user.id}
-        order={index + 1}
-        name={user.name}
-        number={faker.random.number({ min: 10, max: 500 })}
-        image={user.image}
-        description="This is just a description"
-      />
-    ));
+    const list = [];
+    const data = [];
+
+    Object.keys(this.props.Users.data).map(id => {
+      data.push(this.props.Users.data[id]);
+    });
+
+    data.sort((a, b) => b.commits.length - a.commits.length);
+
+    data.map((item, index) => {
+      list.push(
+        <UserCard
+          key={item.id}
+          order={index + 1}
+          name={item.name}
+          number={item.commits.length}
+          image={item.image}
+          description="This is just a description"
+        />
+      );
+    });
 
     return list;
   };
+
+  dismissMessage = message => {
+    console.log(this.props.Ui.messages);
+    this.props.actions.dismissMessage(message, this.props.Ui.messages);
+  };
+
+  shouldShowMessage = (message, add) =>
+    this.props.Ui.messages.new.includes(message);
 
   render() {
     return (
@@ -96,53 +159,95 @@ class App extends Component {
         </header>
         {this.props.Users.data ? (
           <div>
-            <div style={{ width: 600, margin: "auto", marginBottom: 50 }}>
-              <Slider
-                handle={handle}
-                min={0}
-                marks={{
-                  0: "Today",
-                  25: "This week",
-                  50: "This month",
-                  75: "This quarter",
-                  100: "This year"
-                }}
-                max={100}
-                step={25}
-                onChange={() => this.props.actions.fetchUsers()}
-                defaultValue={20}
-              />
-            </div>
-            <Divider />
+            <Grid columns={3} padded centered>
+              <Grid.Row>
+                <Grid.Column
+                  style={{ paddingLeft: "50px", paddingRight: "50px" }}
+                />
+
+                <Grid.Column
+                  style={{ paddingLeft: "50px", paddingRight: "50px" }}
+                >
+                  <Slider
+                    handle={handle}
+                    min={0}
+                    marks={{
+                      0: "Today",
+                      25: "This week",
+                      50: "This month",
+                      75: "This quarter",
+                      100: "This year"
+                    }}
+                    max={100}
+                    step={25}
+                    onChange={() => this.props.actions.fetchUsers()}
+                    defaultValue={20}
+                  />
+                </Grid.Column>
+
+                <Grid.Column
+                  style={{ paddingLeft: "50px", paddingRight: "50px" }}
+                >
+                  {this.props.Users.unknown &&
+                  this.shouldShowMessage("unknownUsers") ? (
+                    <Message
+                      onDismiss={() => this.dismissMessage("unknownUsers")}
+                      color="red"
+                      icon="exclamation"
+                      header="We found some unknown commit authors"
+                      content="Click this message to see them"
+                      size="tiny"
+                    />
+                  ) : null}
+                </Grid.Column>
+
+                <Divider />
+              </Grid.Row>
+            </Grid>
             <Grid columns={7} divided padded>
               <Grid.Row>
                 <Grid.Column className="App-usercol">
                   <h1 className="App-usersection-header">Commits</h1>
-                  {this.renderUserList("commits")}
+
+                  {!this.props.Commits.data
+                    ? this.renderLoader()
+                    : this.renderUserList("commits")}
                 </Grid.Column>
                 <Grid.Column className="App-usercol">
                   <h1 className="App-usersection-header">Refactoring</h1>
-                  {this.renderUserList("refactoring")}
+                  {!this.props.Commits.data
+                    ? this.renderLoader()
+                    : this.renderUserList("refactoring")}
                 </Grid.Column>
                 <Grid.Column className="App-usercol">
                   <h1 className="App-usersection-header">New code</h1>
-                  {this.renderUserList("newCode")}
+                  {!this.props.Commits.data
+                    ? this.renderLoader()
+                    : this.renderUserList("newCode")}
                 </Grid.Column>
                 <Grid.Column>
                   <h1 className="App-usersection-header">Commit comments</h1>
-                  {this.renderUserList("comments")}
+                  {!this.props.Commits.data
+                    ? this.renderLoader()
+                    : this.renderUserList("comments")}
                 </Grid.Column>
                 <Grid.Column>
                   <h1 className="App-usersection-header">Merge requests</h1>
-                  {this.renderUserList("mergeRequests")}
+                  {!this.props.Commits.data
+                    ? this.renderLoader()
+                    : this.renderUserList("mergeRequests")}
                 </Grid.Column>
                 <Grid.Column>
                   <h1 className="App-usersection-header">Failed tests</h1>
-                  {this.renderUserList("tests")}
+                  {!this.props.Commits.data
+                    ? this.renderLoader()
+                    : this.renderUserList("tests")}
                 </Grid.Column>
                 <Grid.Column>
                   <h1 className="App-usersection-header">Total productivity</h1>
-                  {this.renderUserList("productivity")}
+                  {!this.props.Commits.data
+                    ? this.renderLoader()
+                    : this.renderUserList("productivity")}
                 </Grid.Column>
               </Grid.Row>
             </Grid>
@@ -169,16 +274,46 @@ const userActions = {
   }
 };
 
+const projectActions = {
+  fetchProjects: function() {
+    return { type: "FETCH_PROJECTS" };
+  }
+};
+
+const uiActions = {
+  dismissMessage: function(message, messages) {
+    console.log(messages);
+    if (messages.new.includes(message)) {
+      messages.read.push(message);
+
+      messages.new.splice(messages.new.indexOf(message), 1);
+    }
+    return { type: "UPDATE_MESSAGES", messages: messages };
+  },
+  showMessage: function(message, messages) {
+    console.log();
+    if (!messages.new.includes(message)) {
+      messages.new.push(message);
+
+      messages.read.splice(messages.read.indexOf(message), 1);
+    }
+    return { type: "UPDATE_MESSAGES", messages: messages };
+  }
+};
+
 function mapStateToProps(state, ownProps) {
   return {
     Users: state.Users,
-    Server: state.Server
+    Server: state.Server,
+    Commits: state.Commits,
+    Ui: state.Ui
   };
 }
 
 function mapDispatchToProps(dispatch, props) {
+  const mix = Object.assign(userActions, projectActions, uiActions);
   return {
-    actions: bindActionCreators(userActions, dispatch)
+    actions: bindActionCreators(mix, dispatch)
   };
 }
 
