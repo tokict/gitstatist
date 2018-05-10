@@ -59,7 +59,6 @@ function* mapCommitsToUsers(commits, users) {
         }
       }
       if (!found) {
-        console.log(commits[key][key2].author);
         if (!unknown.includes(commits[key][key2].author)) {
           unknown.push(commits[key][key2].author);
         }
