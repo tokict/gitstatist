@@ -1,8 +1,18 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import _ from "lodash";
-import { Icon, Modal, Button, Header, Image, Grid } from "semantic-ui-react";
+import {
+  Icon,
+  Modal,
+  Button,
+  Header,
+  Image,
+  Grid,
+  List,
+  Label
+} from "semantic-ui-react";
 import SearchComponent from "../search/search";
+import commitsSaga from "../../sagas/commits";
 
 const userResultRenderer = user => <span key={user.id}>{user.name}</span>;
 userResultRenderer.propTypes = {
@@ -12,14 +22,99 @@ userResultRenderer.propTypes = {
 export class UsersModal extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
-
+    this.state = {
+      selectedUnknownUser: null
+    };
     this.unknownUserMatched = this.unknownUserMatched.bind(this);
+    this.handleUnmatchUnknownUser = this.handleUnmatchUnknownUser.bind(this);
   }
 
-  unknownUserMatched = result => {
-    console.log(result);
+  handleUnmatchUnknownUser = (userId, alias) => {
+    console.log(userId, alias);
+
+    const users = this.props.users.data;
+    users[userId].aliases.splice(users[userId].aliases.indexOf(alias), 1);
+    this.props.users.unknown.push(alias);
+    this.setState({ selectedUnknownUser: null });
+    this.props.updateUsers(users);
   };
+
+  unknownUserMatched = result => {
+    const users = this.props.users.data;
+    Object.entries(users).forEach(user => {
+      if (result === user[1].name) {
+        if (!user[1].aliases.includes(this.state.selectedUnknownUser)) {
+          user[1].aliases.push(this.state.selectedUnknownUser);
+        }
+      }
+    });
+
+    this.props.users.unknown.forEach((user, index) => {
+      if (user == this.state.selectedUnknownUser) {
+        this.props.users.unknown.splice(
+          this.props.users.unknown.indexOf(user),
+          1
+        );
+      }
+    });
+
+    console.log(users, this.props.users.unknown);
+    this.props.updateUsers(users);
+    this.setState({ selectedUnknownUser: null });
+  };
+
+  renderUnknownUsers(data) {
+    if (!data) return null;
+    return (
+      <List>
+        {data.map(usr => {
+          return (
+            <List.Item
+              style={{
+                cursor: "pointer",
+                width: "130px",
+                padding: "5px",
+                backgroundColor:
+                  this.state.selectedUnknownUser == usr
+                    ? "rgba(0,0,0, 0.3)"
+                    : "transparent"
+              }}
+              onClick={() => this.setState({ selectedUnknownUser: usr })}
+              key={usr}
+            >
+              {usr}
+            </List.Item>
+          );
+        })}
+      </List>
+    );
+  }
+
+  renderUserAliases() {
+    if (!this.props.users.data) return null;
+    const ret = [];
+
+    {
+      Object.entries(this.props.users.data).forEach(usr => {
+        usr[1].aliases.forEach(alias => {
+          ret.push(
+            <List.Item key={alias}>
+              <div>
+                <Label>
+                  {alias} is {usr[1].name}
+                  <Icon
+                    name="delete"
+                    onClick={() => this.handleUnmatchUnknownUser(usr[0], alias)}
+                  />
+                </Label>
+              </div>
+            </List.Item>
+          );
+        });
+      });
+    }
+    return <List>{ret}</List>;
+  }
 
   render = () => (
     <Modal
@@ -28,7 +123,7 @@ export class UsersModal extends Component {
       closeOnDimmerClick={true}
       closeIcon={true}
       onClose={() => this.props.onClose()}
-      style={{ margin: "auto", marginTop: "300px" }}
+      style={{ marginTop: "50px", marginLeft: "auto", marginRight: "auto" }}
     >
       <Modal.Header>Users</Modal.Header>
       <Modal.Content scrolling>
@@ -44,37 +139,44 @@ export class UsersModal extends Component {
           </p>
           <Grid columns={3} padded centered>
             <Grid.Row>
-              <Grid.Column>
-                <span>User 1</span>
+              <Grid.Column width={4}>
+                <h5>Unknown users</h5>
+                {this.renderUnknownUsers(this.props.users.unknown)}
               </Grid.Column>
               <Grid.Column>
-                <SearchComponent
-                  onSelect={this.unknownUserMatched}
-                  searchkey={"name"}
-                  resultRenderer={userResultRenderer}
-                  data={this.props.users}
-                />
+                <div style={{ textAlign: "center", alignItems: "center" }}>
+                  {this.state.selectedUnknownUser ? (
+                    <div style={{ height: "50px" }}>
+                      <h5>{this.state.selectedUnknownUser}</h5>
+                      <br />
+                      <span>is</span>
+                      <br />
+                      <br />
+                      <SearchComponent
+                        onSelect={this.unknownUserMatched}
+                        searchkey={"name"}
+                        resultRenderer={userResultRenderer}
+                        data={this.props.users.data}
+                      />
+                    </div>
+                  ) : (
+                    <span>
+                      <br />
+                      <Icon name="exclamation" /> Click a unknown user to assign
+                      it to existing user
+                    </span>
+                  )}
+                </div>
               </Grid.Column>
 
               <Grid.Column>
-                <span>User 1</span>
+                <h5>Matched unknown users</h5>
+                {this.renderUserAliases()}
               </Grid.Column>
             </Grid.Row>
           </Grid>
-          <Header>
-            <Icon name="user close" size="tiny" />Ignored users
-          </Header>
-          <p>
-            These are usually the users that are not developers but users for
-            system services etc...
-          </p>
         </Modal.Description>
       </Modal.Content>
-      <Modal.Actions>
-        <Button primary>
-          Proceed <Icon name="right chevron" />
-        </Button>
-      </Modal.Actions>
     </Modal>
   );
 }

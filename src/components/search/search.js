@@ -1,6 +1,6 @@
 import _ from "lodash";
 import React, { Component } from "react";
-import { Search, Grid, Header } from "semantic-ui-react";
+import { Search, Header } from "semantic-ui-react";
 
 export default class SearchComponent extends Component {
   componentWillMount() {
@@ -42,20 +42,16 @@ export default class SearchComponent extends Component {
   render() {
     const { isLoading, value, results } = this.state;
     return (
-      <Grid>
-        <Grid.Column width={8}>
-          <Search
-            loading={isLoading}
-            onResultSelect={this.handleResultSelect}
-            onSearchChange={_.debounce(this.handleSearchChange, 500, {
-              leading: true
-            })}
-            results={results}
-            value={value}
-            resultRenderer={this.props.resultRenderer}
-          />
-        </Grid.Column>
-      </Grid>
+      <Search
+        loading={isLoading}
+        onResultSelect={this.handleResultSelect}
+        onSearchChange={_.debounce(this.handleSearchChange, 500, {
+          leading: true
+        })}
+        results={results}
+        value={value}
+        resultRenderer={this.props.resultRenderer}
+      />
     );
   }
 }

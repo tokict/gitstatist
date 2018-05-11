@@ -1,12 +1,11 @@
 import { put, takeLatest, all, call, select } from "redux-saga/effects";
 import ApiAdapter from "../adapters/adapter";
+const getToken = state => state.Server.token;
+const getUrl = state => state.Server.url;
+const getProvider = state => state.Server.provider;
 
 function* fetchProjects(params) {
   try {
-    const getToken = state => state.Server.token;
-    const getUrl = state => state.Server.url;
-    const getProvider = state => state.Server.provider;
-
     const provider = yield select(getProvider);
     const url = yield select(getUrl);
     const token = yield select(getToken);
@@ -14,7 +13,7 @@ function* fetchProjects(params) {
     const Api = new ApiAdapter({ provider, url, token });
 
     yield put({ type: "FETCHING_PROJECTS" });
-    const projectsData = yield call(Api.getProjects);
+    const projectsData = yield call(Api.fetchProjects);
     const projects = Api.mapProjects(projectsData);
 
     //Map data to our format

@@ -3,6 +3,10 @@ import "./App.css";
 import { UserCard } from "./components/userCard/userCard";
 import { UsersModal } from "./components/usersModal/usersModal";
 import ServerPicker from "./serverPicker/serverPicker";
+
+import userActions from "./actions/userActions";
+import projectActions from "./actions/projectActions";
+import uiActions from "./actions/uiActions";
 import {
   Grid,
   Divider,
@@ -118,10 +122,10 @@ class App extends Component {
   }
 
   componentWillMount() {
-    this.props.actions.fetchProjects();
+    //this.props.actions.fetchProjects();
   }
   startApp = (url, token, provider) => {
-    this.props.actions.fetchUsers(url, token, provider);
+    //this.props.actions.fetchUsers(url, token, provider);
   };
 
   renderLoader = () => (
@@ -145,7 +149,7 @@ class App extends Component {
 
   closeUsersModal = () => this.setState({ usersModalShown: false });
   renderMenu = () => {
-    return (
+    return this.props.Users.data ? (
       <Menu
         compact
         inverted
@@ -185,7 +189,7 @@ class App extends Component {
           Logout
         </Menu.Item>
       </Menu>
-    );
+    ) : null;
   };
 
   renderUserList = type => {
@@ -233,16 +237,18 @@ class App extends Component {
     data.sort((a, b) => b.commits.length - a.commits.length);
 
     data.map((item, index) => {
-      list.push(
-        <UserCard
-          key={item.id}
-          order={index + 1}
-          name={item.name}
-          number={item.commits.length}
-          image={item.image}
-          description={desc}
-        />
-      );
+      item.commits.length
+        ? list.push(
+            <UserCard
+              key={item.id}
+              order={index + 1}
+              name={item.name}
+              number={item.commits.length}
+              image={item.image}
+              description={desc}
+            />
+          )
+        : null;
     });
 
     return list;
@@ -370,47 +376,20 @@ class App extends Component {
           />
         )}
         <UsersModal
-          users={this.props.Users.data}
+          users={this.props.Users}
           open={this.state.usersModalShown}
           onClose={this.closeUsersModal}
+          updateUsers={(users, unknown) => {
+            this.props.actions.updateUsers(users);
+            if (unknown) {
+              this.props.actions.updateUnknownUsers(unknown);
+            }
+          }}
         />
       </div>
     );
   }
 }
-
-const userActions = {
-  fetchUsers: function(url, token, provider) {
-    return { type: "FETCH_USERS", url, token, provider };
-  }
-};
-
-const projectActions = {
-  fetchProjects: function() {
-    return { type: "FETCH_PROJECTS" };
-  }
-};
-
-const uiActions = {
-  dismissMessage: function(message, messages) {
-    console.log(messages);
-    if (messages.new.includes(message)) {
-      messages.read.push(message);
-
-      messages.new.splice(messages.new.indexOf(message), 1);
-    }
-    return { type: "UPDATE_MESSAGES", messages: messages };
-  },
-  showMessage: function(message, messages) {
-    console.log();
-    if (!messages.new.includes(message)) {
-      messages.new.push(message);
-
-      messages.read.splice(messages.read.indexOf(message), 1);
-    }
-    return { type: "UPDATE_MESSAGES", messages: messages };
-  }
-};
 
 function mapStateToProps(state, ownProps) {
   return {

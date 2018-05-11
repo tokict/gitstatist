@@ -22,6 +22,12 @@ export default function(state = initialState.Users, action) {
         unknown: action.unknown
       };
 
+    case "USERS_COMMITS_UPDATED":
+      return {
+        ...state,
+        data: action.users
+      };
+
     case "FETCHING_USERS":
       return {
         ...state,

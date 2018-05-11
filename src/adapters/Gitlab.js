@@ -31,17 +31,17 @@ class Gitlab {
         return [];
       });
   };
-  getUsers = () => {
+  fetchUsers = () => {
     let url = "/users?per_page=1000&active=true";
     return this.call(url);
   };
 
-  getProjects = () => {
+  fetchProjects = () => {
     let url = "/projects?simple=true&per_page=200";
     return this.call(url);
   };
 
-  getCommits = (id, since) => {
+  fetchCommits = (id, since) => {
     if (!since) {
       let days = 180;
       let date = new Date();
@@ -73,7 +73,8 @@ class Gitlab {
         status: u.state,
         image: u.avatar_url,
         profile: u.web_url,
-        commits: []
+        commits: [],
+        aliases: []
       };
 
       users[u.id] = ret;
