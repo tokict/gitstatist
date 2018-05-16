@@ -23,15 +23,16 @@ function* fetchCommits(params) {
     yield put({ type: "FETCHING_COMMITS" }); //foreach odi
     let commitsData;
     const savedCommitsData = yield call(Api.getSavedCommits);
+    let commits;
+
     if (!Object.keys(savedCommitsData).length) {
       commitsData = yield call(projectCommitsIterator, projects, Api);
-      Api.saveCommits(commitsData);
+      commits = Api.mapCommits(commitsData);
+      Api.saveCommits(commits);
     } else {
-      commitsData = savedCommitsData;
+      commits = savedCommitsData;
     }
-
-    const commits = Api.mapCommits(commitsData);
-
+    console.log(commits);
     yield put({
       type: "COMMITS_FETCHED",
       commits: commits,
@@ -54,7 +55,7 @@ function* fetchCommits(params) {
 function* mapCommitsToUsers(commits, users) {
   const unknown = [];
   for (let key in commits) {
-    if (!commits[key].length) continue;
+    if (!commits[key] || !commits[key].length) continue;
 
     for (let key2 in commits[key]) {
       let found = false;
@@ -146,7 +147,7 @@ function* iterateBranch(id, branch, Api) {
   const totalPages = cd.headers["x-total-pages"] * 1;
 
   while (page <= totalPages) {
-    yield new Promise(resolve => setTimeout(resolve, 20));
+    yield new Promise(resolve => setTimeout(resolve, 10));
     calling = yield call(Api.fetchCommits, id, branch, page);
 
     commits = commits.concat(calling.data);

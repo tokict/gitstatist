@@ -258,7 +258,6 @@ class App extends Component {
   };
 
   dismissMessage = message => {
-    console.log(this.props.Ui.messages);
     this.props.actions.dismissMessage(message, this.props.Ui.messages);
   };
 
@@ -268,6 +267,8 @@ class App extends Component {
   render() {
     let commitCount = 0;
     for (let projectId in this.props.Commits.data) {
+      if (!this.props.Commits.data[projectId]) continue;
+      //console.log(this.props.Commits.data[projectId]);
       commitCount += this.props.Commits.data[projectId].length;
     }
 

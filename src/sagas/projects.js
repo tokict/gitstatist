@@ -23,7 +23,7 @@ function* fetchProjects(params) {
     //   29: projects[29]
     // };
     //Map data to our format
-    console.log("Fetched projects", projects);
+
     const branchesData = yield call(fetchBranches, projects, Api);
 
     branchesData.forEach(item => {
@@ -65,7 +65,7 @@ function* fetchBranches(projects, Api) {
 }
 
 function* fetchProjectBranches(id, Api) {
-  yield new Promise(resolve => setTimeout(resolve, 200));
+  yield new Promise(resolve => setTimeout(resolve, 50));
 
   try {
     const b = yield call(Api.fetchBranches, id);
