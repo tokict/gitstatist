@@ -20,8 +20,16 @@ function* fetchCommits(params) {
 
     const Api = new ApiAdapter({ provider, url, token });
 
-    yield put({ type: "FETCHING_COMMITS" });
-    const commitsData = yield call(projectCommitsIterator, projects, Api);
+    yield put({ type: "FETCHING_COMMITS" }); //foreach odi
+    let commitsData;
+    const savedCommitsData = yield call(Api.getSavedCommits);
+    if (!Object.keys(savedCommitsData).length) {
+      commitsData = yield call(projectCommitsIterator, projects, Api);
+      Api.saveCommits(commitsData);
+    } else {
+      commitsData = savedCommitsData;
+    }
+
     const commits = Api.mapCommits(commitsData);
 
     yield put({
@@ -46,7 +54,8 @@ function* fetchCommits(params) {
 function* mapCommitsToUsers(commits, users) {
   const unknown = [];
   for (let key in commits) {
-    if (!commits[key] || commits[key].length) continue;
+    if (!commits[key].length) continue;
+
     for (let key2 in commits[key]) {
       let found = false;
       for (let key3 in users) {
@@ -55,7 +64,11 @@ function* mapCommitsToUsers(commits, users) {
           users[key3].aliases.includes(commits[key][key2].author)
         ) {
           found = true;
-          users[key3].commits.push(commits[key][key2].id);
+
+          //Make sure we dont have this commit id already
+          if (!users[key3].commits.includes(commits[key][key2].id)) {
+            users[key3].commits.push(commits[key][key2].id);
+          }
         }
       }
       if (!found) {
@@ -85,27 +98,75 @@ function* remapUsersToCommits() {
     loading: false
   });
 }
-
+// For each branch in project do while to fetch through pagination all commits and then add those commits to the commits in redux for normal processing Make sure we dont duplicate commits (Maybe quit when we find first similar as its probably merge point)
 function* projectCommitsIterator(projects, Api) {
-  let finished;
   let commits = [];
-  let commit;
   for (let key in projects) {
-    commit = yield* fetchProjectCommits(projects[key].id, Api);
-    commits.push(commit);
+    let commit = yield* fetchProjectCommits(
+      projects[key].id,
+      projects[key].branches,
+      Api
+    );
+
+    commits[projects[key].id] = commit[projects[key].id];
   }
   return commits;
 }
 
-function* fetchProjectCommits(id, Api) {
-  yield new Promise(resolve => setTimeout(resolve, 200));
+function* fetchProjectCommits(id, branches, Api) {
+  let project = {
+    [id]: []
+  };
+  for (let key in branches) {
+    try {
+      const branchCommits = yield iterateBranch(id, branches[key], Api);
 
-  try {
-    const commit = yield call(Api.fetchCommits, id);
-    return { id, data: commit };
-  } catch (error) {
-    console.log(error);
+      branchCommits.forEach(commit => {
+        if (!commitExists(commit.id, project[id])) {
+          project[id].push(commit);
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
+  return project;
+}
+
+//We are iterating over one branch here, going through pagination to fetch all commits
+function* iterateBranch(id, branch, Api) {
+  let page = 1;
+  let calling;
+
+  const cd = yield call(Api.fetchCommits, id, branch, page);
+  page++;
+  const commitsData = cd.data;
+  let commits = commitsData;
+
+  const totalPages = cd.headers["x-total-pages"] * 1;
+
+  while (page <= totalPages) {
+    yield new Promise(resolve => setTimeout(resolve, 20));
+    calling = yield call(Api.fetchCommits, id, branch, page);
+
+    commits = commits.concat(calling.data);
+    page++;
+  }
+
+  return commits;
+}
+
+//Check if we already have this commit saved so we dont duplicate it
+function commitExists(id, commits) {
+  let exists = false;
+  if (commits) {
+    for (let key in commits) {
+      if (commits[key].id == id) {
+        exists = true;
+      }
+    }
+  }
+  return exists;
 }
 
 export const CommitsSagas = [

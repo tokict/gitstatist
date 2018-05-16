@@ -14,6 +14,7 @@ import {
   Loader,
   Segment,
   Message,
+  Statistic,
   Menu,
   Icon,
   Modal,
@@ -122,10 +123,12 @@ class App extends Component {
   }
 
   componentWillMount() {
-    //this.props.actions.fetchProjects();
+    if (this.props.Server.token) {
+      this.props.actions.fetchProjects();
+    }
   }
   startApp = (url, token, provider) => {
-    //this.props.actions.fetchUsers(url, token, provider);
+    this.props.actions.fetchUsers(url, token, provider);
   };
 
   renderLoader = () => (
@@ -263,6 +266,11 @@ class App extends Component {
     this.props.Ui.messages.new.includes(message);
 
   render() {
+    let commitCount = 0;
+    for (let projectId in this.props.Commits.data) {
+      commitCount += this.props.Commits.data[projectId].length;
+    }
+
     return (
       <div>
         <header className="App-header" style={{ marginBottom: 40 }}>
@@ -275,7 +283,32 @@ class App extends Component {
               <Grid.Row>
                 <Grid.Column
                   style={{ paddingLeft: "50px", paddingRight: "50px" }}
-                />
+                >
+                  <div>
+                    <Statistic.Group size={"mini"}>
+                      <Statistic>
+                        <Statistic.Value>
+                          {Object.keys(this.props.Users.data).length || 0}
+                        </Statistic.Value>
+                        <Statistic.Label>Users</Statistic.Label>
+                      </Statistic>
+                      {this.props.Projects.data ? (
+                        <Statistic>
+                          <Statistic.Value>
+                            {Object.keys(this.props.Projects.data).length}
+                          </Statistic.Value>
+                          <Statistic.Label>Projects</Statistic.Label>
+                        </Statistic>
+                      ) : null}
+                      {this.props.Commits.data ? (
+                        <Statistic>
+                          <Statistic.Value>{commitCount}</Statistic.Value>
+                          <Statistic.Label>Unique commits</Statistic.Label>
+                        </Statistic>
+                      ) : null}
+                    </Statistic.Group>
+                  </div>
+                </Grid.Column>
 
                 <Grid.Column
                   style={{ paddingLeft: "50px", paddingRight: "50px" }}
@@ -396,7 +429,8 @@ function mapStateToProps(state, ownProps) {
     Users: state.Users,
     Server: state.Server,
     Commits: state.Commits,
-    Ui: state.Ui
+    Ui: state.Ui,
+    Projects: state.Projects
   };
 }
 

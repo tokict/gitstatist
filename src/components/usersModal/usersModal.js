@@ -123,7 +123,12 @@ export class UsersModal extends Component {
       closeOnDimmerClick={true}
       closeIcon={true}
       onClose={() => this.props.onClose()}
-      style={{ marginTop: "50px", marginLeft: "auto", marginRight: "auto" }}
+      style={{
+        marginTop: "50px",
+        marginLeft: "auto",
+        marginRight: "auto",
+        height: "auto"
+      }}
     >
       <Modal.Header>Users</Modal.Header>
       <Modal.Content scrolling>

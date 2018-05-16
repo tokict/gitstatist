@@ -15,7 +15,7 @@ import "semantic-ui-css/semantic.min.css";
 const persistConfig = {
   key: "root",
   storage,
-  blacklist: ["users.loading"]
+  blacklist: ["Users.loading", "Commits"]
 };
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 window.gitstatista = {};

@@ -6,7 +6,8 @@ function* fetchUsers(params) {
     const Api = new ApiAdapter(params);
 
     yield put({ type: "FETCHING_USERS" });
-    const usersData = yield call(Api.fetchUsers);
+    const ud = yield call(Api.fetchUsers);
+    const usersData = ud.data;
     const users = Api.mapUsers(usersData);
 
     //Map data to our format

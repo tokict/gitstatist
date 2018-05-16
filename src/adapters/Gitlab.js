@@ -26,7 +26,7 @@ class Gitlab {
       })
       .then(response => {
         if (response.status == 200 && response.data) {
-          return response.data;
+          return response;
         }
         return [];
       });
@@ -37,37 +37,58 @@ class Gitlab {
   };
 
   fetchProjects = () => {
-    let url = "/projects?simple=true&per_page=200";
+    let url = "/projects?statistics=true&per_page=200";
     return this.call(url);
   };
 
-  fetchCommits = (id, since) => {
-    if (!since) {
-      let days = 180;
-      let date = new Date();
-      since = new Date(
-        date.getTime() - days * 24 * 60 * 60 * 1000
-      ).toISOString();
-    }
+  saveCommits = data => {
+    axios.post("http://meandish.lo/api/scrap/saveData", data);
+  };
 
+  getSavedCommits = data => {
+    return axios
+      .post("http://meandish.lo/api/scrap/getData", {
+        validateStatus: function(status) {
+          return status >= 200 && status < 300; // default
+        }
+      })
+      .then(response => {
+        if (
+          response.status == 200 &&
+          response.data &&
+          response.data != "false"
+        ) {
+          return response.data;
+        }
+        return {};
+      });
+  };
+
+  fetchCommits = (id, branch, page) => {
     const commits = [];
 
     let url =
       "/projects/" +
       id +
-      "/repository/commits?all=true&&per_page=1000&since=" +
-      since;
+      "/repository/commits?all=true&per_page=100&page=" +
+      page +
+      "&ref_name=" +
+      branch;
 
-    const d = this.call(url);
+    return this.call(url);
+  };
 
-    return d;
+  fetchBranches = projectId => {
+    let url = "/projects/" + projectId + "/repository/branches";
+
+    return this.call(url);
   };
 
   mapUsers = data => {
     const users = {};
 
     data.forEach(u => {
-      const ret = {
+      let ret = {
         name: u.name,
         id: u.id,
         status: u.state,
@@ -87,11 +108,13 @@ class Gitlab {
     const projects = {};
 
     data.forEach(p => {
-      const ret = {
+      let ret = {
         name: p.name,
         id: p.id,
         image: p.avatar_url,
-        path: p.path_with_namespace
+        path: p.path_with_namespace,
+        commitCount: p.statistics.commit_count,
+        branches: []
       };
 
       projects[p.id] = ret;
@@ -102,24 +125,23 @@ class Gitlab {
 
   mapCommits = data => {
     let formatted = [];
+    for (let p in data) {
+      if (!data[p]) return;
+      formatted[p] = [];
 
-    data.forEach(p => {
-      if (!p || !p.id) return;
-      formatted[p.id] = [];
-      p.data.forEach(c => {
-        const ret = {
+      data[p].forEach(c => {
+        let ret = {
           author: c.author_name,
-          message: c.message,
           created_at: c.created_at,
-          commiter: c.commiter_name,
+          commiter: c.committer_name,
           commited_at: c.committed_date,
           id: c.id,
           title: c.title
         };
 
-        formatted[p.id].push(ret);
+        formatted[p].push(ret);
       });
-    });
+    }
 
     return formatted;
   };

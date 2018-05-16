@@ -13,11 +13,32 @@ function* fetchProjects(params) {
     const Api = new ApiAdapter({ provider, url, token });
 
     yield put({ type: "FETCHING_PROJECTS" });
-    const projectsData = yield call(Api.fetchProjects);
-    const projects = Api.mapProjects(projectsData);
+    const pd = yield call(Api.fetchProjects);
+    const projectsData = pd.data;
+    let projects = Api.mapProjects(projectsData);
 
+    // projects = {
+    //   55: projects[55],
+    //   48: projects[48],
+    //   29: projects[29]
+    // };
     //Map data to our format
     console.log("Fetched projects", projects);
+    const branchesData = yield call(fetchBranches, projects, Api);
+
+    branchesData.forEach(item => {
+      if (item) {
+        const id = item.id;
+        const data = item.data;
+
+        if (data) {
+          data.forEach(branch => {
+            projects[id].branches.push(branch.name);
+          });
+        }
+      }
+    });
+
     yield put({
       type: "PROJECTS_FETCHED",
       projects: projects,
@@ -28,6 +49,31 @@ function* fetchProjects(params) {
   } catch (error) {
     console.log(error);
     yield put({ type: "PROJECTS_FETCHED", loading: false });
+  }
+}
+
+function* fetchBranches(projects, Api) {
+  let branches = [];
+  let branch;
+
+  for (let key in projects) {
+    const branchesData = yield* fetchProjectBranches(projects[key].id, Api);
+
+    branches.push(branchesData);
+  }
+  return branches;
+}
+
+function* fetchProjectBranches(id, Api) {
+  yield new Promise(resolve => setTimeout(resolve, 200));
+
+  try {
+    const b = yield call(Api.fetchBranches, id);
+    const branches = b.data;
+
+    return { id, data: branches };
+  } catch (error) {
+    console.log(error);
   }
 }
 
