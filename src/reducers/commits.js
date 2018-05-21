@@ -6,6 +6,8 @@ export default function(state = initialState.Commits, action) {
       return {
         ...state,
         data: action.commits,
+        earliestDateFetched: action.earliestDateFetched,
+        details: action.details,
         loading: false
       };
 

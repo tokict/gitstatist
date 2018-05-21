@@ -9,7 +9,6 @@ function* fetchProjects(params) {
     const provider = yield select(getProvider);
     const url = yield select(getUrl);
     const token = yield select(getToken);
-
     const Api = new ApiAdapter({ provider, url, token });
 
     yield put({ type: "FETCHING_PROJECTS" });
@@ -17,11 +16,11 @@ function* fetchProjects(params) {
     const projectsData = pd.data;
     let projects = Api.mapProjects(projectsData);
 
-    // projects = {
-    //   55: projects[55],
-    //   48: projects[48],
-    //   29: projects[29]
-    // };
+    projects = {
+      48: projects[48],
+      47: projects[47],
+      55: projects[55]
+    };
     //Map data to our format
 
     const branchesData = yield call(fetchBranches, projects, Api);
@@ -48,7 +47,7 @@ function* fetchProjects(params) {
     yield put({ type: "FETCH_COMMITS" });
   } catch (error) {
     console.log(error);
-    yield put({ type: "PROJECTS_FETCHED", loading: false });
+    yield put({ type: "PROJECTS_FETCHED", projects: null, loading: false });
   }
 }
 
@@ -56,8 +55,19 @@ function* fetchBranches(projects, Api) {
   let branches = [];
   let branch;
 
+  let current = 1;
+  let total = Object.keys(projects).length;
+
   for (let key in projects) {
+    if (!projects[key]) continue;
+    const started = new Date().getTime();
     const branchesData = yield* fetchProjectBranches(projects[key].id, Api);
+    const ended = new Date().getTime();
+    current++;
+    yield put({
+      type: "UPDATE_PROGRESS",
+      branches: { current, total, timing: ended - started }
+    });
 
     branches.push(branchesData);
   }

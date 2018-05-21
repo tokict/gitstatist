@@ -7,7 +7,15 @@ import Server from "./server";
 import Projects from "./projects";
 import Commits from "./commits";
 import Ui from "./ui";
+import Progress from "./progress";
 
-const rootReducer = combineReducers({ Users, Server, Projects, Commits, Ui });
+const rootReducer = combineReducers({
+  Users,
+  Server,
+  Projects,
+  Commits,
+  Ui,
+  Progress
+});
 
 export default rootReducer;

@@ -1,4 +1,5 @@
 import axios from "axios";
+import moment from "moment";
 const getToken = state => state.Server.token;
 const getUrl = state => state.Server.url + "/api/v4/";
 const getProvider = state => state.Server.provider;
@@ -45,7 +46,7 @@ class Gitlab {
     axios.post("http://meandish.lo/api/scrap/saveData", data);
   };
 
-  getSavedCommits = data => {
+  getSavedData = data => {
     return axios
       .post("http://meandish.lo/api/scrap/getData", {
         validateStatus: function(status) {
@@ -64,16 +65,27 @@ class Gitlab {
       });
   };
 
-  fetchCommits = (id, branch, page) => {
-    const commits = [];
-
+  fetchCommits = (id, branch, since, to, page) => {
+    const start = new moment(since).format("YYYY-MM-DD");
     let url =
       "/projects/" +
       id +
       "/repository/commits?all=true&per_page=100&page=" +
       page +
       "&ref_name=" +
-      branch;
+      branch +
+      "&since=" +
+      start;
+
+    if (to) {
+      url += "&until=" + to.format("YYYY-MM-DD");
+    }
+
+    return this.call(url);
+  };
+
+  fetchCommitDetails = (sha, projectId) => {
+    let url = "/projects/" + projectId + "/repository/commits/" + sha;
 
     return this.call(url);
   };
@@ -133,8 +145,8 @@ class Gitlab {
         let ret = {
           author: c.author_name,
           created_at: c.created_at,
-          commiter: c.committer_name,
-          commited_at: c.committed_date,
+          committer: c.committer_name,
+          committed_at: c.committed_date,
           id: c.id,
           title: c.title
         };

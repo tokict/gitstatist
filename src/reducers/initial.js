@@ -1,3 +1,4 @@
+import moment from "moment";
 export const initialState = {
   Users: {
     data: null,
@@ -15,12 +16,21 @@ export const initialState = {
   },
   Commits: {
     data: null,
-    loading: false
+    details: null,
+    loading: false,
+    earliestDateFetched: null
   },
   Ui: {
     messages: {
       new: [],
       read: []
-    }
+    },
+    periodFrom: { id: null, date: new moment() }
+  },
+  Progress: {
+    commitsDetails: { current: 0, total: 0, timing: 0 },
+    branchesCommits: { current: 0, total: 0, timing: 0 },
+    branchesCommitsMeta: { current: 0, total: 0, timing: 0 },
+    branches: { current: 0, total: 0, timing: 0 }
   }
 };

@@ -3,7 +3,7 @@ import "./App.css";
 import { UserCard } from "./components/userCard/userCard";
 import { UsersModal } from "./components/usersModal/usersModal";
 import ServerPicker from "./serverPicker/serverPicker";
-
+import _ from "lodash";
 import userActions from "./actions/userActions";
 import projectActions from "./actions/projectActions";
 import uiActions from "./actions/uiActions";
@@ -18,7 +18,8 @@ import {
   Menu,
   Icon,
   Modal,
-  Button
+  Button,
+  Progress
 } from "semantic-ui-react";
 import Slider from "rc-slider";
 import Tooltip from "rc-tooltip";
@@ -95,6 +96,34 @@ class App extends Component {
     this.dismissMessage = this.dismissMessage.bind(this);
     this.closeUsersModal = this.closeUsersModal.bind(this);
     this.handleMenuItemClick = this.handleMenuItemClick.bind(this);
+    this.calculateRemainingTimeCommits = _.throttle(
+      this.calculateRemaining,
+      20000,
+      {
+        leading: true
+      }
+    );
+    this.calculateRemainingTimeCommitsDetails = _.throttle(
+      this.calculateRemaining,
+      30000,
+      {
+        leading: true
+      }
+    );
+    this.calculateRemainingTimeBranchMeta = _.throttle(
+      this.calculateRemaining,
+      10000,
+      {
+        leading: true
+      }
+    );
+    this.calculateRemainingTimeProjects = _.throttle(
+      this.calculateRemaining,
+      10000,
+      {
+        leading: true
+      }
+    );
 
     if (this.props.Ui.messages.new.length) {
       this.props.actions.showMessage(
@@ -113,7 +142,7 @@ class App extends Component {
       }
     }
 
-    if (nextProps.Users.data && !this.props.Users.data) {
+    if (nextProps.Server.token && !this.props.Server.token) {
       this.props.actions.fetchProjects();
     }
 
@@ -121,8 +150,7 @@ class App extends Component {
       this.props.actions.showMessage("unknownUsers", nextProps.Ui.messages);
     }
   }
-
-  componentWillMount() {
+  componentDidMount() {
     if (this.props.Server.token) {
       this.props.actions.fetchProjects();
     }
@@ -264,12 +292,64 @@ class App extends Component {
   shouldShowMessage = (message, add) =>
     this.props.Ui.messages.new.includes(message);
 
+  calculateRemaining = (total, current, timing) => {
+    let remaining = (total - current) * timing / 1000 / 60;
+    remaining = remaining < 1 ? 1 : Math.round(remaining);
+
+    return remaining;
+  };
+
   render() {
-    let commitCount = 0;
-    for (let projectId in this.props.Commits.data) {
-      if (!this.props.Commits.data[projectId]) continue;
-      //console.log(this.props.Commits.data[projectId]);
-      commitCount += this.props.Commits.data[projectId].length;
+    const detailsCurrent = this.props.Progress.commitsDetails.current;
+    const detailsTotal = this.props.Progress.commitsDetails.total;
+    const detailsTiming = this.props.Progress.commitsDetails.timing;
+
+    let remainingCommits = 0;
+    if (detailsCurrent) {
+      remainingCommits = this.calculateRemainingTimeCommitsDetails(
+        detailsTotal,
+        detailsCurrent,
+        detailsTiming + 50
+      );
+    }
+
+    const branchCommitsCurrent = this.props.Progress.branchesCommits.current;
+    const branchCommitsTotal = this.props.Progress.branchesCommits.total;
+    const branchCommitsTiming = this.props.Progress.branchesCommits.timing;
+    let remainingBranchesCommits = 0;
+    if (branchCommitsCurrent) {
+      remainingBranchesCommits = this.calculateRemainingTimeCommits(
+        branchCommitsTotal,
+        branchCommitsCurrent,
+        branchCommitsTiming
+      );
+    }
+
+    const branchCommitsMetaCurrent = this.props.Progress.branchesCommitsMeta
+      .current;
+    const branchCommitsMetaTotal = this.props.Progress.branchesCommitsMeta
+      .total;
+    const branchCommitsMetaTiming = this.props.Progress.branchesCommitsMeta
+      .timing;
+    let remainingBranchMeta = 0;
+    if (branchCommitsMetaCurrent) {
+      remainingBranchMeta = this.calculateRemainingTimeBranchMeta(
+        branchCommitsMetaTotal,
+        branchCommitsMetaCurrent,
+        branchCommitsMetaTiming
+      );
+    }
+
+    const branchCurrent = this.props.Progress.branches.current;
+    const branchTotal = this.props.Progress.branches.total;
+    const branchTiming = this.props.Progress.branches.timing;
+    let remainingProjects = 0;
+    if (branchCurrent) {
+      remainingProjects = this.calculateRemainingTimeProjects(
+        branchTotal,
+        branchCurrent,
+        branchTiming
+      );
     }
 
     return (
@@ -291,43 +371,112 @@ class App extends Component {
                         <Statistic.Value>
                           {Object.keys(this.props.Users.data).length || 0}
                         </Statistic.Value>
-                        <Statistic.Label>Users</Statistic.Label>
+                        <Statistic.Label>Active users</Statistic.Label>
                       </Statistic>
                       {this.props.Projects.data ? (
                         <Statistic>
                           <Statistic.Value>
-                            {Object.keys(this.props.Projects.data).length}
+                            {this.props.Projects.data
+                              ? Object.keys(this.props.Projects.data).length
+                              : "~"}
                           </Statistic.Value>
                           <Statistic.Label>Projects</Statistic.Label>
                         </Statistic>
                       ) : null}
-                      {this.props.Commits.data ? (
-                        <Statistic>
-                          <Statistic.Value>{commitCount}</Statistic.Value>
-                          <Statistic.Label>Unique commits</Statistic.Label>
-                        </Statistic>
-                      ) : null}
+
+                      <Statistic>
+                        <Statistic.Value>
+                          {this.props.Commits.details
+                            ? Object.keys(this.props.Commits.details).length
+                            : "~"}
+                        </Statistic.Value>
+                        <Statistic.Label>Unique commits</Statistic.Label>
+                      </Statistic>
                     </Statistic.Group>
+                  </div>
+                  <div style={{ height: "80px" }}>
+                    {branchCurrent > 0 && branchCurrent < branchTotal ? (
+                      <Progress
+                        indicating
+                        value={branchCurrent}
+                        total={branchTotal}
+                        autoSuccess
+                        progress="ratio"
+                      >
+                        STEP 1 of 4 : Getting branches info -
+                        {remainingProjects > 1 ? " about" : " less than"}{" "}
+                        {remainingProjects} minute/s remaining
+                      </Progress>
+                    ) : null}
+                    {branchCommitsMetaCurrent > 0 &&
+                    branchCommitsMetaCurrent < branchCommitsMetaTotal ? (
+                      <Progress
+                        value={branchCommitsMetaCurrent}
+                        total={branchCommitsMetaTotal}
+                        indicating
+                        autoSuccess
+                        progress="ratio"
+                      >
+                        STEP 2 of 4 : Fetching branch metadata -
+                        {remainingBranchMeta > 1 ? " about" : " less than"}{" "}
+                        {remainingBranchMeta} minute/s remaining
+                      </Progress>
+                    ) : null}
+                    {branchCommitsCurrent > 0 &&
+                    branchCommitsCurrent < branchCommitsTotal ? (
+                      <Progress
+                        value={branchCommitsCurrent}
+                        total={branchCommitsTotal}
+                        indicating
+                        autoSuccess
+                        progress="ratio"
+                      >
+                        STEP 3 of 4 : Fetching all commits -
+                        {remainingBranchesCommits > 1
+                          ? " about"
+                          : " less than"}{" "}
+                        {remainingBranchesCommits} minute/s remaining
+                      </Progress>
+                    ) : null}
+
+                    {detailsCurrent > 0 && detailsCurrent < detailsTotal ? (
+                      <Progress
+                        value={detailsCurrent}
+                        total={detailsTotal}
+                        indicating
+                        autoSuccess
+                        progress="ratio"
+                      >
+                        STEP 4 of 4 : Fetching commit details -
+                        {remainingCommits > 1 ? " about" : " less than"}{" "}
+                        {remainingCommits} minute/s remaining
+                      </Progress>
+                    ) : null}
                   </div>
                 </Grid.Column>
 
                 <Grid.Column
-                  style={{ paddingLeft: "50px", paddingRight: "50px" }}
+                  style={{
+                    paddingLeft: "50px",
+                    paddingRight: "50px",
+                    overlay: null
+                  }}
                 >
                   <Slider
-                    handle={handle}
                     min={0}
                     marks={{
                       0: "Today",
-                      25: "This week",
-                      50: "This month",
-                      75: "This quarter",
-                      100: "This year"
+                      1: "Last 7 days",
+                      2: "Last 30 days",
+                      3: "Last 90 days",
+                      4: "This year"
                     }}
-                    max={100}
-                    step={25}
-                    onChange={() => this.props.actions.fetchUsers()}
-                    defaultValue={20}
+                    max={4}
+                    step={null}
+                    onAfterChange={value =>
+                      this.props.actions.changePeriod(value)
+                    }
+                    defaultValue={this.props.Ui.periodFrom.id || 0}
                   />
                 </Grid.Column>
 
@@ -431,7 +580,8 @@ function mapStateToProps(state, ownProps) {
     Server: state.Server,
     Commits: state.Commits,
     Ui: state.Ui,
-    Projects: state.Projects
+    Projects: state.Projects,
+    Progress: state.Progress
   };
 }
 

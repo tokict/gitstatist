@@ -8,6 +8,12 @@ export default function(state = initialState.Ui, action) {
         messages: action.messages
       };
 
+    case "PERIOD_UPDATED":
+      return {
+        ...state,
+        periodFrom: action.periodFrom
+      };
+
     default:
       return state;
   }

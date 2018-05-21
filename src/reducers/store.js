@@ -13,6 +13,7 @@ let middleware = [sagaMiddleware];
 
 if (1) {
   const logger = createLogger({
+    predicate: (getState, action) => action.type !== "UPDATE_PROGRESS",
     collapsed: true
   });
   middleware = [...middleware, logger];

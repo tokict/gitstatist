@@ -5,6 +5,8 @@
   "dependencies": {
     "axios": "^0.18.0",
     "chart.js": "^2.7.2",
+    "firebase": "^5.0.3",
+    "moment": "^2.22.1",
     "palette.js": "^0.0.5",
     "rc-slider": "^8.6.1",
     "react": "^16.3.2",

@@ -1,5 +1,6 @@
 import { put, takeLatest, all, call, select } from "redux-saga/effects";
 import ApiAdapter from "../adapters/adapter";
+import moment from "moment";
 
 function* fetchUsers(params) {
   try {
@@ -7,6 +8,7 @@ function* fetchUsers(params) {
 
     yield put({ type: "FETCHING_USERS" });
     const ud = yield call(Api.fetchUsers);
+
     const usersData = ud.data;
     const users = Api.mapUsers(usersData);
 
