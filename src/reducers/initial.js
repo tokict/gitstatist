@@ -25,12 +25,13 @@ export const initialState = {
       new: [],
       read: []
     },
-    periodFrom: { id: null, date: new moment() }
+    periodFrom: { id: 1, date: new moment().subtract(7, "d") }
   },
   Progress: {
     commitsDetails: { current: 0, total: 0, timing: 0 },
     branchesCommits: { current: 0, total: 0, timing: 0 },
     branchesCommitsMeta: { current: 0, total: 0, timing: 0 },
-    branches: { current: 0, total: 0, timing: 0 }
+    branches: { current: 0, total: 0, timing: 0 },
+    fetchingData: false
   }
 };

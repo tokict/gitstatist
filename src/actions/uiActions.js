@@ -1,20 +1,11 @@
 const uiActions = {
-  dismissMessage: function(message, messages) {
-    if (messages.new.includes(message)) {
-      messages.read.push(message);
-
-      messages.new.splice(messages.new.indexOf(message), 1);
-    }
-    return { type: "UPDATE_MESSAGES", messages: messages };
+  dismissMessage: function(type) {
+    return { type: "DISMISS_MESSAGE", messageType: type };
   },
-  showMessage: function(message, messages) {
-    if (!messages.new.includes(message)) {
-      messages.new.push(message);
-
-      messages.read.splice(messages.read.indexOf(message), 1);
-    }
-    return { type: "UPDATE_MESSAGES", messages: messages };
+  logoutUser: function(type) {
+    return { type: "USER_LOGOUT" };
   },
+
   changePeriod: function(id) {
     return { type: "UPDATE_PERIOD", id };
   }

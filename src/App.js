@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import "./App.css";
 import { UserCard } from "./components/userCard/userCard";
 import { UsersModal } from "./components/usersModal/usersModal";
+import MessagesModal from "./components/messagesModal/messagesModal";
 import ServerPicker from "./serverPicker/serverPicker";
 import _ from "lodash";
 import userActions from "./actions/userActions";
@@ -29,29 +30,6 @@ import faker from "faker";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
-const Handle = Slider.Handle;
-const handle = props => {
-  const { value, dragging, index, ...restProps } = props;
-  return (
-    <Tooltip
-      prefixCls="rc-slider-tooltip"
-      overlay={value}
-      visible={dragging}
-      dots={true}
-      placement="top"
-      key={index}
-    >
-      <Handle value={value} {...restProps} />
-    </Tooltip>
-  );
-};
-function rand(min, max, num) {
-  var rtn = [];
-  while (rtn.length < num) {
-    rtn.push(Math.random() * (max - min) + min);
-  }
-  return rtn;
-}
 const activeItem = null;
 const chartData = {
   labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
@@ -80,22 +58,22 @@ const chartData = {
   ]
 };
 
-const messageTypes = {
-  unknownUsers: { icon: "warning", color: "orange" }
-};
-
 const chartOptions = {};
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      usersModalShown: false
+      usersModalShown: false,
+      messagesModalShown: false
     };
     this.startApp = this.startApp.bind(this);
     this.dismissMessage = this.dismissMessage.bind(this);
+    this.logoutUser = this.logoutUser.bind(this);
     this.closeUsersModal = this.closeUsersModal.bind(this);
+    this.closeMessagesModal = this.closeMessagesModal.bind(this);
     this.handleMenuItemClick = this.handleMenuItemClick.bind(this);
+    this.dismissMessage = this.dismissMessage.bind(this);
     this.calculateRemainingTimeCommits = _.throttle(
       this.calculateRemaining,
       20000,
@@ -124,16 +102,12 @@ class App extends Component {
         leading: true
       }
     );
-
-    if (this.props.Ui.messages.new.length) {
-      this.props.actions.showMessage(
-        this.props.Ui.messages.new[0],
-        this.props.Ui.messages
-      );
-    }
   }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.Ui.messages.new.length != this.props.Ui.messages.new.length) {
+    if (
+      nextProps.Ui.messages &&
+      nextProps.Ui.messages.new.length != this.props.Ui.messages.new.length
+    ) {
       if (this.props.Ui.messages.new.length) {
         this.props.actions.showMessage(
           this.props.Ui.messages.new[0],
@@ -145,10 +119,6 @@ class App extends Component {
     if (nextProps.Server.token && !this.props.Server.token) {
       this.props.actions.fetchProjects();
     }
-
-    if (nextProps.Users.unknown && !this.props.Users.unknown) {
-      this.props.actions.showMessage("unknownUsers", nextProps.Ui.messages);
-    }
   }
   componentDidMount() {
     if (this.props.Server.token) {
@@ -158,6 +128,11 @@ class App extends Component {
   startApp = (url, token, provider) => {
     this.props.actions.fetchUsers(url, token, provider);
   };
+  dismissMessage(type) {
+    this.actions.dismissMessage(type);
+  }
+
+  logoutUser = () => this.props.actions.logoutUser();
 
   renderLoader = () => (
     <Segment size="massive" style={{ height: "500px" }}>
@@ -170,15 +145,18 @@ class App extends Component {
   handleMenuItemClick = (e, data) => {
     switch (data.name) {
       case "users":
-        console.log("Opening users");
         this.setState({ usersModalShown: true });
-        console.log(this.state);
+        break;
+      case "messages":
+        this.setState({ messagesModalShown: true });
+
         break;
       default:
     }
   };
 
   closeUsersModal = () => this.setState({ usersModalShown: false });
+  closeMessagesModal = () => this.setState({ messagesModalShown: false });
   renderMenu = () => {
     return this.props.Users.data ? (
       <Menu
@@ -203,7 +181,7 @@ class App extends Component {
         </Menu.Item>
 
         <Menu.Item
-          name="envelope"
+          name="messages"
           active={activeItem === "messages"}
           onClick={this.handleMenuItemClick}
         >
@@ -214,7 +192,7 @@ class App extends Component {
         <Menu.Item
           name="logout"
           active={activeItem === "logout"}
-          onClick={this.handleMenuItemClick}
+          onClick={this.logoutUser}
         >
           <Icon name="sign out" />
           Logout
@@ -289,9 +267,6 @@ class App extends Component {
     this.props.actions.dismissMessage(message, this.props.Ui.messages);
   };
 
-  shouldShowMessage = (message, add) =>
-    this.props.Ui.messages.new.includes(message);
-
   calculateRemaining = (total, current, timing) => {
     let remaining = (total - current) * timing / 1000 / 60;
     remaining = remaining < 1 ? 1 : Math.round(remaining);
@@ -358,23 +333,45 @@ class App extends Component {
           <h1 className="App-title">Gitstatista</h1>
         </header>
         {this.renderMenu()}
+        <Segment
+          size="massive"
+          style={{
+            position: "absolute",
+            top: "10px",
+            left: "200px",
+            backgroundColor: "transparent"
+          }}
+        >
+          <Dimmer
+            active={this.props.Progress.fetchingData}
+            style={{
+              backgroundColor: "transparent"
+            }}
+          >
+            <Loader>Loading</Loader>
+          </Dimmer>
+        </Segment>
         {this.props.Users.data ? (
           <div>
             <Grid columns={3} padded centered>
               <Grid.Row>
                 <Grid.Column
-                  style={{ paddingLeft: "50px", paddingRight: "50px" }}
+                  style={{
+                    paddingLeft: "50px",
+                    paddingRight: "50px",
+                    textAlign: "center"
+                  }}
                 >
                   <div>
                     <Statistic.Group size={"mini"}>
-                      <Statistic>
+                      <Statistic style={{ margin: "20px" }}>
                         <Statistic.Value>
                           {Object.keys(this.props.Users.data).length || 0}
                         </Statistic.Value>
                         <Statistic.Label>Active users</Statistic.Label>
                       </Statistic>
                       {this.props.Projects.data ? (
-                        <Statistic>
+                        <Statistic style={{ margin: "20px" }}>
                           <Statistic.Value>
                             {this.props.Projects.data
                               ? Object.keys(this.props.Projects.data).length
@@ -384,7 +381,7 @@ class App extends Component {
                         </Statistic>
                       ) : null}
 
-                      <Statistic>
+                      <Statistic style={{ margin: "20px" }}>
                         <Statistic.Value>
                           {this.props.Commits.details
                             ? Object.keys(this.props.Commits.details).length
@@ -476,21 +473,24 @@ class App extends Component {
                     onAfterChange={value =>
                       this.props.actions.changePeriod(value)
                     }
-                    defaultValue={this.props.Ui.periodFrom.id || 0}
+                    defaultValue={
+                      this.props.Ui.periodFrom ? this.props.Ui.periodFrom.id : 1
+                    }
                   />
                 </Grid.Column>
 
                 <Grid.Column
                   style={{ paddingLeft: "50px", paddingRight: "50px" }}
                 >
-                  {this.props.Users.unknown &&
-                  this.shouldShowMessage("unknownUsers") ? (
+                  {this.props.Ui.messages && this.props.Ui.messages.new[0] ? (
                     <Message
-                      onDismiss={() => this.dismissMessage("unknownUsers")}
-                      color={messageTypes["unknownUsers"].color}
-                      icon={messageTypes["unknownUsers"].icon}
-                      header="We found some unknown commit authors"
-                      content="Click the user icon in the menu on top to see them"
+                      onDismiss={() =>
+                        this.dismissMessage(this.props.Ui.messages.new[0].type)
+                      }
+                      color={this.props.Ui.messages.new[0].color}
+                      icon={this.props.Ui.messages.new[0].icon}
+                      header={this.props.Ui.messages.new[0].header}
+                      content={this.props.Ui.messages.new[0].content}
                       size="tiny"
                     />
                   ) : null}
@@ -568,6 +568,11 @@ class App extends Component {
               this.props.actions.updateUnknownUsers(unknown);
             }
           }}
+        />
+        <MessagesModal
+          messages={this.props.Ui.messages}
+          open={this.state.messagesModalShown}
+          onClose={this.closeMessagesModal}
         />
       </div>
     );

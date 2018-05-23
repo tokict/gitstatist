@@ -9,7 +9,7 @@ import Commits from "./commits";
 import Ui from "./ui";
 import Progress from "./progress";
 
-const rootReducer = combineReducers({
+const appReducer = combineReducers({
   Users,
   Server,
   Projects,
@@ -18,4 +18,10 @@ const rootReducer = combineReducers({
   Progress
 });
 
+const rootReducer = (state, action) => {
+  if (action.type === "USER_LOGOUT") {
+    state = undefined;
+  }
+  return appReducer(state, action);
+};
 export default rootReducer;

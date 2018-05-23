@@ -77,7 +77,7 @@ class Gitlab {
       "&since=" +
       start;
 
-    if (to) {
+    if (to && to.format("YYYY-MM-DD") !== start) {
       url += "&until=" + to.format("YYYY-MM-DD");
     }
 

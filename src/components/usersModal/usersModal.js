@@ -127,7 +127,7 @@ export class UsersModal extends Component {
         marginTop: "50px",
         marginLeft: "auto",
         marginRight: "auto",
-        height: "auto"
+        minHeight: "700px"
       }}
     >
       <Modal.Header>Users</Modal.Header>

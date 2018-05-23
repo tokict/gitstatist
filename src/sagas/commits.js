@@ -16,6 +16,11 @@ const getUi = state => state.Ui;
 
 function* fetchCommits(params) {
   try {
+    yield put({
+      type: "UPDATE_PROGRESS",
+      fetchingData: true
+    });
+
     const provider = yield select(getProvider);
     const url = yield select(getUrl);
     const token = yield select(getToken);
@@ -82,9 +87,17 @@ function* fetchCommits(params) {
       earliestDateFetched: getEarliestDateFetched(commits),
       loading: false
     });
+    yield put({
+      type: "UPDATE_PROGRESS",
+      fetchingData: false
+    });
   } catch (error) {
     console.log(error);
     yield put({ type: "COMMITS_FETCHED", loading: false });
+    yield put({
+      type: "UPDATE_PROGRESS",
+      fetchingData: false
+    });
   }
 }
 
@@ -107,7 +120,14 @@ function getEarliestDateFetched(commits) {
 }
 
 function* mapCommitsToUsers(commits, users) {
-  const unknown = [];
+  const unknown = users.unknown ? users.unknown : [];
+
+  //If there is no commits it means its a reload and we should reset user commits
+  if (!commits) {
+    for (let userId in users) {
+      users[userId].commits = [];
+    }
+  }
 
   for (let projectId in commits) {
     if (!commits[projectId] || !commits[projectId].length) continue;
@@ -115,7 +135,8 @@ function* mapCommitsToUsers(commits, users) {
     for (let index in commits[projectId]) {
       let found = false;
       for (let userId in users) {
-        //        users[userId].commits = [];
+        users[userId].commits = [];
+
         if (
           commits[projectId][index].author == users[userId].name ||
           users[userId].aliases.includes(commits[projectId][index].author)
@@ -138,7 +159,7 @@ function* mapCommitsToUsers(commits, users) {
       }
     }
   }
-
+  console.log(unknown);
   if (unknown && unknown.length) {
     yield put({
       type: "UNKNOWN_USERS_UPDATED",
