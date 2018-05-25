@@ -15,22 +15,27 @@ class Gitlab {
     const baseUrl = this.url;
     const url2 = baseUrl + url;
     const token = this.token;
-    return axios
-      .get(url2, {
-        validateStatus: function(status) {
-          return status >= 200 && status < 300; // default
-        },
+    try {
+      return axios
+        .get(url2, {
+          validateStatus: function(status) {
+            return status >= 200 && status < 300; // default
+          },
 
-        headers: {
-          "Private-Token": this.token
-        }
-      })
-      .then(response => {
-        if (response.status == 200 && response.data) {
-          return response;
-        }
-        return [];
-      });
+          headers: {
+            "Private-Token": this.token
+          }
+        })
+        .then(response => {
+          if (response.status == 200 && response.data) {
+            return response;
+          }
+          return [];
+        });
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
   };
   fetchUsers = () => {
     let url = "/users?per_page=1000&active=true";

@@ -4,6 +4,7 @@ import { UserCard } from "./components/userCard/userCard";
 import { UsersModal } from "./components/usersModal/usersModal";
 import MessagesModal from "./components/messagesModal/messagesModal";
 import ServerPicker from "./serverPicker/serverPicker";
+import * as generator from "./graph/datasetGenerator";
 import _ from "lodash";
 import userActions from "./actions/userActions";
 import projectActions from "./actions/projectActions";
@@ -31,41 +32,15 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
 const activeItem = null;
-const chartData = {
-  labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-  datasets: [
-    {
-      label: "# of Votes",
-      data: [12, 19, 3, 5, 2, 3],
-      backgroundColor: [
-        "rgba(255, 99, 132, 0.2)",
-        "rgba(54, 162, 235, 0.2)",
-        "rgba(255, 206, 86, 0.2)",
-        "rgba(75, 192, 192, 0.2)",
-        "rgba(153, 102, 255, 0.2)",
-        "rgba(255, 159, 64, 0.2)"
-      ],
-      borderColor: [
-        "rgba(255,99,132,1)",
-        "rgba(54, 162, 235, 1)",
-        "rgba(255, 206, 86, 1)",
-        "rgba(75, 192, 192, 1)",
-        "rgba(153, 102, 255, 1)",
-        "rgba(255, 159, 64, 1)"
-      ],
-      borderWidth: 1
-    }
-  ]
-};
-
-const chartOptions = {};
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       usersModalShown: false,
-      messagesModalShown: false
+      messagesModalShown: false,
+      activeGraph: "commits",
+      graphData: null
     };
     this.startApp = this.startApp.bind(this);
     this.dismissMessage = this.dismissMessage.bind(this);
@@ -104,20 +79,17 @@ class App extends Component {
     );
   }
   componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.Ui.messages &&
-      nextProps.Ui.messages.new.length != this.props.Ui.messages.new.length
-    ) {
-      if (this.props.Ui.messages.new.length) {
-        this.props.actions.showMessage(
-          this.props.Ui.messages.new[0],
-          this.props.Ui.messages
-        );
-      }
-    }
-
     if (nextProps.Server.token && !this.props.Server.token) {
       this.props.actions.fetchProjects();
+    }
+
+    if (nextProps.Commits.data) {
+      this.setState({
+        graphData: {
+          users: this.props.Users.data,
+          commits: nextProps.Commits.data
+        }
+      });
     }
   }
   componentDidMount() {
@@ -263,6 +235,44 @@ class App extends Component {
     return list;
   };
 
+  handleGraphChange = graph => {
+    let data;
+    switch (graph) {
+      case "commits":
+        data = this.props.Users.data;
+        break;
+
+      case "refactoring":
+        data = this.props.Users.data;
+        break;
+
+      case "newCode":
+        data = "new lines";
+        break;
+
+      case "comments":
+        data = "comments";
+        break;
+
+      case "mergeRequsts":
+        data = "merge requestsd";
+        break;
+
+      case "tests":
+        data = "failed tests";
+        break;
+
+      case "productivity":
+        data = "by productivity";
+        break;
+
+      default:
+        data = "desc placeholder";
+    }
+
+    this.setState({ graphData: data, activeGraph: graph });
+  };
+
   dismissMessage = message => {
     this.props.actions.dismissMessage(message, this.props.Ui.messages);
   };
@@ -275,6 +285,15 @@ class App extends Component {
   };
 
   render() {
+    let graphData = null;
+    if (this.state.graphData) {
+      graphData = generator.generate(
+        this.state.graphData,
+        this.state.activeGraph,
+        this.props.Ui.periodFrom
+      );
+    }
+
     const detailsCurrent = this.props.Progress.commitsDetails.current;
     const detailsTotal = this.props.Progress.commitsDetails.total;
     const detailsTiming = this.props.Progress.commitsDetails.timing;
@@ -284,7 +303,7 @@ class App extends Component {
       remainingCommits = this.calculateRemainingTimeCommitsDetails(
         detailsTotal,
         detailsCurrent,
-        detailsTiming + 50
+        detailsTiming
       );
     }
 
@@ -502,14 +521,25 @@ class App extends Component {
             <Grid columns={7} divided padded>
               <Grid.Row>
                 <Grid.Column className="App-usercol">
-                  <h1 className="App-usersection-header">Commits</h1>
+                  <h1
+                    className="App-usersection-header"
+                    onClick={() => this.handleGraphChange("commits")}
+                  >
+                    Commits
+                  </h1>
 
                   {!this.props.Commits.data
                     ? this.renderLoader()
                     : this.renderUserList("commits")}
                 </Grid.Column>
                 <Grid.Column className="App-usercol">
-                  <h1 className="App-usersection-header">Refactoring</h1>
+                  <h1
+                    className="App-usersection-header"
+                    onClick={() => this.handleGraphChange("refactoring")}
+                  >
+                    Refactoring
+                  </h1>
+
                   {!this.props.Commits.data
                     ? this.renderLoader()
                     : this.renderUserList("refactoring")}
@@ -546,8 +576,9 @@ class App extends Component {
                 </Grid.Column>
               </Grid.Row>
             </Grid>
-
-            <Graph data={chartData} />
+            {graphData && !this.props.Progress.fetchingData ? (
+              <Graph data={graphData} />
+            ) : null}
           </div>
         ) : (
           <ServerPicker

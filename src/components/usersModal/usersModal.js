@@ -127,11 +127,16 @@ export class UsersModal extends Component {
         marginTop: "50px",
         marginLeft: "auto",
         marginRight: "auto",
-        minHeight: "700px"
+        height: "700px"
       }}
     >
       <Modal.Header>Users</Modal.Header>
-      <Modal.Content scrolling>
+      <Modal.Content
+        scrolling
+        style={{
+          height: "600px"
+        }}
+      >
         <Modal.Description>
           <Header>
             <Icon name="question" size="tiny" />Unknown users
@@ -151,7 +156,7 @@ export class UsersModal extends Component {
               <Grid.Column>
                 <div style={{ textAlign: "center", alignItems: "center" }}>
                   {this.state.selectedUnknownUser ? (
-                    <div style={{ height: "50px" }}>
+                    <div style={{ height: "100px" }}>
                       <h5>{this.state.selectedUnknownUser}</h5>
                       <br />
                       <span>is</span>

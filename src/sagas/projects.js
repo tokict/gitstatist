@@ -12,15 +12,19 @@ function* fetchProjects(params) {
     const Api = new ApiAdapter({ provider, url, token });
 
     yield put({ type: "FETCHING_PROJECTS" });
+    yield put({
+      type: "UPDATE_PROGRESS",
+      fetchingData: true
+    });
     const pd = yield call(Api.fetchProjects);
     const projectsData = pd.data;
     let projects = Api.mapProjects(projectsData);
 
-    projects = {
-      48: projects[48],
-      47: projects[47],
-      55: projects[55]
-    };
+    // projects = {
+    //   48: projects[48],
+    //   47: projects[47],
+    //   55: projects[55]
+    // };
     //Map data to our format
 
     const branchesData = yield call(fetchBranches, projects, Api);

@@ -23,9 +23,13 @@ class Graph extends Component {
     let chart = this.state.chart;
     let data = this.props.data;
 
-    data.datasets.forEach(
-      (dataset, i) => (chart.data.datasets[i].data = dataset.data)
-    );
+    data.datasets.forEach((dataset, i) => {
+      if (!chart.data.datasets[i]) {
+        chart.data.datasets.push(dataset);
+      } else {
+        if (data) return (chart.data.datasets[i].data = dataset.data);
+      }
+    });
 
     chart.data.labels = data.labels;
     chart.update();

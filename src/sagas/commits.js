@@ -9,6 +9,7 @@ const getUrl = state => state.Server.url;
 const getProvider = state => state.Server.provider;
 const getProjects = state => state.Projects.data;
 const getUsers = state => state.Users.data;
+const getUnknown = state => state.Users.unknown;
 const getCommits = state => state.Commits.data;
 const getDetails = state => state.Commits.details;
 const getEarliest = state => state.Commits.earliestDateFetched;
@@ -16,11 +17,6 @@ const getUi = state => state.Ui;
 
 function* fetchCommits(params) {
   try {
-    yield put({
-      type: "UPDATE_PROGRESS",
-      fetchingData: true
-    });
-
     const provider = yield select(getProvider);
     const url = yield select(getUrl);
     const token = yield select(getToken);
@@ -31,7 +27,10 @@ function* fetchCommits(params) {
     const projects = yield select(getProjects);
 
     const Api = new ApiAdapter({ provider, url, token });
-
+    yield put({
+      type: "UPDATE_PROGRESS",
+      fetchingData: true
+    });
     yield put({ type: "FETCHING_COMMITS" }); //foreach odi
 
     const pagesNumber = yield call(fetchPagesNumber, projects, Api);
@@ -120,14 +119,8 @@ function getEarliestDateFetched(commits) {
 }
 
 function* mapCommitsToUsers(commits, users) {
-  const unknown = users.unknown ? users.unknown : [];
-
-  //If there is no commits it means its a reload and we should reset user commits
-  if (!commits) {
-    for (let userId in users) {
-      users[userId].commits = [];
-    }
-  }
+  const un = yield select(getUnknown);
+  const unknown = un ? un : [];
 
   for (let projectId in commits) {
     if (!commits[projectId] || !commits[projectId].length) continue;
@@ -135,8 +128,6 @@ function* mapCommitsToUsers(commits, users) {
     for (let index in commits[projectId]) {
       let found = false;
       for (let userId in users) {
-        users[userId].commits = [];
-
         if (
           commits[projectId][index].author == users[userId].name ||
           users[userId].aliases.includes(commits[projectId][index].author)
@@ -159,7 +150,7 @@ function* mapCommitsToUsers(commits, users) {
       }
     }
   }
-  console.log(unknown);
+
   if (unknown && unknown.length) {
     yield put({
       type: "UNKNOWN_USERS_UPDATED",
@@ -226,7 +217,9 @@ function* fetchPagesNumber(projects, Api) {
         );
 
         const ended = new Date().getTime();
-        nr += calling.headers["x-total-pages"] * 1;
+        if (calling) {
+          nr += calling.headers["x-total-pages"] * 1;
+        }
         current++;
         yield put({
           type: "UPDATE_PROGRESS",
@@ -261,7 +254,7 @@ function* fetchProjectCommits(id, branches, pages, Api) {
   return project;
 }
 let currentBranchPage = 1;
-let tota = 0;
+
 //We are iterating over one branch here, going through pagination to fetch all commits
 function* iterateBranch(id, branch, total, Api) {
   const ui = yield select(getUi);
@@ -272,35 +265,32 @@ function* iterateBranch(id, branch, total, Api) {
 
   const cd = yield call(Api.fetchCommits, id, branch, start, earliest, page);
 
-  const commitsData = cd.data;
+  const commitsData = cd ? cd.data : [];
   let commits = commitsData;
-  try {
-    const totalPages = cd.headers["x-total-pages"] * 1;
 
-    while (page <= totalPages) {
-      const started = new Date().getTime();
-      yield new Promise(resolve => setTimeout(resolve, 30));
-      tota++;
+  const totalPages = cd.headers["x-total-pages"] * 1;
 
-      calling = yield call(Api.fetchCommits, id, branch, start, earliest, page);
+  while (page <= totalPages) {
+    const started = new Date().getTime();
+    yield new Promise(resolve => setTimeout(resolve, 30));
 
-      const ended = new Date().getTime();
-      commits = commits.concat(calling.data);
-      page++;
+    calling = yield call(Api.fetchCommits, id, branch, start, earliest, page);
 
-      yield put({
-        type: "UPDATE_PROGRESS",
-        branchesCommits: {
-          current: currentBranchPage,
-          total: total,
-          timing: ended - started
-        }
-      });
-      currentBranchPage++;
-    }
-  } catch (error) {
-    console.log(error);
+    const ended = new Date().getTime();
+    commits = calling ? commits.concat(calling.data) : commits;
+    page++;
+
+    yield put({
+      type: "UPDATE_PROGRESS",
+      branchesCommits: {
+        current: currentBranchPage,
+        total: total,
+        timing: ended - started
+      }
+    });
+    currentBranchPage++;
   }
+
   return commits;
 }
 
@@ -372,13 +362,10 @@ function* getCommitDetails(commits, Api) {
 
 function* fetchCommitDetails(sha, projectId, Api) {
   yield new Promise(resolve => setTimeout(resolve, 20));
-  try {
-    const calling = yield call(Api.fetchCommitDetails, sha, projectId);
 
-    return calling.data;
-  } catch (error) {
-    console.log(error);
-  }
+  const calling = yield call(Api.fetchCommitDetails, sha, projectId);
+
+  return calling ? calling.data : [];
 }
 
 function* periodUpdated(params) {
@@ -388,21 +375,23 @@ function* periodUpdated(params) {
   switch (params.id) {
     case 0:
       start = new moment().startOf("day");
+
       break;
     case 1:
-      start = new moment().subtract(7, "d");
+      start = new moment().subtract(7, "days");
       break;
     case 2:
-      start = new moment().subtract(30, "d");
+      start = new moment().subtract(30, "days");
       break;
     case 3:
-      start = new moment().subtract(90, "d");
+      start = new moment().subtract(90, "days");
       break;
     case 4:
       start = new moment().startOf("year");
       break;
     default:
       start = new moment().startOf("day");
+      break;
   }
 
   yield put({
