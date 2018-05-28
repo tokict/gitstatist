@@ -14,13 +14,23 @@ const getCommits = state => state.Commits.data;
 const getDetails = state => state.Commits.details;
 const getEarliest = state => state.Commits.earliestDateFetched;
 const getUi = state => state.Ui;
-
+let currentBranchPage = 1;
 function* fetchCommits(params) {
+  yield put({
+    type: "UPDATE_PROGRESS",
+    commitsDetails: { current: 0, total: 0, timing: 0 },
+    branchesCommits: { current: 0, total: 0, timing: 0 },
+    branchesCommitsMeta: { current: 0, total: 0, timing: 0 },
+    branches: { current: 0, total: 0, timing: 0 },
+    fetchingData: true
+  });
   try {
     const provider = yield select(getProvider);
     const url = yield select(getUrl);
+    const ui = yield select(getUi);
     const token = yield select(getToken);
     const users = yield select(getUsers);
+    const earliest = yield select(getEarliest);
     let commits = yield select(getCommits);
     let commitDetails = yield select(getDetails);
 
@@ -29,6 +39,10 @@ function* fetchCommits(params) {
     const Api = new ApiAdapter({ provider, url, token });
     yield put({
       type: "UPDATE_PROGRESS",
+      commitsDetails: { current: 0, total: 0, timing: 0 },
+      branchesCommits: { current: 0, total: 0, timing: 0 },
+      branchesCommitsMeta: { current: 0, total: 0, timing: 0 },
+      branches: { current: 0, total: 0, timing: 0 },
       fetchingData: true
     });
     yield put({ type: "FETCHING_COMMITS" }); //foreach odi
@@ -45,12 +59,16 @@ function* fetchCommits(params) {
     const newCommits = Api.mapCommits(commitsData);
 
     //Map data to our format
+    //Reset commits
+    for (let userId in users) {
+      users[userId].commits = [];
+    }
     const map = yield mapCommitsToUsers(newCommits, users);
 
     const updatedUsers = map.users;
 
-    //Merge new mapped commits to existing ones
-    if (commits) {
+    //Merge new mapped commits to existing ones. If we are going back on slider, reset
+    if (commits && earliest.isBefore(moment(ui.periodFrom.date))) {
       for (let projectId in map.commits) {
         if (commits[projectId]) {
           commits[projectId].concat(map.commits[projectId]);
@@ -135,6 +153,7 @@ function* mapCommitsToUsers(commits, users) {
           found = true;
           let val = commits[projectId][index].id;
 
+          //Tag the commit
           commits[projectId][index].userId = users[userId].id;
 
           //Make sure we dont have this commit id already
@@ -174,6 +193,7 @@ function* remapUsersToCommits() {
 // For each branch in project do while to fetch through pagination all commits and then add those commits to the commits in redux for normal processing Make sure we dont duplicate commits (Maybe quit when we find first similar as its probably merge point)
 function* projectCommitsIterator(projects, pages, Api) {
   let commits = [];
+  currentBranchPage = 1;
   for (let key in projects) {
     if (!projects[key]) continue;
     let commit = yield* fetchProjectCommits(
@@ -185,6 +205,13 @@ function* projectCommitsIterator(projects, pages, Api) {
 
     commits[projects[key].id] = commit[projects[key].id];
   }
+
+  yield put({
+    type: "COMMITS_FETCHED",
+    commits: commits,
+    earliestDateFetched: getEarliestDateFetched(commits),
+    loading: false
+  });
 
   return commits;
 }
@@ -237,6 +264,7 @@ function* fetchProjectCommits(id, branches, pages, Api) {
   let project = {
     [id]: []
   };
+
   for (let key in branches) {
     try {
       const branchCommits = yield iterateBranch(id, branches[key], pages, Api);
@@ -253,7 +281,6 @@ function* fetchProjectCommits(id, branches, pages, Api) {
 
   return project;
 }
-let currentBranchPage = 1;
 
 //We are iterating over one branch here, going through pagination to fetch all commits
 function* iterateBranch(id, branch, total, Api) {
@@ -272,7 +299,7 @@ function* iterateBranch(id, branch, total, Api) {
 
   while (page <= totalPages) {
     const started = new Date().getTime();
-    yield new Promise(resolve => setTimeout(resolve, 30));
+    // yield new Promise(resolve => setTimeout(resolve, 30));
 
     calling = yield call(Api.fetchCommits, id, branch, start, earliest, page);
 
@@ -361,7 +388,7 @@ function* getCommitDetails(commits, Api) {
 }
 
 function* fetchCommitDetails(sha, projectId, Api) {
-  yield new Promise(resolve => setTimeout(resolve, 20));
+  // yield new Promise(resolve => setTimeout(resolve, 20));
 
   const calling = yield call(Api.fetchCommitDetails, sha, projectId);
 
@@ -387,7 +414,7 @@ function* periodUpdated(params) {
       start = new moment().subtract(90, "days");
       break;
     case 4:
-      start = new moment().startOf("year");
+      start = new moment().subtract(365, "days");
       break;
     default:
       start = new moment().startOf("day");
@@ -403,8 +430,7 @@ function* periodUpdated(params) {
 }
 
 export const CommitsSagas = [
-  takeLatest("FETCH_COMMITS", fetchCommits),
-  takeLatest("PERIOD_UPDATED", fetchCommits),
+  takeLatest(["FETCH_COMMITS", "PERIOD_UPDATED"], fetchCommits),
   takeLatest("USERS_UPDATED", remapUsersToCommits),
   takeLatest("UPDATE_PERIOD", periodUpdated)
 ];

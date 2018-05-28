@@ -68,23 +68,24 @@ export class UsersModal extends Component {
     return (
       <List>
         {data.map(usr => {
-          return (
-            <List.Item
-              style={{
-                cursor: "pointer",
-                width: "130px",
-                padding: "5px",
-                backgroundColor:
-                  this.state.selectedUnknownUser == usr
-                    ? "rgba(0,0,0, 0.3)"
-                    : "transparent"
-              }}
-              onClick={() => this.setState({ selectedUnknownUser: usr })}
-              key={usr}
-            >
-              {usr}
-            </List.Item>
-          );
+          if (usr)
+            return (
+              <List.Item
+                style={{
+                  cursor: "pointer",
+                  width: "130px",
+                  padding: "5px",
+                  backgroundColor:
+                    this.state.selectedUnknownUser == usr
+                      ? "rgba(0,0,0, 0.3)"
+                      : "transparent"
+                }}
+                onClick={() => this.setState({ selectedUnknownUser: usr })}
+                key={usr}
+              >
+                {usr}
+              </List.Item>
+            );
         })}
       </List>
     );

@@ -86,7 +86,7 @@ class App extends Component {
     if (nextProps.Commits.data) {
       this.setState({
         graphData: {
-          users: this.props.Users.data,
+          users: nextProps.Users.data,
           commits: nextProps.Commits.data
         }
       });
@@ -346,6 +346,16 @@ class App extends Component {
       );
     }
 
+    let commitsCount = 0;
+    if (this.props.Users.data) {
+      for (let user in this.props.Users.data) {
+        if (this.props.Users.data[user].commits) {
+          commitsCount += Object.keys(this.props.Users.data[user].commits)
+            .length;
+        }
+      }
+    }
+
     return (
       <div>
         <header className="App-header" style={{ marginBottom: 40 }}>
@@ -401,11 +411,7 @@ class App extends Component {
                       ) : null}
 
                       <Statistic style={{ margin: "20px" }}>
-                        <Statistic.Value>
-                          {this.props.Commits.details
-                            ? Object.keys(this.props.Commits.details).length
-                            : "~"}
-                        </Statistic.Value>
+                        <Statistic.Value>{commitsCount}</Statistic.Value>
                         <Statistic.Label>Unique commits</Statistic.Label>
                       </Statistic>
                     </Statistic.Group>
@@ -485,7 +491,7 @@ class App extends Component {
                       1: "Last 7 days",
                       2: "Last 30 days",
                       3: "Last 90 days",
-                      4: "This year"
+                      4: "Last 365 days"
                     }}
                     max={4}
                     step={null}

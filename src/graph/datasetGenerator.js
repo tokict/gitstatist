@@ -1,6 +1,9 @@
 import moment from "moment";
 import palette from "google-palette";
+
+let colorPallete;
 export const generate = (data, type, periodFrom) => {
+  colorPallete = palette("qualitative", Object.keys(data.users).length);
   //take time distribution and make units of measurement
   let unitCount;
   let labels;
@@ -29,13 +32,13 @@ export const generate = (data, type, periodFrom) => {
       break;
 
     case 3:
-      d = parse90Days(data, periodFrom.date);
+      d = parseWeeks(data, periodFrom.date, 14);
       labels = d.labels;
       datasets = d.datasets;
       break;
 
     case 4:
-      d = parseYear(data, periodFrom.date);
+      d = parseWeeks(data, periodFrom.date, 52);
       labels = d.labels;
       datasets = d.datasets;
   }
@@ -53,13 +56,14 @@ const parseHoursInDay = (data, since) => {
   const users = data.users;
   const usersData = {};
   let color;
+  let cp = colorPallete.map(item => item);
 
   //Get all hours between midnight and now as labels
-  let nrHours = new moment().format("HH");
+  let nrHours = new moment().format("HH") * 1;
+
   if (since instanceof moment == false) {
     since = new moment(since);
   }
-  let colorPallete = palette("qualitative", Object.keys(users).length);
 
   //We create labels by taking earliest day and adding a day on every loop
   for (let i = 0; i < nrHours + 1; i++) {
@@ -74,8 +78,8 @@ const parseHoursInDay = (data, since) => {
       if (!id) continue;
 
       if (!usersData[id]) {
-        color = colorPallete[0];
-        colorPallete.splice(0, 1);
+        color = cp[0];
+        cp.splice(0, 1);
 
         let name;
         for (let user in users) {
@@ -121,11 +125,10 @@ const parseDaysInWeek = (data, since) => {
   const users = data.users;
   const usersData = {};
   let color;
-
+  let cp = colorPallete.map(item => item);
   if (since instanceof moment == false) {
     since = new moment(since);
   }
-  let colorPallete = palette("qualitative", Object.keys(users).length);
 
   //We create labels by taking earliest day and adding a day on every loop
   labels.push(since.format("DD.MM"));
@@ -140,8 +143,8 @@ const parseDaysInWeek = (data, since) => {
       if (!id) continue;
 
       if (!usersData[id]) {
-        color = colorPallete[0];
-        colorPallete.splice(0, 1);
+        color = cp[0];
+        cp.splice(0, 1);
 
         let name;
         for (let user in users) {
@@ -186,11 +189,10 @@ const parseDaysInMonth = (data, since) => {
   const users = data.users;
   const usersData = {};
   let color;
-
+  let cp = colorPallete.map(item => item);
   if (since instanceof moment == false) {
     since = new moment(since);
   }
-  let colorPallete = palette("qualitative", Object.keys(users).length);
 
   //We create labels by taking earliest day and adding a day on every loop
 
@@ -203,10 +205,10 @@ const parseDaysInMonth = (data, since) => {
     for (let commit in commits[projectId]) {
       let id = commits[projectId][commit].userId;
       if (!id) continue;
-      console.log(commits[projectId][commit]);
+
       if (!usersData[id]) {
-        color = colorPallete[0];
-        colorPallete.splice(0, 1);
+        color = cp[0];
+        cp.splice(0, 1);
 
         let name;
         for (let user in users) {
@@ -244,7 +246,7 @@ const parseDaysInMonth = (data, since) => {
   return { labels, datasets: Object.values(usersData) };
 };
 
-const parse90Days = (data, since) => {
+const parseWeeks = (data, since, weeks) => {
   const labels = [];
   const periods = [];
   let datasets = [];
@@ -252,17 +254,15 @@ const parse90Days = (data, since) => {
   const users = data.users;
   const usersData = {};
   let color;
-  let periodSince;
+  let cp = colorPallete.map(item => item);
 
   if (since instanceof moment == false) {
     since = new moment(since);
   }
 
-  let colorPallete = palette("qualitative", Object.keys(users).length);
-
   //We create labels by taking earliest day and adding a day on every loop
 
-  for (var i = 1; i < 14; i++) {
+  for (var i = 1; i < weeks; i++) {
     let start1 = since
       .clone()
       .add(i - 1, "w")
@@ -291,8 +291,8 @@ const parse90Days = (data, since) => {
       if (!id) continue;
 
       if (!usersData[id]) {
-        color = colorPallete[0];
-        colorPallete.splice(0, 1);
+        color = cp[0];
+        cp.splice(0, 1);
 
         let name;
         for (let user in users) {
@@ -326,72 +326,6 @@ const parse90Days = (data, since) => {
             : 1;
         }
       });
-    }
-  }
-
-  for (let user in usersData) {
-    usersData[user].data = Object.values(usersData[user].data);
-  }
-
-  return { labels, datasets: Object.values(usersData) };
-};
-
-const parseYear = (data, since) => {
-  let labels = [];
-  let datasets = [];
-  const commits = data.commits;
-  const users = data.users;
-  const usersData = {};
-  let color;
-
-  if (since instanceof moment == false) {
-    since = new moment(since);
-  }
-  let colorPallete = palette("qualitative", Object.keys(users).length);
-
-  //We create labels by taking earliest day and adding a day on every loop
-
-  for (var i = 0; i < 52; i++) {
-    labels.push(
-      since.format("DD.MM") + " - " + since.add(1, "w").format("DD.MM")
-    );
-  }
-
-  for (let projectId in commits) {
-    for (let commit in commits[projectId]) {
-      let id = commits[projectId][commit].userId;
-      if (!id) continue;
-
-      if (!usersData[id]) {
-        color = colorPallete[0];
-        colorPallete.splice(0, 1);
-
-        let name;
-        for (let user in users) {
-          if (users[user].id == id) name = users[user].name;
-        }
-
-        let data = {};
-
-        labels.forEach(item => {
-          data[item] = 0;
-        });
-        usersData[id] = {
-          label: name,
-          backgroundColor: "transparent",
-          data: data,
-          borderColor: "#" + color,
-          borderWidth: 2
-        };
-      }
-
-      let date = new moment(commits[projectId][commit].committed_at).format(
-        "DD.MM"
-      );
-
-      usersData[id].data[date] = usersData[id].data[date]
-        ? usersData[id].data[date] + 1
-        : 1;
     }
   }
 
