@@ -25,3 +25,7 @@
   color: gray;
   border-bottom: 1px solid silver;
 }
+
+.App-statistic-margin {
+  margin-right: 20px !important;
+}

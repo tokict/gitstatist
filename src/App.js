@@ -4,7 +4,8 @@ import { UserCard } from "./components/userCard/userCard";
 import { UsersModal } from "./components/usersModal/usersModal";
 import MessagesModal from "./components/messagesModal/messagesModal";
 import ServerPicker from "./serverPicker/serverPicker";
-import * as generator from "./graph/datasetGenerator";
+import * as calculator from "./calculator";
+import * as commitsLineDatasetGenerator from "./graph/commitsLineDatasetGenerator";
 import _ from "lodash";
 import userActions from "./actions/userActions";
 import projectActions from "./actions/projectActions";
@@ -40,7 +41,7 @@ class App extends Component {
       usersModalShown: false,
       messagesModalShown: false,
       activeGraph: "commits",
-      graphData: null
+      commitsLineGraphData: null
     };
     this.startApp = this.startApp.bind(this);
     this.dismissMessage = this.dismissMessage.bind(this);
@@ -85,7 +86,7 @@ class App extends Component {
 
     if (nextProps.Commits.data) {
       this.setState({
-        graphData: {
+        commitsLineGraphData: {
           users: nextProps.Users.data,
           commits: nextProps.Commits.data
         }
@@ -174,63 +175,37 @@ class App extends Component {
   };
 
   renderUserList = type => {
-    const list = [];
-    const data = [];
+    let data = [];
+    let list;
     let desc;
-
-    switch (type) {
-      case "commits":
-        desc = "commits";
-        break;
-
-      case "refactoring":
-        desc = "lines changed";
-        break;
-
-      case "newCode":
-        desc = "new lines";
-        break;
-
-      case "comments":
-        desc = "comments";
-        break;
-
-      case "mergeRequsts":
-        desc = "merge requestsd";
-        break;
-
-      case "tests":
-        desc = "failed tests";
-        break;
-
-      case "productivity":
-        desc = "by productivity";
-        break;
-
-      default:
-        desc = "desc placeholder";
-    }
-
     Object.keys(this.props.Users.data).map(id => {
       data.push(this.props.Users.data[id]);
     });
 
-    data.sort((a, b) => b.commits.length - a.commits.length);
+    switch (type) {
+      case "commits":
+        list = calculator.commits(data);
 
-    data.map((item, index) => {
-      item.commits.length
-        ? list.push(
-            <UserCard
-              key={item.id}
-              order={index + 1}
-              name={item.name}
-              number={item.commits.length}
-              image={item.image}
-              description={desc}
-            />
-          )
-        : null;
-    });
+        break;
+
+      case "refactoring":
+        list = calculator.refactoring(data, this.props.Commits.details);
+        break;
+
+      case "newCode":
+        list = calculator.newCode(data, this.props.Commits.details);
+        break;
+
+      case "comments":
+        break;
+
+      case "mergeRequsts":
+        break;
+
+      case "tests":
+        list = calculator.failedTests(data, this.props.Commits.details);
+        break;
+    }
 
     return list;
   };
@@ -262,15 +237,11 @@ class App extends Component {
         data = "failed tests";
         break;
 
-      case "productivity":
-        data = "by productivity";
-        break;
-
       default:
         data = "desc placeholder";
     }
 
-    this.setState({ graphData: data, activeGraph: graph });
+    this.setState({ commitsLineGraphData: data, activeGraph: graph });
   };
 
   dismissMessage = message => {
@@ -285,10 +256,10 @@ class App extends Component {
   };
 
   render() {
-    let graphData = null;
-    if (this.state.graphData) {
-      graphData = generator.generate(
-        this.state.graphData,
+    let commitsLineGraphData = null;
+    if (this.state.commitsLineGraphData) {
+      commitsLineGraphData = commitsLineDatasetGenerator.generate(
+        this.state.commitsLineGraphData,
         this.state.activeGraph,
         this.props.Ui.periodFrom
       );
@@ -393,14 +364,14 @@ class App extends Component {
                 >
                   <div>
                     <Statistic.Group size={"mini"}>
-                      <Statistic style={{ margin: "20px" }}>
+                      <Statistic className="App-statistic-margin">
                         <Statistic.Value>
                           {Object.keys(this.props.Users.data).length || 0}
                         </Statistic.Value>
                         <Statistic.Label>Active users</Statistic.Label>
                       </Statistic>
                       {this.props.Projects.data ? (
-                        <Statistic style={{ margin: "20px" }}>
+                        <Statistic className="App-statistic-margin">
                           <Statistic.Value>
                             {this.props.Projects.data
                               ? Object.keys(this.props.Projects.data).length
@@ -410,7 +381,7 @@ class App extends Component {
                         </Statistic>
                       ) : null}
 
-                      <Statistic style={{ margin: "20px" }}>
+                      <Statistic className="App-statistic-margin">
                         <Statistic.Value>{commitsCount}</Statistic.Value>
                         <Statistic.Label>Unique commits</Statistic.Label>
                       </Statistic>
@@ -524,7 +495,7 @@ class App extends Component {
                 <Divider />
               </Grid.Row>
             </Grid>
-            <Grid columns={7} divided padded>
+            <Grid columns={6} divided padded>
               <Grid.Row>
                 <Grid.Column className="App-usercol">
                   <h1
@@ -574,16 +545,10 @@ class App extends Component {
                     ? this.renderLoader()
                     : this.renderUserList("tests")}
                 </Grid.Column>
-                <Grid.Column>
-                  <h1 className="App-usersection-header">Total productivity</h1>
-                  {!this.props.Commits.data
-                    ? this.renderLoader()
-                    : this.renderUserList("productivity")}
-                </Grid.Column>
               </Grid.Row>
             </Grid>
-            {graphData && !this.props.Progress.fetchingData ? (
-              <Graph data={graphData} />
+            {commitsLineGraphData && !this.props.Progress.fetchingData ? (
+              <Graph data={commitsLineGraphData} type="line" />
             ) : null}
           </div>
         ) : (

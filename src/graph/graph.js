@@ -11,8 +11,8 @@ class Graph extends Component {
     let chartCanvas = this.refs.chart;
 
     let myChart = new Chart(chartCanvas, {
-      type: "line",
-      options: {},
+      type: this.props.type,
+      options: this.props.options || {},
       data: this.props.data
     });
 
