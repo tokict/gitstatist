@@ -8,6 +8,8 @@ import Projects from "./projects";
 import Commits from "./commits";
 import Ui from "./ui";
 import Progress from "./progress";
+import Comments from "./comments";
+import MergeRequests from "./mergeRequests";
 
 const appReducer = combineReducers({
   Users,
@@ -15,7 +17,9 @@ const appReducer = combineReducers({
   Projects,
   Commits,
   Ui,
-  Progress
+  Progress,
+  Comments,
+  MergeRequests
 });
 
 const rootReducer = (state, action) => {

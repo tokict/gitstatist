@@ -103,6 +103,29 @@ export const newCode = (data, details) => {
   return list;
 };
 
+export const comments = data => {
+  const list = [];
+
+  data.sort((a, b) => b.comments.length - a.comments.length);
+
+  data.map((item, index) => {
+    item.comments.length
+      ? list.push(
+          <UserCard
+            key={item.id}
+            order={index + 1}
+            name={item.name}
+            number={item.comments.length}
+            image={item.image}
+            description={"comments made"}
+          />
+        )
+      : null;
+  });
+
+  return list;
+};
+
 export const failedTests = (data, details) => {
   if (!details) return;
   const list = [];

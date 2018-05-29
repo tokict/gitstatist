@@ -20,11 +20,13 @@ function* fetchProjects(params) {
     const projectsData = pd.data;
     let projects = Api.mapProjects(projectsData);
 
-    // projects = {
-    //   48: projects[48],
-    //   47: projects[47],
-    //   55: projects[55]
-    // };
+    projects = {
+      // 48: projects[48],
+      //47: projects[47],
+      53: projects[53],
+      54: projects[54],
+      55: projects[55]
+    };
     //Map data to our format
 
     const branchesData = yield call(fetchBranches, projects, Api);

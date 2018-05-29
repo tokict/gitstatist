@@ -78,6 +78,14 @@ class App extends Component {
         leading: true
       }
     );
+
+    this.calculateRemainingTimeComments = _.throttle(
+      this.calculateRemaining,
+      10000,
+      {
+        leading: true
+      }
+    );
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.Server.token && !this.props.Server.token) {
@@ -175,35 +183,37 @@ class App extends Component {
   };
 
   renderUserList = type => {
-    let data = [];
+    let users = [];
     let list;
     let desc;
     Object.keys(this.props.Users.data).map(id => {
-      data.push(this.props.Users.data[id]);
+      users.push(this.props.Users.data[id]);
     });
 
     switch (type) {
       case "commits":
-        list = calculator.commits(data);
+        list = calculator.commits(users);
 
         break;
 
       case "refactoring":
-        list = calculator.refactoring(data, this.props.Commits.details);
+        list = calculator.refactoring(users, this.props.Commits.details);
         break;
 
       case "newCode":
-        list = calculator.newCode(data, this.props.Commits.details);
+        list = calculator.newCode(users, this.props.Commits.details);
         break;
 
       case "comments":
+        list = calculator.comments(users);
+        break;
         break;
 
       case "mergeRequsts":
         break;
 
       case "tests":
-        list = calculator.failedTests(data, this.props.Commits.details);
+        list = calculator.failedTests(users, this.props.Commits.details);
         break;
     }
 
@@ -317,6 +327,18 @@ class App extends Component {
       );
     }
 
+    const commentsCurrent = this.props.Progress.comments.current;
+    const commentsTotal = this.props.Progress.comments.total;
+    const commentsTiming = this.props.Progress.comments.timing;
+    let remainingComments = 0;
+    if (commentsCurrent) {
+      remainingComments = this.calculateRemainingTimeComments(
+        commentsTotal,
+        commentsCurrent,
+        commentsTiming
+      );
+    }
+
     let commitsCount = 0;
     if (this.props.Users.data) {
       for (let user in this.props.Users.data) {
@@ -396,7 +418,7 @@ class App extends Component {
                         autoSuccess
                         progress="ratio"
                       >
-                        STEP 1 of 4 : Getting branches info -
+                        STEP 1 of 6 : Getting branches info -
                         {remainingProjects > 1 ? " about" : " less than"}{" "}
                         {remainingProjects} minute/s remaining
                       </Progress>
@@ -410,7 +432,7 @@ class App extends Component {
                         autoSuccess
                         progress="ratio"
                       >
-                        STEP 2 of 4 : Fetching branch metadata -
+                        STEP 2 of 6 : Fetching branch metadata -
                         {remainingBranchMeta > 1 ? " about" : " less than"}{" "}
                         {remainingBranchMeta} minute/s remaining
                       </Progress>
@@ -424,7 +446,7 @@ class App extends Component {
                         autoSuccess
                         progress="ratio"
                       >
-                        STEP 3 of 4 : Fetching all commits -
+                        STEP 3 of 6 : Fetching all commits -
                         {remainingBranchesCommits > 1
                           ? " about"
                           : " less than"}{" "}
@@ -440,9 +462,23 @@ class App extends Component {
                         autoSuccess
                         progress="ratio"
                       >
-                        STEP 4 of 4 : Fetching commit details -
+                        STEP 4 of 6 : Fetching commit details -
                         {remainingCommits > 1 ? " about" : " less than"}{" "}
                         {remainingCommits} minute/s remaining
+                      </Progress>
+                    ) : null}
+
+                    {commentsCurrent > 0 && commentsCurrent < commentsTotal ? (
+                      <Progress
+                        value={commentsCurrent}
+                        total={commentsTotal}
+                        indicating
+                        autoSuccess
+                        progress="ratio"
+                      >
+                        STEP 5 of 6 : Fetching comments -
+                        {remainingComments > 1 ? " about" : " less than"}{" "}
+                        {remainingComments} minute/s remaining
                       </Progress>
                     ) : null}
                   </div>
@@ -466,9 +502,10 @@ class App extends Component {
                     }}
                     max={4}
                     step={null}
-                    onAfterChange={value =>
-                      this.props.actions.changePeriod(value)
-                    }
+                    onAfterChange={value => {
+                      if (value != this.props.Ui.periodFrom.id)
+                        this.props.actions.changePeriod(value);
+                    }}
                     defaultValue={
                       this.props.Ui.periodFrom ? this.props.Ui.periodFrom.id : 1
                     }

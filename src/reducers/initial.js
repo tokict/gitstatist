@@ -20,6 +20,16 @@ export const initialState = {
     loading: false,
     earliestDateFetched: null
   },
+  Comments: {
+    data: null,
+    earliestDateFetched: null,
+    loading: false
+  },
+  MergeRequests: {
+    data: null,
+    earliestDateFetched: null,
+    loading: false
+  },
   Ui: {
     messages: {
       new: [],
@@ -32,6 +42,7 @@ export const initialState = {
     branchesCommits: { current: 0, total: 0, timing: 0 },
     branchesCommitsMeta: { current: 0, total: 0, timing: 0 },
     branches: { current: 0, total: 0, timing: 0 },
+    comments: { current: 0, total: 0, timing: 0 },
     fetchingData: false
   }
 };

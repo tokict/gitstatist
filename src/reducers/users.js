@@ -27,6 +27,11 @@ export default function(state = initialState.Users, action) {
         ...state,
         data: action.users
       };
+    case "USERS_COMMENTS_UPDATED":
+      return {
+        ...state,
+        data: action.users
+      };
 
     case "FETCHING_USERS":
       return {

@@ -89,6 +89,18 @@ class Gitlab {
     return this.call(url);
   };
 
+  fetchComments = (id, branch, page) => {
+    let url =
+      "/projects/" +
+      id +
+      "/repository/commits/" +
+      branch +
+      "/comments?per_page=100&page=" +
+      page;
+
+    return this.call(url);
+  };
+
   fetchCommitDetails = (sha, projectId) => {
     let url = "/projects/" + projectId + "/repository/commits/" + sha;
 
@@ -112,6 +124,7 @@ class Gitlab {
         image: u.avatar_url,
         profile: u.web_url,
         commits: [],
+        comments: [],
         aliases: []
       };
 

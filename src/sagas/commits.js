@@ -37,14 +37,7 @@ function* fetchCommits(params) {
     const projects = yield select(getProjects);
 
     const Api = new ApiAdapter({ provider, url, token });
-    yield put({
-      type: "UPDATE_PROGRESS",
-      commitsDetails: { current: 0, total: 0, timing: 0 },
-      branchesCommits: { current: 0, total: 0, timing: 0 },
-      branchesCommitsMeta: { current: 0, total: 0, timing: 0 },
-      branches: { current: 0, total: 0, timing: 0 },
-      fetchingData: true
-    });
+
     yield put({ type: "FETCHING_COMMITS" }); //foreach odi
 
     const pagesNumber = yield call(fetchPagesNumber, projects, Api);
@@ -107,6 +100,9 @@ function* fetchCommits(params) {
     yield put({
       type: "UPDATE_PROGRESS",
       fetchingData: false
+    });
+    yield put({
+      type: "FETCH_COMMENTS"
     });
   } catch (error) {
     console.log(error);
@@ -304,7 +300,8 @@ function* iterateBranch(id, branch, total, Api) {
     calling = yield call(Api.fetchCommits, id, branch, start, earliest, page);
 
     const ended = new Date().getTime();
-    commits = calling ? commits.concat(calling.data) : commits;
+    commits =
+      calling && totalPages > 1 ? commits.concat(calling.data) : commits;
     page++;
 
     yield put({
