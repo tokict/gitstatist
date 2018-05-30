@@ -21,6 +21,7 @@ function* fetchComments(params) {
     comments: { current: 0, total: 0, timing: 0 },
     fetchingData: true
   });
+
   try {
     const provider = yield select(getProvider);
     const url = yield select(getUrl);
@@ -201,7 +202,7 @@ function* fetchPagesNumber(projects, Api) {
         current++;
         yield put({
           type: "UPDATE_PROGRESS",
-          comments: { current, total, timing: ended - started }
+          commentsMeta: { current, total, timing: ended - started }
         });
       }
     }

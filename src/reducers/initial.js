@@ -43,6 +43,7 @@ export const initialState = {
     branchesCommitsMeta: { current: 0, total: 0, timing: 0 },
     branches: { current: 0, total: 0, timing: 0 },
     comments: { current: 0, total: 0, timing: 0 },
+    commentsMeta: { current: 0, total: 0, timing: 0 },
     fetchingData: false
   }
 };

@@ -3,7 +3,8 @@ import "./App.css";
 import { UserCard } from "./components/userCard/userCard";
 import { UsersModal } from "./components/usersModal/usersModal";
 import MessagesModal from "./components/messagesModal/messagesModal";
-import ServerPicker from "./serverPicker/serverPicker";
+import ServerPicker from "./components/serverPicker/serverPicker";
+import ProgressBarComponent from "./components/progressBar/progressBar";
 import * as calculator from "./calculator";
 import * as commitsLineDatasetGenerator from "./graph/commitsLineDatasetGenerator";
 import _ from "lodash";
@@ -21,8 +22,7 @@ import {
   Menu,
   Icon,
   Modal,
-  Button,
-  Progress
+  Button
 } from "semantic-ui-react";
 import Slider from "rc-slider";
 import Tooltip from "rc-tooltip";
@@ -50,42 +50,6 @@ class App extends Component {
     this.closeMessagesModal = this.closeMessagesModal.bind(this);
     this.handleMenuItemClick = this.handleMenuItemClick.bind(this);
     this.dismissMessage = this.dismissMessage.bind(this);
-    this.calculateRemainingTimeCommits = _.throttle(
-      this.calculateRemaining,
-      20000,
-      {
-        leading: true
-      }
-    );
-    this.calculateRemainingTimeCommitsDetails = _.throttle(
-      this.calculateRemaining,
-      30000,
-      {
-        leading: true
-      }
-    );
-    this.calculateRemainingTimeBranchMeta = _.throttle(
-      this.calculateRemaining,
-      10000,
-      {
-        leading: true
-      }
-    );
-    this.calculateRemainingTimeProjects = _.throttle(
-      this.calculateRemaining,
-      10000,
-      {
-        leading: true
-      }
-    );
-
-    this.calculateRemainingTimeComments = _.throttle(
-      this.calculateRemaining,
-      10000,
-      {
-        leading: true
-      }
-    );
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.Server.token && !this.props.Server.token) {
@@ -258,13 +222,6 @@ class App extends Component {
     this.props.actions.dismissMessage(message, this.props.Ui.messages);
   };
 
-  calculateRemaining = (total, current, timing) => {
-    let remaining = (total - current) * timing / 1000 / 60;
-    remaining = remaining < 1 ? 1 : Math.round(remaining);
-
-    return remaining;
-  };
-
   render() {
     let commitsLineGraphData = null;
     if (this.state.commitsLineGraphData) {
@@ -279,26 +236,9 @@ class App extends Component {
     const detailsTotal = this.props.Progress.commitsDetails.total;
     const detailsTiming = this.props.Progress.commitsDetails.timing;
 
-    let remainingCommits = 0;
-    if (detailsCurrent) {
-      remainingCommits = this.calculateRemainingTimeCommitsDetails(
-        detailsTotal,
-        detailsCurrent,
-        detailsTiming
-      );
-    }
-
     const branchCommitsCurrent = this.props.Progress.branchesCommits.current;
     const branchCommitsTotal = this.props.Progress.branchesCommits.total;
     const branchCommitsTiming = this.props.Progress.branchesCommits.timing;
-    let remainingBranchesCommits = 0;
-    if (branchCommitsCurrent) {
-      remainingBranchesCommits = this.calculateRemainingTimeCommits(
-        branchCommitsTotal,
-        branchCommitsCurrent,
-        branchCommitsTiming
-      );
-    }
 
     const branchCommitsMetaCurrent = this.props.Progress.branchesCommitsMeta
       .current;
@@ -306,38 +246,18 @@ class App extends Component {
       .total;
     const branchCommitsMetaTiming = this.props.Progress.branchesCommitsMeta
       .timing;
-    let remainingBranchMeta = 0;
-    if (branchCommitsMetaCurrent) {
-      remainingBranchMeta = this.calculateRemainingTimeBranchMeta(
-        branchCommitsMetaTotal,
-        branchCommitsMetaCurrent,
-        branchCommitsMetaTiming
-      );
-    }
 
     const branchCurrent = this.props.Progress.branches.current;
     const branchTotal = this.props.Progress.branches.total;
     const branchTiming = this.props.Progress.branches.timing;
-    let remainingProjects = 0;
-    if (branchCurrent) {
-      remainingProjects = this.calculateRemainingTimeProjects(
-        branchTotal,
-        branchCurrent,
-        branchTiming
-      );
-    }
 
     const commentsCurrent = this.props.Progress.comments.current;
     const commentsTotal = this.props.Progress.comments.total;
     const commentsTiming = this.props.Progress.comments.timing;
-    let remainingComments = 0;
-    if (commentsCurrent) {
-      remainingComments = this.calculateRemainingTimeComments(
-        commentsTotal,
-        commentsCurrent,
-        commentsTiming
-      );
-    }
+
+    const commentsMetaCurrent = this.props.Progress.commentsMeta.current;
+    const commentsMetaTotal = this.props.Progress.commentsMeta.total;
+    const commentsMetaTiming = this.props.Progress.commentsMeta.timing;
 
     let commitsCount = 0;
     if (this.props.Users.data) {
@@ -410,77 +330,53 @@ class App extends Component {
                     </Statistic.Group>
                   </div>
                   <div style={{ height: "80px" }}>
-                    {branchCurrent > 0 && branchCurrent < branchTotal ? (
-                      <Progress
-                        indicating
-                        value={branchCurrent}
-                        total={branchTotal}
-                        autoSuccess
-                        progress="ratio"
-                      >
-                        STEP 1 of 6 : Getting branches info -
-                        {remainingProjects > 1 ? " about" : " less than"}{" "}
-                        {remainingProjects} minute/s remaining
-                      </Progress>
-                    ) : null}
-                    {branchCommitsMetaCurrent > 0 &&
-                    branchCommitsMetaCurrent < branchCommitsMetaTotal ? (
-                      <Progress
-                        value={branchCommitsMetaCurrent}
-                        total={branchCommitsMetaTotal}
-                        indicating
-                        autoSuccess
-                        progress="ratio"
-                      >
-                        STEP 2 of 6 : Fetching branch metadata -
-                        {remainingBranchMeta > 1 ? " about" : " less than"}{" "}
-                        {remainingBranchMeta} minute/s remaining
-                      </Progress>
-                    ) : null}
-                    {branchCommitsCurrent > 0 &&
-                    branchCommitsCurrent < branchCommitsTotal ? (
-                      <Progress
-                        value={branchCommitsCurrent}
-                        total={branchCommitsTotal}
-                        indicating
-                        autoSuccess
-                        progress="ratio"
-                      >
-                        STEP 3 of 6 : Fetching all commits -
-                        {remainingBranchesCommits > 1
-                          ? " about"
-                          : " less than"}{" "}
-                        {remainingBranchesCommits} minute/s remaining
-                      </Progress>
-                    ) : null}
+                    <ProgressBarComponent
+                      current={branchCurrent}
+                      total={branchTotal}
+                      timing={branchTiming}
+                      type="ratio"
+                      title="STEP 1 of 6 : Getting branches info"
+                    />
 
-                    {detailsCurrent > 0 && detailsCurrent < detailsTotal ? (
-                      <Progress
-                        value={detailsCurrent}
-                        total={detailsTotal}
-                        indicating
-                        autoSuccess
-                        progress="ratio"
-                      >
-                        STEP 4 of 6 : Fetching commit details -
-                        {remainingCommits > 1 ? " about" : " less than"}{" "}
-                        {remainingCommits} minute/s remaining
-                      </Progress>
-                    ) : null}
+                    <ProgressBarComponent
+                      current={branchCommitsMetaCurrent}
+                      total={branchCommitsMetaTotal}
+                      timing={branchCommitsMetaTiming}
+                      type="ratio"
+                      title="STEP 2 of 6 : Fetching branch metadata"
+                    />
 
-                    {commentsCurrent > 0 && commentsCurrent < commentsTotal ? (
-                      <Progress
-                        value={commentsCurrent}
-                        total={commentsTotal}
-                        indicating
-                        autoSuccess
-                        progress="ratio"
-                      >
-                        STEP 5 of 6 : Fetching comments -
-                        {remainingComments > 1 ? " about" : " less than"}{" "}
-                        {remainingComments} minute/s remaining
-                      </Progress>
-                    ) : null}
+                    <ProgressBarComponent
+                      current={branchCommitsCurrent}
+                      total={branchCommitsTotal}
+                      timing={branchCommitsTiming}
+                      type="ratio"
+                      title="STEP 3 of 6 : Fetching all commits"
+                    />
+
+                    <ProgressBarComponent
+                      current={detailsCurrent}
+                      total={detailsTotal}
+                      timing={detailsTiming}
+                      type="ratio"
+                      title="STEP 4 of 6 : Fetching commit details"
+                    />
+
+                    <ProgressBarComponent
+                      current={commentsMetaCurrent}
+                      total={commentsMetaTotal}
+                      timing={commentsMetaTiming}
+                      type="ratio"
+                      title="STEP 5 of 6 : Fetching comments metadata"
+                    />
+
+                    <ProgressBarComponent
+                      current={commentsCurrent}
+                      total={commentsTotal}
+                      timing={commentsTiming}
+                      type="ratio"
+                      title="STEP 6 of 6 : Fetching comments"
+                    />
                   </div>
                 </Grid.Column>
 
