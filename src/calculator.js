@@ -23,6 +23,28 @@ export const commits = data => {
   return list;
 };
 
+export const mergeRequests = data => {
+  const list = [];
+
+  data.sort((a, b) => b.mergeRequests.length - a.mergeRequests.length);
+
+  data.map((item, index) => {
+    item.mergeRequests.length
+      ? list.push(
+          <UserCard
+            key={item.id}
+            order={index + 1}
+            name={item.name}
+            number={item.mergeRequests.length}
+            image={item.image}
+            description={"merge requests made"}
+          />
+        )
+      : null;
+  });
+  return list;
+};
+
 export const refactoring = (data, details) => {
   if (!details) return;
   const list = [];

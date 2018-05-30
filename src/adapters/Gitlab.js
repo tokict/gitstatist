@@ -101,6 +101,14 @@ class Gitlab {
     return this.call(url);
   };
 
+  fetchMergeRequests = (id, start, page) => {
+    let from = new moment(start).format("YYYY-MM-DD");
+    let url = "/merge_requests?author_id=" + id + "&created_after=" + from;
+    "&page=" + page;
+
+    return this.call(url);
+  };
+
   fetchCommitDetails = (sha, projectId) => {
     let url = "/projects/" + projectId + "/repository/commits/" + sha;
 
@@ -125,7 +133,8 @@ class Gitlab {
         profile: u.web_url,
         commits: [],
         comments: [],
-        aliases: []
+        aliases: [],
+        mergeRequests: []
       };
 
       users[u.id] = ret;

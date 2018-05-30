@@ -80,9 +80,12 @@ class App extends Component {
   logoutUser = () => this.props.actions.logoutUser();
 
   renderLoader = () => (
-    <Segment size="massive" style={{ height: "500px" }}>
+    <Segment
+      size="massive"
+      style={{ height: "500px", border: "none", boxShadow: "none" }}
+    >
       <Dimmer active inverted>
-        <Loader>Loading</Loader>
+        <Loader>Refreshing</Loader>
       </Dimmer>
     </Segment>
   );
@@ -173,7 +176,8 @@ class App extends Component {
         break;
         break;
 
-      case "mergeRequsts":
+      case "mergeRequests":
+        list = calculator.mergeRequests(users);
         break;
 
       case "tests":
@@ -258,6 +262,16 @@ class App extends Component {
     const commentsMetaCurrent = this.props.Progress.commentsMeta.current;
     const commentsMetaTotal = this.props.Progress.commentsMeta.total;
     const commentsMetaTiming = this.props.Progress.commentsMeta.timing;
+
+    const mergeRequestsCurrent = this.props.Progress.mergeRequests.current;
+    const mergeRequestsTotal = this.props.Progress.mergeRequests.total;
+    const mergeRequestsTiming = this.props.Progress.mergeRequests.timing;
+
+    const mergeRequestsMetaCurrent = this.props.Progress.mergeRequestsMeta
+      .current;
+    const mergeRequestsMetaTotal = this.props.Progress.mergeRequestsMeta.total;
+    const mergeRequestsMetaTiming = this.props.Progress.mergeRequestsMeta
+      .timing;
 
     let commitsCount = 0;
     if (this.props.Users.data) {
@@ -377,6 +391,20 @@ class App extends Component {
                       type="ratio"
                       title="STEP 6 of 6 : Fetching comments"
                     />
+                    <ProgressBarComponent
+                      current={mergeRequestsMetaCurrent}
+                      total={mergeRequestsMetaTotal}
+                      timing={mergeRequestsMetaTiming}
+                      type="ratio"
+                      title="STEP 7 of 8 : Fetching merge requests meta"
+                    />
+                    <ProgressBarComponent
+                      current={mergeRequestsCurrent}
+                      total={mergeRequestsTotal}
+                      timing={mergeRequestsTiming}
+                      type="ratio"
+                      title="STEP 8 of 8 : Fetching merge requests"
+                    />
                   </div>
                 </Grid.Column>
 
@@ -438,7 +466,7 @@ class App extends Component {
                     Commits
                   </h1>
 
-                  {!this.props.Commits.data
+                  {this.props.Commits.loading
                     ? this.renderLoader()
                     : this.renderUserList("commits")}
                 </Grid.Column>
@@ -450,31 +478,31 @@ class App extends Component {
                     Refactoring
                   </h1>
 
-                  {!this.props.Commits.data
+                  {detailsCurrent > 0 && detailsCurrent < detailsTotal
                     ? this.renderLoader()
                     : this.renderUserList("refactoring")}
                 </Grid.Column>
                 <Grid.Column className="App-usercol">
                   <h1 className="App-usersection-header">New code</h1>
-                  {!this.props.Commits.data
+                  {detailsCurrent > 0 && detailsCurrent < detailsTotal
                     ? this.renderLoader()
                     : this.renderUserList("newCode")}
                 </Grid.Column>
                 <Grid.Column>
                   <h1 className="App-usersection-header">Commit comments</h1>
-                  {!this.props.Commits.data
+                  {this.props.Comments.loading
                     ? this.renderLoader()
                     : this.renderUserList("comments")}
                 </Grid.Column>
                 <Grid.Column>
                   <h1 className="App-usersection-header">Merge requests</h1>
-                  {!this.props.Commits.data
+                  {this.props.MergeRequests.loading
                     ? this.renderLoader()
                     : this.renderUserList("mergeRequests")}
                 </Grid.Column>
                 <Grid.Column>
                   <h1 className="App-usersection-header">Failed tests</h1>
-                  {!this.props.Commits.data
+                  {detailsCurrent > 0 && detailsCurrent < detailsTotal
                     ? this.renderLoader()
                     : this.renderUserList("tests")}
                 </Grid.Column>
@@ -516,12 +544,7 @@ class App extends Component {
 
 function mapStateToProps(state, ownProps) {
   return {
-    Users: state.Users,
-    Server: state.Server,
-    Commits: state.Commits,
-    Ui: state.Ui,
-    Projects: state.Projects,
-    Progress: state.Progress
+    ...state
   };
 }
 

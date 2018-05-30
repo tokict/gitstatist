@@ -27,7 +27,6 @@ export const initialState = {
   },
   MergeRequests: {
     data: null,
-    earliestDateFetched: null,
     loading: false
   },
   Ui: {
@@ -44,6 +43,8 @@ export const initialState = {
     branches: { current: 0, total: 0, timing: 0 },
     comments: { current: 0, total: 0, timing: 0 },
     commentsMeta: { current: 0, total: 0, timing: 0 },
+    mergeRequests: { current: 0, total: 0, timing: 0 },
+    mergeRequestsMeta: { current: 0, total: 0, timing: 0 },
     fetchingData: false
   }
 };

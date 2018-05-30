@@ -83,6 +83,9 @@ function* fetchComments(params) {
       users: updatedUsers,
       loading: false
     });
+    yield put({
+      type: "FETCH_MERGE_REQUESTS"
+    });
   } catch (error) {
     console.log(error);
     yield put({ type: "COMMENTS_FETCHED", loading: false });
@@ -112,9 +115,6 @@ function getEarliestDateFetched(comments) {
 }
 
 function* mapCommentsToUsers(comments, users) {
-  const un = yield select(getUnknown);
-  const unknown = un ? un : [];
-
   for (let projectId in comments) {
     if (!comments[projectId] || !comments[projectId].length) continue;
 
