@@ -38,7 +38,7 @@ export default class ProgressBarComponent extends Component {
 ProgressBarComponent.propTypes = {
   current: PropTypes.number.isRequired,
   total: PropTypes.number.isRequired,
-  timing: PropTypes.number.isRequired,
+  timing: PropTypes.number,
   type: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired
 };

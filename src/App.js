@@ -6,7 +6,7 @@ import MessagesModal from "./components/messagesModal/messagesModal";
 import ServerPicker from "./components/serverPicker/serverPicker";
 import ProgressBarComponent from "./components/progressBar/progressBar";
 import * as calculator from "./calculator";
-import * as commitsLineDatasetGenerator from "./graph/commitsLineDatasetGenerator";
+
 import _ from "lodash";
 import userActions from "./actions/userActions";
 import projectActions from "./actions/projectActions";
@@ -40,8 +40,7 @@ class App extends Component {
     this.state = {
       usersModalShown: false,
       messagesModalShown: false,
-      activeGraph: "commits",
-      commitsLineGraphData: null
+      activeGraph: "commits"
     };
     this.startApp = this.startApp.bind(this);
     this.dismissMessage = this.dismissMessage.bind(this);
@@ -54,15 +53,6 @@ class App extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.Server.token && !this.props.Server.token) {
       this.props.actions.fetchProjects();
-    }
-
-    if (nextProps.Commits.data) {
-      this.setState({
-        commitsLineGraphData: {
-          users: nextProps.Users.data,
-          commits: nextProps.Commits.data
-        }
-      });
     }
   }
   componentDidMount() {
@@ -188,54 +178,11 @@ class App extends Component {
     return list;
   };
 
-  handleGraphChange = graph => {
-    let data;
-    switch (graph) {
-      case "commits":
-        data = this.props.Users.data;
-        break;
-
-      case "refactoring":
-        data = this.props.Users.data;
-        break;
-
-      case "newCode":
-        data = "new lines";
-        break;
-
-      case "comments":
-        data = "comments";
-        break;
-
-      case "mergeRequsts":
-        data = "merge requestsd";
-        break;
-
-      case "tests":
-        data = "failed tests";
-        break;
-
-      default:
-        data = "desc placeholder";
-    }
-
-    this.setState({ commitsLineGraphData: data, activeGraph: graph });
-  };
-
   dismissMessage = message => {
     this.props.actions.dismissMessage(message, this.props.Ui.messages);
   };
 
   render() {
-    let commitsLineGraphData = null;
-    if (this.state.commitsLineGraphData) {
-      commitsLineGraphData = commitsLineDatasetGenerator.generate(
-        this.state.commitsLineGraphData,
-        this.state.activeGraph,
-        this.props.Ui.periodFrom
-      );
-    }
-
     const detailsCurrent = this.props.Progress.commitsDetails.current;
     const detailsTotal = this.props.Progress.commitsDetails.total;
     const detailsTiming = this.props.Progress.commitsDetails.timing;
@@ -349,7 +296,7 @@ class App extends Component {
                       total={branchTotal}
                       timing={branchTiming}
                       type="ratio"
-                      title="STEP 1 of 6 : Getting branches info"
+                      title="STEP 1 of 8 : Getting branches info"
                     />
 
                     <ProgressBarComponent
@@ -357,7 +304,7 @@ class App extends Component {
                       total={branchCommitsMetaTotal}
                       timing={branchCommitsMetaTiming}
                       type="ratio"
-                      title="STEP 2 of 6 : Fetching branch metadata"
+                      title="STEP 2 of 8 : Fetching branch metadata"
                     />
 
                     <ProgressBarComponent
@@ -365,7 +312,7 @@ class App extends Component {
                       total={branchCommitsTotal}
                       timing={branchCommitsTiming}
                       type="ratio"
-                      title="STEP 3 of 6 : Fetching all commits"
+                      title="STEP 3 of 8 : Fetching all commits"
                     />
 
                     <ProgressBarComponent
@@ -373,7 +320,7 @@ class App extends Component {
                       total={detailsTotal}
                       timing={detailsTiming}
                       type="ratio"
-                      title="STEP 4 of 6 : Fetching commit details"
+                      title="STEP 4 of 8 : Fetching commit details"
                     />
 
                     <ProgressBarComponent
@@ -381,7 +328,7 @@ class App extends Component {
                       total={commentsMetaTotal}
                       timing={commentsMetaTiming}
                       type="ratio"
-                      title="STEP 5 of 6 : Fetching comments metadata"
+                      title="STEP 5 of 8 : Fetching comments metadata"
                     />
 
                     <ProgressBarComponent
@@ -389,7 +336,7 @@ class App extends Component {
                       total={commentsTotal}
                       timing={commentsTiming}
                       type="ratio"
-                      title="STEP 6 of 6 : Fetching comments"
+                      title="STEP 6 of 8 : Fetching comments"
                     />
                     <ProgressBarComponent
                       current={mergeRequestsMetaCurrent}
@@ -461,7 +408,11 @@ class App extends Component {
                 <Grid.Column className="App-usercol">
                   <h1
                     className="App-usersection-header"
-                    onClick={() => this.handleGraphChange("commits")}
+                    onClick={() =>
+                      this.setState({
+                        activeGraph: "commits"
+                      })
+                    }
                   >
                     Commits
                   </h1>
@@ -473,7 +424,11 @@ class App extends Component {
                 <Grid.Column className="App-usercol">
                   <h1
                     className="App-usersection-header"
-                    onClick={() => this.handleGraphChange("refactoring")}
+                    onClick={() =>
+                      this.setState({
+                        activeGraph: "refactoring"
+                      })
+                    }
                   >
                     Refactoring
                   </h1>
@@ -483,33 +438,73 @@ class App extends Component {
                     : this.renderUserList("refactoring")}
                 </Grid.Column>
                 <Grid.Column className="App-usercol">
-                  <h1 className="App-usersection-header">New code</h1>
+                  <h1
+                    className="App-usersection-header"
+                    onClick={() =>
+                      this.setState({
+                        activeGraph: "newCode"
+                      })
+                    }
+                  >
+                    New code
+                  </h1>
                   {detailsCurrent > 0 && detailsCurrent < detailsTotal
                     ? this.renderLoader()
                     : this.renderUserList("newCode")}
                 </Grid.Column>
                 <Grid.Column>
-                  <h1 className="App-usersection-header">Commit comments</h1>
+                  <h1
+                    className="App-usersection-header"
+                    onClick={() =>
+                      this.setState({
+                        activeGraph: "comments"
+                      })
+                    }
+                  >
+                    Commit comments
+                  </h1>
                   {this.props.Comments.loading
                     ? this.renderLoader()
                     : this.renderUserList("comments")}
                 </Grid.Column>
                 <Grid.Column>
-                  <h1 className="App-usersection-header">Merge requests</h1>
+                  <h1
+                    className="App-usersection-header"
+                    onClick={() =>
+                      this.setState({
+                        activeGraph: "mergeRequests"
+                      })
+                    }
+                  >
+                    Merge requests
+                  </h1>
                   {this.props.MergeRequests.loading
                     ? this.renderLoader()
                     : this.renderUserList("mergeRequests")}
                 </Grid.Column>
                 <Grid.Column>
-                  <h1 className="App-usersection-header">Failed tests</h1>
+                  <h1
+                    className="App-usersection-header"
+                    onClick={() =>
+                      this.setState({
+                        activeGraph: "tests"
+                      })
+                    }
+                  >
+                    Failed tests
+                  </h1>
                   {detailsCurrent > 0 && detailsCurrent < detailsTotal
                     ? this.renderLoader()
                     : this.renderUserList("tests")}
                 </Grid.Column>
               </Grid.Row>
             </Grid>
-            {commitsLineGraphData && !this.props.Progress.fetchingData ? (
-              <Graph data={commitsLineGraphData} type="line" />
+            {!this.props.Progress.fetchingData ? (
+              <Graph
+                active={this.state.activeGraph}
+                {...this.props}
+                type="line"
+              />
             ) : null}
           </div>
         ) : (
