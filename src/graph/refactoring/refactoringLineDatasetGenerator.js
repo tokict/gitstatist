@@ -2,7 +2,7 @@ import moment from "moment";
 import palette from "google-palette";
 
 let colorPallete;
-export const generate = (data, type, periodFrom) => {
+export const generate = (data, periodFrom) => {
   colorPallete = palette("qualitative", Object.keys(data.users).length);
   //take time distribution and make units of measurement
   let unitCount;

@@ -457,6 +457,21 @@ class App extends Component {
                     className="App-usersection-header"
                     onClick={() =>
                       this.setState({
+                        activeGraph: "tests"
+                      })
+                    }
+                  >
+                    Failed tests
+                  </h1>
+                  {detailsCurrent > 0 && detailsCurrent < detailsTotal
+                    ? this.renderLoader()
+                    : this.renderUserList("tests")}
+                </Grid.Column>
+                <Grid.Column>
+                  <h1
+                    className="App-usersection-header"
+                    onClick={() =>
+                      this.setState({
                         activeGraph: "comments"
                       })
                     }
@@ -481,21 +496,6 @@ class App extends Component {
                   {this.props.MergeRequests.loading
                     ? this.renderLoader()
                     : this.renderUserList("mergeRequests")}
-                </Grid.Column>
-                <Grid.Column>
-                  <h1
-                    className="App-usersection-header"
-                    onClick={() =>
-                      this.setState({
-                        activeGraph: "tests"
-                      })
-                    }
-                  >
-                    Failed tests
-                  </h1>
-                  {detailsCurrent > 0 && detailsCurrent < detailsTotal
-                    ? this.renderLoader()
-                    : this.renderUserList("tests")}
                 </Grid.Column>
               </Grid.Row>
             </Grid>
