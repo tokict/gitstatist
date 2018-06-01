@@ -176,7 +176,8 @@ class Gitlab {
           committer: c.committer_name,
           committed_at: c.committed_date,
           id: c.id,
-          title: c.title
+          title: c.title,
+          branch: c.branch
         };
 
         formatted[p].push(ret);

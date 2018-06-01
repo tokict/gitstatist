@@ -1,10 +1,12 @@
 import React, { Component } from "react";
 import { UserCard } from "./components/userCard/userCard";
 
-export const commits = data => {
+export const commits = (data, dataOnly) => {
   const list = [];
 
   data.sort((a, b) => b.commits.length - a.commits.length);
+  //if we need only data, return array
+  if (dataOnly) return data;
 
   data.map((item, index) => {
     item.commits.length
@@ -23,10 +25,12 @@ export const commits = data => {
   return list;
 };
 
-export const mergeRequests = data => {
+export const mergeRequests = (data, dataOnly) => {
   const list = [];
 
   data.sort((a, b) => b.mergeRequests.length - a.mergeRequests.length);
+  //if we need only data, return array
+  if (dataOnly) return data;
 
   data.map((item, index) => {
     item.mergeRequests.length
@@ -45,12 +49,12 @@ export const mergeRequests = data => {
   return list;
 };
 
-export const refactoring = (data, details) => {
+export const refactoring = (data, details, dataOnly) => {
   if (!details) return;
   const list = [];
   const users = [];
 
-  data = getCommitDetails(data, details);
+  data = getCommitDetails(data, details, dataOnly);
 
   for (let user in data) {
     let refScore = 0;
@@ -66,6 +70,8 @@ export const refactoring = (data, details) => {
   }
 
   data.sort((a, b) => b.refScore - a.refScore);
+  //if we need only data, return array
+  if (dataOnly) return data;
 
   data.map((item, index) => {
     item.refScore
@@ -85,7 +91,7 @@ export const refactoring = (data, details) => {
   return list;
 };
 
-export const newCode = (data, details) => {
+export const newCode = (data, details, dataOnly) => {
   if (!details) return;
   const list = [];
   const users = [];
@@ -98,7 +104,7 @@ export const newCode = (data, details) => {
       let num1 = data[user].commitDetails[commit].stats.additions;
       let num2 = data[user].commitDetails[commit].stats.deletions;
       //This is probably file permission change or some other weird mass addition
-      if (num1 < 3000) {
+      if (num1 < 10000) {
         newCodeScore += num1 > num2 ? num1 - num2 : num2 - num1;
       }
     }
@@ -106,6 +112,8 @@ export const newCode = (data, details) => {
   }
 
   data.sort((a, b) => b.newCodeScore - a.newCodeScore);
+  //if we need only data, return array
+  if (dataOnly) return data;
 
   data.map((item, index) => {
     item.newCodeScore
@@ -125,10 +133,12 @@ export const newCode = (data, details) => {
   return list;
 };
 
-export const comments = data => {
+export const comments = (data, dataOnly) => {
   const list = [];
 
   data.sort((a, b) => b.comments.length - a.comments.length);
+  //if we need only data, return array
+  if (dataOnly) return data;
 
   data.map((item, index) => {
     item.comments.length
@@ -148,7 +158,7 @@ export const comments = data => {
   return list;
 };
 
-export const failedTests = (data, details) => {
+export const failedTests = (data, details, dataOnly) => {
   if (!details) return;
   const list = [];
   const users = [];
@@ -166,6 +176,9 @@ export const failedTests = (data, details) => {
   }
 
   data.sort((a, b) => b.failedTests - a.failedTests);
+
+  //if we need only data, return array
+  if (dataOnly) return data;
 
   data.map((item, index) => {
     item.failedTests

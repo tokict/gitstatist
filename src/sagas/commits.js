@@ -282,6 +282,7 @@ function* fetchProjectCommits(id, branches, pages, Api) {
       branchesData[branches[key]] = branchCommits.length;
       branchCommits.forEach(commit => {
         if (!commitExists(commit.id, project[id])) {
+          commit.branch = branches[key];
           project[id].push(commit);
         }
       });
@@ -313,7 +314,6 @@ function* iterateBranch(id, branch, total, Api) {
     // yield new Promise(resolve => setTimeout(resolve, 30));
 
     calling = yield call(Api.fetchCommits, id, branch, start, earliest, page);
-
     const ended = new Date().getTime();
     commits =
       calling && totalPages > 1 ? commits.concat(calling.data) : commits;

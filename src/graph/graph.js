@@ -3,8 +3,10 @@ import { Chart } from "chart.js";
 import * as commitsTimeline from "./commits/timeline";
 import * as commitsHours from "./commits/hours";
 import * as commitsDays from "./commits/days";
-import * as projectsBar from "./commits/projects";
-import * as branchesBar from "./commits/branches";
+import * as commitsProjectsBar from "./commits/projects";
+import * as commitsBranchesBar from "./commits/branches";
+import * as refactoringProjectsBar from "./refactoring/projects";
+import * as refactoringBranchesBar from "./refactoring/branches";
 import * as refactoringTimeline from "./refactoring/timeline";
 
 class Graph extends Component {
@@ -134,7 +136,7 @@ class Graph extends Component {
         c.generator = commitsDays;
         charts.push(c);
 
-        data = projectsBar.generate(
+        data = commitsProjectsBar.generate(
           {
             projects: this.props.Projects.data,
             commits: this.props.Commits
@@ -157,10 +159,10 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = projectsBar;
+        c.generator = commitsProjectsBar;
         charts.push(c);
 
-        data = branchesBar.generate(
+        data = commitsBranchesBar.generate(
           {
             projects: this.props.Projects.data
           },
@@ -182,7 +184,7 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = branchesBar;
+        c.generator = commitsBranchesBar;
         charts.push(c);
         nrGraphs = 5;
         break;
@@ -191,7 +193,7 @@ class Graph extends Component {
         data = refactoringTimeline.generate(
           {
             users: this.props.Users.data,
-            commits: this.props.Commits.data
+            commits: this.props.Commits
           },
           this.props.Ui.periodFrom
         );
@@ -208,53 +210,59 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsTimeline;
+        c.generator = refactoringTimeline;
         charts.push(c);
 
-        data = commitsTimeline.generate(
+        data = refactoringProjectsBar.generate(
           {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
+            projects: this.props.Projects.data,
+            commits: this.props.Commits
           },
           this.props.Ui.periodFrom
         );
 
         c = new Chart(this.refs.chart2, {
-          type: "line",
+          type: "bar",
           options: {
             title: {
               display: true,
               fontSize: 16,
 
-              text: "Most active refactoring projects"
+              text: "Most refactored projects"
+            },
+            legend: {
+              display: false
             }
           },
           data
         });
-        c.generator = commitsTimeline;
+        c.generator = refactoringProjectsBar;
         charts.push(c);
 
-        data = commitsTimeline.generate(
+        data = refactoringBranchesBar.generate(
           {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
+            projects: this.props.Projects.data,
+            commits: this.props.Commits
           },
           this.props.Ui.periodFrom
         );
 
         c = new Chart(this.refs.chart3, {
-          type: "line",
+          type: "bar",
           options: {
             title: {
               display: true,
               fontSize: 16,
 
-              text: "Most active refactoring branches"
+              text: "Most refactored branches"
+            },
+            legend: {
+              display: false
             }
           },
           data
         });
-        c.generator = commitsTimeline;
+        c.generator = refactoringBranchesBar;
         charts.push(c);
         nrGraphs = 3;
         break;

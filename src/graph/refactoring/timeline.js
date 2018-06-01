@@ -52,7 +52,8 @@ export const generate = (data, periodFrom) => {
 const parseHoursInDay = (data, since) => {
   let labels = [];
   let datasets = [];
-  const commits = data.commits;
+  const commits = data.commits.data;
+  const commitDetails = data.commits.details;
   const users = data.users;
   const usersData = {};
   let color;
@@ -74,6 +75,7 @@ const parseHoursInDay = (data, since) => {
   for (let projectId in commits) {
     for (let commit in commits[projectId]) {
       let id = commits[projectId][commit].userId;
+      let commitId = commits[projectId][commit].id;
 
       if (!id) continue;
 
@@ -104,10 +106,17 @@ const parseHoursInDay = (data, since) => {
       let date =
         new moment(commits[projectId][commit].committed_at).format("HH") +
         ":00";
+      let newCodeScore = 0;
+      let num1 = commitDetails[commitId].stats.additions;
+      let num2 = commitDetails[commitId].stats.deletions;
+      //This is probably file permission change or some other weird mass addition
+      if (num1 < 10000) {
+        newCodeScore += num1 > num2 ? num1 - num2 : num2 - num1;
+      }
 
       usersData[id].data[date] = usersData[id].data[date]
-        ? usersData[id].data[date] + 1
-        : 1;
+        ? usersData[id].data[date] + newCodeScore
+        : newCodeScore;
     }
   }
 
@@ -121,7 +130,8 @@ const parseHoursInDay = (data, since) => {
 const parseDaysInWeek = (data, since) => {
   let labels = [];
   let datasets = [];
-  const commits = data.commits;
+  const commits = data.commits.data;
+  const commitDetails = data.commits.details;
   const users = data.users;
   const usersData = {};
   let color;
@@ -132,7 +142,7 @@ const parseDaysInWeek = (data, since) => {
 
   //We create labels by taking earliest day and adding a day on every loop
   labels.push(since.format("DD.MM"));
-  for (var i = 0; i < 7; i++) {
+  for (var i = 1; i < 8; i++) {
     let a = since.clone();
     labels.push(a.add(i, "d").format("DD.MM"));
   }
@@ -140,6 +150,7 @@ const parseDaysInWeek = (data, since) => {
   for (let projectId in commits) {
     for (let commit in commits[projectId]) {
       let id = commits[projectId][commit].userId;
+      let commitId = commits[projectId][commit].id;
       if (!id) continue;
 
       if (!usersData[id]) {
@@ -168,10 +179,17 @@ const parseDaysInWeek = (data, since) => {
       let date = new moment(commits[projectId][commit].committed_at).format(
         "DD.MM"
       );
+      let newCodeScore = 0;
+      let num1 = commitDetails[commitId].stats.additions;
+      let num2 = commitDetails[commitId].stats.deletions;
+      //This is probably file permission change or some other weird mass addition
+      if (num1 < 10000) {
+        newCodeScore += num1 > num2 ? num1 - num2 : num2 - num1;
+      }
 
       usersData[id].data[date] = usersData[id].data[date]
-        ? usersData[id].data[date] + 1
-        : 1;
+        ? usersData[id].data[date] + newCodeScore
+        : newCodeScore;
     }
   }
 
@@ -185,7 +203,8 @@ const parseDaysInWeek = (data, since) => {
 const parseDaysInMonth = (data, since) => {
   let labels = [];
   let datasets = [];
-  const commits = data.commits;
+  const commits = data.commits.data;
+  const commitDetails = data.commits.details;
   const users = data.users;
   const usersData = {};
   let color;
@@ -204,6 +223,7 @@ const parseDaysInMonth = (data, since) => {
   for (let projectId in commits) {
     for (let commit in commits[projectId]) {
       let id = commits[projectId][commit].userId;
+      let commitId = commits[projectId][commit].id;
       if (!id) continue;
 
       if (!usersData[id]) {
@@ -233,9 +253,17 @@ const parseDaysInMonth = (data, since) => {
         "DD.MM"
       );
 
+      let newCodeScore = 0;
+      let num1 = commitDetails[commitId].stats.additions;
+      let num2 = commitDetails[commitId].stats.deletions;
+      //This is probably file permission change or some other weird mass addition
+      if (num1 < 10000) {
+        newCodeScore += num1 > num2 ? num1 - num2 : num2 - num1;
+      }
+
       usersData[id].data[date] = usersData[id].data[date]
-        ? usersData[id].data[date] + 1
-        : 1;
+        ? usersData[id].data[date] + newCodeScore
+        : newCodeScore;
     }
   }
 
@@ -250,7 +278,8 @@ const parseWeeks = (data, since, weeks) => {
   const labels = [];
   const periods = [];
   let datasets = [];
-  const commits = data.commits;
+  const commits = data.commits.data;
+  const commitDetails = data.commits.details;
   const users = data.users;
   const usersData = {};
   let color;
@@ -288,6 +317,7 @@ const parseWeeks = (data, since, weeks) => {
   for (let projectId in commits) {
     for (let commit in commits[projectId]) {
       let id = commits[projectId][commit].userId;
+      let commitId = commits[projectId][commit].id;
       if (!id) continue;
 
       if (!usersData[id]) {
@@ -321,9 +351,17 @@ const parseWeeks = (data, since, weeks) => {
         let end = new moment(parts[1]);
 
         if (date.isBetween(start, end)) {
-          usersData[id].data[labels[i]] = usersData[id].data[labels[i]]
-            ? usersData[id].data[labels[i]] + 1
-            : 1;
+          let newCodeScore = 0;
+          let num1 = commitDetails[commitId].stats.additions;
+          let num2 = commitDetails[commitId].stats.deletions;
+          //This is probably file permission change or some other weird mass addition
+          if (num1 < 10000) {
+            newCodeScore += num1 > num2 ? num1 - num2 : num2 - num1;
+          }
+
+          usersData[id].data[date] = usersData[id].data[date]
+            ? usersData[id].data[date] + newCodeScore
+            : newCodeScore;
         }
       });
     }
