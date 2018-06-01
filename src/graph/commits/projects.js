@@ -50,7 +50,6 @@ const parseProjects = d => {
   const sortedData = {};
   sortable = sortable.splice(0, 7);
   sortable.forEach(item => {
-    console.log(item);
     sortedData[item[0]] = item[1];
   });
 

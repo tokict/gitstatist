@@ -233,7 +233,7 @@ class App extends Component {
     return (
       <div>
         <header className="App-header" style={{ marginBottom: 40 }}>
-          <h1 className="App-title">Gitstatista</h1>
+          <h1 className="App-title">Gitstatist</h1>
         </header>
         {this.renderMenu()}
         <Segment
@@ -408,6 +408,10 @@ class App extends Component {
                 <Grid.Column className="App-usercol">
                   <h1
                     className="App-usersection-header"
+                    style={{
+                      color:
+                        this.state.activeGraph == "commits" ? "#96dbfa" : ""
+                    }}
                     onClick={() =>
                       this.setState({
                         activeGraph: "commits"
@@ -424,6 +428,10 @@ class App extends Component {
                 <Grid.Column className="App-usercol">
                   <h1
                     className="App-usersection-header"
+                    style={{
+                      color:
+                        this.state.activeGraph == "refactoring" ? "#96dbfa" : ""
+                    }}
                     onClick={() =>
                       this.setState({
                         activeGraph: "refactoring"
@@ -440,6 +448,10 @@ class App extends Component {
                 <Grid.Column className="App-usercol">
                   <h1
                     className="App-usersection-header"
+                    style={{
+                      color:
+                        this.state.activeGraph == "newCode" ? "#96dbfa" : ""
+                    }}
                     onClick={() =>
                       this.setState({
                         activeGraph: "newCode"
@@ -455,6 +467,9 @@ class App extends Component {
                 <Grid.Column>
                   <h1
                     className="App-usersection-header"
+                    style={{
+                      color: this.state.activeGraph == "tests" ? "#96dbfa" : ""
+                    }}
                     onClick={() =>
                       this.setState({
                         activeGraph: "tests"
@@ -470,6 +485,10 @@ class App extends Component {
                 <Grid.Column>
                   <h1
                     className="App-usersection-header"
+                    style={{
+                      color:
+                        this.state.activeGraph == "comments" ? "#96dbfa" : ""
+                    }}
                     onClick={() =>
                       this.setState({
                         activeGraph: "comments"
@@ -485,6 +504,12 @@ class App extends Component {
                 <Grid.Column>
                   <h1
                     className="App-usersection-header"
+                    style={{
+                      color:
+                        this.state.activeGraph == "mergeRequests"
+                          ? "#96dbfa"
+                          : ""
+                    }}
                     onClick={() =>
                       this.setState({
                         activeGraph: "mergeRequests"

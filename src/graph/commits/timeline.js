@@ -132,7 +132,7 @@ const parseDaysInWeek = (data, since) => {
 
   //We create labels by taking earliest day and adding a day on every loop
   labels.push(since.format("DD.MM"));
-  for (var i = 0; i < 7; i++) {
+  for (var i = 1; i < 8; i++) {
     let a = since.clone();
     labels.push(a.add(i, "d").format("DD.MM"));
   }

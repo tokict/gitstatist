@@ -10,7 +10,7 @@ import * as refactoringTimeline from "./refactoring/timeline";
 class Graph extends Component {
   constructor(props) {
     super(props);
-    this.state = { charts: null };
+    this.state = { charts: null, nrGraphs: 5 };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -52,6 +52,12 @@ class Graph extends Component {
     const charts = [];
     let c;
     let data;
+    let nrGraphs;
+    if (this.state.charts) {
+      this.state.charts.forEach((c, i) => {
+        c.destroy();
+      });
+    }
 
     switch (active) {
       case "commits":
@@ -118,6 +124,9 @@ class Graph extends Component {
               fontSize: 16,
 
               text: "Most common commit days"
+            },
+            legend: {
+              display: false
             }
           },
           data
@@ -141,6 +150,9 @@ class Graph extends Component {
               fontSize: 16,
 
               text: "Top projects by commits"
+            },
+            legend: {
+              display: false
             }
           },
           data
@@ -163,13 +175,16 @@ class Graph extends Component {
               fontSize: 16,
 
               text: "Top project branches by commits"
+            },
+            legend: {
+              display: false
             }
           },
           data
         });
         c.generator = branchesBar;
         charts.push(c);
-
+        nrGraphs = 5;
         break;
 
       case "refactoring":
@@ -241,7 +256,7 @@ class Graph extends Component {
         });
         c.generator = commitsTimeline;
         charts.push(c);
-
+        nrGraphs = 3;
         break;
 
       case "newCode":
@@ -313,7 +328,7 @@ class Graph extends Component {
         });
         c.generator = commitsTimeline;
         charts.push(c);
-
+        nrGraphs = 3;
         break;
 
       case "comments":
@@ -360,7 +375,7 @@ class Graph extends Component {
         });
         c.generator = commitsTimeline;
         charts.push(c);
-
+        nrGraphs = 2;
         break;
 
       case "mergeRequests":
@@ -428,7 +443,7 @@ class Graph extends Component {
         });
         c.generator = commitsTimeline;
         charts.push(c);
-
+        nrGraphs = 3;
         break;
 
       case "tests":
@@ -498,24 +513,27 @@ class Graph extends Component {
         });
         c.generator = commitsTimeline;
         charts.push(c);
-
+        nrGraphs = 3;
         break;
     }
 
-    this.setState({ charts: charts });
+    this.setState({ charts: charts, nrGraphs });
   }
 
   render() {
     const charts = [];
     //Render canvases
-    for (let i = 1; i <= 6; i++) {
+
+    for (let i = 1; i <= 5; i++) {
       charts.push(
         <canvas
           key={i}
           id={"chart" + i}
           height="60"
           ref={"chart" + i}
-          style={{ marginTop: 50 }}
+          style={{
+            marginTop: 50
+          }}
         />
       );
     }
