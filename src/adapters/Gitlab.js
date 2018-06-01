@@ -153,7 +153,8 @@ class Gitlab {
         image: p.avatar_url,
         path: p.path_with_namespace,
         commitCount: p.statistics.commit_count,
-        branches: []
+        branches: [],
+        branchCommitNr: {}
       };
 
       projects[p.id] = ret;

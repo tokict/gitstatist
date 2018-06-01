@@ -500,11 +500,7 @@ class App extends Component {
               </Grid.Row>
             </Grid>
             {!this.props.Progress.fetchingData ? (
-              <Graph
-                active={this.state.activeGraph}
-                {...this.props}
-                type="line"
-              />
+              <Graph active={this.state.activeGraph} {...this.props} />
             ) : null}
           </div>
         ) : (

@@ -1,4 +1,11 @@
-import { put, takeLatest, all, call, select } from "redux-saga/effects";
+import {
+  put,
+  takeLatest,
+  all,
+  call,
+  select,
+  takeEvery
+} from "redux-saga/effects";
 import { delay } from "redux-saga";
 import ApiAdapter from "../adapters/adapter";
 import _ from "lodash";
@@ -192,14 +199,15 @@ function* projectCommitsIterator(projects, pages, Api) {
   currentBranchPage = 1;
   for (let key in projects) {
     if (!projects[key]) continue;
-    let commit = yield* fetchProjectCommits(
+    let data = yield* fetchProjectCommits(
       projects[key].id,
       projects[key].branches,
       pages,
       Api
     );
 
-    commits[projects[key].id] = commit[projects[key].id];
+    commits[projects[key].id] = data.project[projects[key].id];
+    projects[key].branchCommitNr = data.branchesData;
   }
 
   yield put({
@@ -207,6 +215,11 @@ function* projectCommitsIterator(projects, pages, Api) {
     commits: commits,
     earliestDateFetched: getEarliestDateFetched(commits),
     loading: false
+  });
+
+  yield put({
+    type: "PROJECTS_UPDATED",
+    projects
   });
 
   return commits;
@@ -257,14 +270,16 @@ function* fetchPagesNumber(projects, Api) {
 }
 
 function* fetchProjectCommits(id, branches, pages, Api) {
-  let project = {
+  const project = {
     [id]: []
   };
+  const branchesData = {};
 
   for (let key in branches) {
     try {
       const branchCommits = yield iterateBranch(id, branches[key], pages, Api);
 
+      branchesData[branches[key]] = branchCommits.length;
       branchCommits.forEach(commit => {
         if (!commitExists(commit.id, project[id])) {
           project[id].push(commit);
@@ -275,7 +290,7 @@ function* fetchProjectCommits(id, branches, pages, Api) {
     }
   }
 
-  return project;
+  return { project, branchesData };
 }
 
 //We are iterating over one branch here, going through pagination to fetch all commits
@@ -421,6 +436,22 @@ function* periodUpdated(params) {
   yield put({
     type: "PERIOD_UPDATED",
     periodFrom: { id: params.id, date: start }
+  });
+
+  //Now that we have updated the period, we need to recalculate date
+}
+
+function* updateBranchMetadata(params) {
+  //This is from slider. We need to parse it to actual starting dates
+
+  const projects = yield select(getProjects);
+
+  projects[params.projectId].branchCommitNr[params.branch] =
+    params.commits.length || 0;
+
+  yield put({
+    type: "PROJECTS_UPDATED",
+    projects: projects
   });
 
   //Now that we have updated the period, we need to recalculate date

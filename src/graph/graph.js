@@ -1,7 +1,11 @@
 import React, { Component } from "react";
 import { Chart } from "chart.js";
-import * as commitsLineDatasetGenerator from "./commits/commitsLineDatasetGenerator";
-import * as refactoringLineDatasetGenerator from "./refactoring/refactoringLineDatasetGenerator";
+import * as commitsTimeline from "./commits/timeline";
+import * as commitsHours from "./commits/hours";
+import * as commitsDays from "./commits/days";
+import * as projectsBar from "./commits/projects";
+import * as branchesBar from "./commits/branches";
+import * as refactoringTimeline from "./refactoring/timeline";
 
 class Graph extends Component {
   constructor(props) {
@@ -11,7 +15,7 @@ class Graph extends Component {
 
   componentWillReceiveProps(nextProps) {
     //Generate new charts
-    if (nextProps.active != this.props.active) {
+    if (nextProps.active != this.props.active && this.props.Users.data) {
       this.generateCharts(nextProps.active);
     } else {
       this.state.charts.forEach((c, i) => {
@@ -38,7 +42,9 @@ class Graph extends Component {
   }
 
   componentDidMount() {
-    this.generateCharts(this.props.active);
+    if (this.props.Users.data) {
+      this.generateCharts(this.props.active);
+    }
   }
 
   generateCharts(active) {
@@ -49,7 +55,7 @@ class Graph extends Component {
 
     switch (active) {
       case "commits":
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -58,7 +64,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart1, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -68,10 +74,10 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsHours.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -80,21 +86,23 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart2, {
-          type: this.props.type,
+          type: "bar",
           options: {
             title: {
               display: true,
               fontSize: 16,
-
               text: "Most common commit hours"
+            },
+            legend: {
+              display: false
             }
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsHours;
         charts.push(c);
 
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsDays.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -103,7 +111,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart3, {
-          type: this.props.type,
+          type: "bar",
           options: {
             title: {
               display: true,
@@ -114,19 +122,19 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsDays;
         charts.push(c);
 
-        data = commitsLineDatasetGenerator.generate(
+        data = projectsBar.generate(
           {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
+            projects: this.props.Projects.data,
+            commits: this.props.Commits
           },
           this.props.Ui.periodFrom
         );
 
         c = new Chart(this.refs.chart4, {
-          type: this.props.type,
+          type: "bar",
           options: {
             title: {
               display: true,
@@ -137,19 +145,18 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = projectsBar;
         charts.push(c);
 
-        data = commitsLineDatasetGenerator.generate(
+        data = branchesBar.generate(
           {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
+            projects: this.props.Projects.data
           },
           this.props.Ui.periodFrom
         );
 
         c = new Chart(this.refs.chart5, {
-          type: this.props.type,
+          type: "bar",
           options: {
             title: {
               display: true,
@@ -160,36 +167,13 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
-        charts.push(c);
-
-        data = commitsLineDatasetGenerator.generate(
-          {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
-          },
-          this.props.Ui.periodFrom
-        );
-
-        c = new Chart(this.refs.chart6, {
-          type: this.props.type,
-          options: {
-            title: {
-              display: true,
-              fontSize: 16,
-
-              text: "When do users commit most"
-            }
-          },
-          data
-        });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = branchesBar;
         charts.push(c);
 
         break;
 
       case "refactoring":
-        data = refactoringLineDatasetGenerator.generate(
+        data = refactoringTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -198,7 +182,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart1, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -209,10 +193,10 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -221,7 +205,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart2, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -232,10 +216,10 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -244,7 +228,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart3, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -255,36 +239,13 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
-        charts.push(c);
-
-        data = commitsLineDatasetGenerator.generate(
-          {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
-          },
-          this.props.Ui.periodFrom
-        );
-
-        c = new Chart(this.refs.chart4, {
-          type: this.props.type,
-          options: {
-            title: {
-              display: true,
-              fontSize: 16,
-
-              text: "When do users refactor most"
-            }
-          },
-          data
-        });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
         break;
 
       case "newCode":
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -293,7 +254,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart1, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -304,10 +265,10 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -316,7 +277,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart2, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -327,10 +288,10 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -339,7 +300,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart3, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -350,36 +311,13 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
-        charts.push(c);
-
-        data = commitsLineDatasetGenerator.generate(
-          {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
-          },
-          this.props.Ui.periodFrom
-        );
-
-        c = new Chart(this.refs.chart4, {
-          type: this.props.type,
-          options: {
-            title: {
-              display: true,
-              fontSize: 16,
-
-              text: "When do users add new code"
-            }
-          },
-          data
-        });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
         break;
 
       case "comments":
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -388,7 +326,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart1, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -398,10 +336,10 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -410,7 +348,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart2, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -420,36 +358,13 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
-        charts.push(c);
-
-        data = commitsLineDatasetGenerator.generate(
-          {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
-          },
-          this.props.Ui.periodFrom
-        );
-
-        c = new Chart(this.refs.chart3, {
-          type: this.props.type,
-          options: {
-            title: {
-              display: true,
-              fontSize: 16,
-
-              text: "Most commented branches"
-            }
-          },
-          data
-        });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
         break;
 
       case "mergeRequests":
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -458,7 +373,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart1, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -468,10 +383,10 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -480,7 +395,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart2, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -489,10 +404,10 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -501,7 +416,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart3, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -511,34 +426,13 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
-        charts.push(c);
-
-        data = commitsLineDatasetGenerator.generate(
-          {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
-          },
-          this.props.Ui.periodFrom
-        );
-
-        c = new Chart(this.refs.chart4, {
-          type: this.props.type,
-          options: {
-            title: {
-              display: true,
-              text: "When do users make most merge requests"
-            }
-          },
-          data
-        });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
         break;
 
       case "tests":
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -547,7 +441,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart1, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -557,10 +451,10 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -569,7 +463,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart2, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -579,10 +473,10 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
-        data = commitsLineDatasetGenerator.generate(
+        data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
             commits: this.props.Commits.data
@@ -591,7 +485,7 @@ class Graph extends Component {
         );
 
         c = new Chart(this.refs.chart3, {
-          type: this.props.type,
+          type: "line",
           options: {
             title: {
               display: true,
@@ -602,29 +496,9 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsLineDatasetGenerator;
+        c.generator = commitsTimeline;
         charts.push(c);
 
-        data = commitsLineDatasetGenerator.generate(
-          {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
-          },
-          this.props.Ui.periodFrom
-        );
-
-        c = new Chart(this.refs.chart4, {
-          type: this.props.type,
-          options: {
-            title: {
-              display: true,
-              text: "What days does users code fail most"
-            }
-          },
-          data
-        });
-        c.generator = commitsLineDatasetGenerator;
-        charts.push(c);
         break;
     }
 

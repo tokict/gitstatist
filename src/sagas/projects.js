@@ -20,13 +20,13 @@ function* fetchProjects(params) {
     const projectsData = pd.data;
     let projects = Api.mapProjects(projectsData);
 
-    projects = {
-      // 48: projects[48],
-      //47: projects[47],
-      53: projects[53],
-      54: projects[54],
-      55: projects[55]
-    };
+    // projects = {
+    //   48: projects[48],
+    //   47: projects[47]
+    //   // 53: projects[53],
+    //   // 54: projects[54],
+    //   // 55: projects[55]
+    // };
     //Map data to our format
 
     const branchesData = yield call(fetchBranches, projects, Api);
@@ -45,7 +45,7 @@ function* fetchProjects(params) {
     });
 
     yield put({
-      type: "PROJECTS_FETCHED",
+      type: "PROJECTS_UPDATED",
       projects: projects,
       loading: false
     });
@@ -53,7 +53,7 @@ function* fetchProjects(params) {
     yield put({ type: "FETCH_COMMITS" });
   } catch (error) {
     console.log(error);
-    yield put({ type: "PROJECTS_FETCHED", projects: null, loading: false });
+    yield put({ type: "PROJECTS_UPDATED", projects: null, loading: false });
   }
 }
 
