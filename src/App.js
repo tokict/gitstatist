@@ -40,7 +40,7 @@ class App extends Component {
     this.state = {
       usersModalShown: false,
       messagesModalShown: false,
-      activeGraph: "comments"
+      activeGraph: "mergeRequests"
     };
     this.startApp = this.startApp.bind(this);
     this.dismissMessage = this.dismissMessage.bind(this);

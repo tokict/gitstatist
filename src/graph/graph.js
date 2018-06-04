@@ -16,6 +16,9 @@ import * as commentsHours from "./comments/hours";
 import * as commentsDays from "./comments/days";
 import * as commentsProjectsBar from "./comments/projects";
 import * as commentsBranchesBar from "./comments/branches";
+import * as mergeRequestsProjectsBar from "./mergeRequests/projects";
+import * as mergeRequestsBranchesBar from "./mergeRequests/branches";
+import * as mergeRequestsTimeline from "./mergeRequests/timeline";
 
 class Graph extends Component {
   constructor(props) {
@@ -32,7 +35,9 @@ class Graph extends Component {
         let data = c.generator.generate(
           {
             users: this.props.Users.data,
-            commits: this.props.Commits.data
+            commits: this.props.Commits.data,
+            projects: this.props.Projects.data,
+            mergeRequests: this.props.MergeRequests
           },
           this.props.Ui.periodFrom
         );
@@ -480,10 +485,10 @@ class Graph extends Component {
         break;
 
       case "mergeRequests":
-        data = commitsTimeline.generate(
+        data = mergeRequestsTimeline.generate(
           {
             users: this.props.Users.data,
-            commits: this.props.Commits.data
+            mergeRequests: this.props.MergeRequests
           },
           this.props.Ui.periodFrom
         );
@@ -494,125 +499,65 @@ class Graph extends Component {
             title: {
               display: true,
               fontSize: 16,
+
               text: "Merge requests over time"
             }
           },
           data
         });
-        c.generator = commitsTimeline;
+        c.generator = mergeRequestsTimeline;
         charts.push(c);
 
-        data = commitsTimeline.generate(
+        data = mergeRequestsProjectsBar.generate(
           {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
+            projects: this.props.Projects.data,
+            mergeRequests: this.props.MergeRequests
           },
           this.props.Ui.periodFrom
         );
 
         c = new Chart(this.refs.chart2, {
-          type: "line",
+          type: "bar",
           options: {
             title: {
               display: true,
-              text: "Most active merge requests projects"
+              fontSize: 16,
+
+              text: "Most active projects per merge requests"
+            },
+            legend: {
+              display: false
             }
           },
           data
         });
-        c.generator = commitsTimeline;
+        c.generator = mergeRequestsProjectsBar;
         charts.push(c);
 
-        data = commitsTimeline.generate(
+        data = mergeRequestsBranchesBar.generate(
           {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
+            projects: this.props.Projects.data,
+            mergeRequests: this.props.MergeRequests
           },
           this.props.Ui.periodFrom
         );
 
         c = new Chart(this.refs.chart3, {
-          type: "line",
+          type: "bar",
           options: {
             title: {
               display: true,
               fontSize: 16,
-              text: "Most active merge request branches"
+
+              text: "Most active branches per merge requests"
+            },
+            legend: {
+              display: false
             }
           },
           data
         });
-        c.generator = commitsTimeline;
-        charts.push(c);
-        nrGraphs = 4;
-        break;
-
-      case "tests":
-        data = commitsTimeline.generate(
-          {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
-          },
-          this.props.Ui.periodFrom
-        );
-
-        c = new Chart(this.refs.chart1, {
-          type: "line",
-          options: {
-            title: {
-              display: true,
-              fontSize: 16,
-              text: "Failed tests over time"
-            }
-          },
-          data
-        });
-        c.generator = commitsTimeline;
-        charts.push(c);
-
-        data = commitsTimeline.generate(
-          {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
-          },
-          this.props.Ui.periodFrom
-        );
-
-        c = new Chart(this.refs.chart2, {
-          type: "line",
-          options: {
-            title: {
-              display: true,
-              fontSize: 16,
-              text: "Days with most failed tests"
-            }
-          },
-          data
-        });
-        c.generator = commitsTimeline;
-        charts.push(c);
-
-        data = commitsTimeline.generate(
-          {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
-          },
-          this.props.Ui.periodFrom
-        );
-
-        c = new Chart(this.refs.chart3, {
-          type: "line",
-          options: {
-            title: {
-              display: true,
-              fontSize: 16,
-              fontSize: 16,
-              text: "Hours with most failed tests"
-            }
-          },
-          data
-        });
-        c.generator = commitsTimeline;
+        c.generator = mergeRequestsBranchesBar;
         charts.push(c);
         nrGraphs = 3;
         break;
