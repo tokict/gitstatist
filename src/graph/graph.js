@@ -19,6 +19,11 @@ import * as commentsBranchesBar from "./comments/branches";
 import * as mergeRequestsProjectsBar from "./mergeRequests/projects";
 import * as mergeRequestsBranchesBar from "./mergeRequests/branches";
 import * as mergeRequestsTimeline from "./mergeRequests/timeline";
+import * as testsTimeline from "./tests/timeline";
+import * as testsHours from "./tests/hours";
+import * as testsDays from "./tests/days";
+import * as testsProjectsBar from "./tests/projects";
+import * as testsBranchesBar from "./tests/branches";
 
 class Graph extends Component {
   constructor(props) {
@@ -79,7 +84,7 @@ class Graph extends Component {
         data = commitsTimeline.generate(
           {
             users: this.props.Users.data,
-            commits: this.props.Commits.data
+            commits: this.props.Commits
           },
           this.props.Ui.periodFrom
         );
@@ -560,6 +565,133 @@ class Graph extends Component {
         c.generator = mergeRequestsBranchesBar;
         charts.push(c);
         nrGraphs = 3;
+        break;
+      case "tests":
+        data = testsTimeline.generate(
+          {
+            users: this.props.Users.data,
+            commits: this.props.Commits
+          },
+          this.props.Ui.periodFrom
+        );
+
+        c = new Chart(this.refs.chart1, {
+          type: "line",
+          options: {
+            title: {
+              display: true,
+              fontSize: 16,
+              text: "Failed tests over time"
+            }
+          },
+          data
+        });
+        c.generator = testsTimeline;
+        charts.push(c);
+
+        data = testsHours.generate(
+          {
+            users: this.props.Users.data,
+            commits: this.props.Commits
+          },
+          this.props.Ui.periodFrom
+        );
+
+        c = new Chart(this.refs.chart2, {
+          type: "bar",
+          options: {
+            title: {
+              display: true,
+              fontSize: 16,
+              text: "Most common hours for failing tests"
+            },
+            legend: {
+              display: false
+            }
+          },
+          data
+        });
+        c.generator = testsHours;
+        charts.push(c);
+
+        data = testsDays.generate(
+          {
+            users: this.props.Users.data,
+            commits: this.props.Commits
+          },
+          this.props.Ui.periodFrom
+        );
+
+        c = new Chart(this.refs.chart3, {
+          type: "bar",
+          options: {
+            title: {
+              display: true,
+              fontSize: 16,
+
+              text: "Most common days for failing tests"
+            },
+            legend: {
+              display: false
+            }
+          },
+          data
+        });
+        c.generator = testsDays;
+        charts.push(c);
+
+        data = testsProjectsBar.generate(
+          {
+            projects: this.props.Projects.data,
+            commits: this.props.Commits
+          },
+          this.props.Ui.periodFrom
+        );
+
+        c = new Chart(this.refs.chart4, {
+          type: "bar",
+          options: {
+            title: {
+              display: true,
+              fontSize: 16,
+
+              text: "Top projects by failed tests"
+            },
+            legend: {
+              display: false
+            }
+          },
+          data
+        });
+        c.generator = testsProjectsBar;
+        charts.push(c);
+
+        data = testsBranchesBar.generate(
+          {
+            projects: this.props.Projects.data,
+            commits: this.props.Commits
+          },
+          this.props.Ui.periodFrom
+        );
+
+        c = new Chart(this.refs.chart5, {
+          type: "bar",
+          options: {
+            title: {
+              display: true,
+              fontSize: 16,
+
+              text: "Top project branches by failed tests"
+            },
+            legend: {
+              display: false
+            }
+          },
+          data
+        });
+        c.generator = testsBranchesBar;
+        charts.push(c);
+        nrGraphs = 5;
         break;
     }
 
