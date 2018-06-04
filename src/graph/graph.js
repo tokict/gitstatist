@@ -8,6 +8,14 @@ import * as commitsBranchesBar from "./commits/branches";
 import * as refactoringProjectsBar from "./refactoring/projects";
 import * as refactoringBranchesBar from "./refactoring/branches";
 import * as refactoringTimeline from "./refactoring/timeline";
+import * as newCodeProjectsBar from "./newCode/projects";
+import * as newCodeBranchesBar from "./newCode/branches";
+import * as newCodeTimeline from "./newCode/timeline";
+import * as commentsTimeline from "./comments/timeline";
+import * as commentsHours from "./comments/hours";
+import * as commentsDays from "./comments/days";
+import * as commentsProjectsBar from "./comments/projects";
+import * as commentsBranchesBar from "./comments/branches";
 
 class Graph extends Component {
   constructor(props) {
@@ -268,10 +276,10 @@ class Graph extends Component {
         break;
 
       case "newCode":
-        data = commitsTimeline.generate(
+        data = newCodeTimeline.generate(
           {
             users: this.props.Users.data,
-            commits: this.props.Commits.data
+            commits: this.props.Commits
           },
           this.props.Ui.periodFrom
         );
@@ -288,62 +296,68 @@ class Graph extends Component {
           },
           data
         });
-        c.generator = commitsTimeline;
+        c.generator = newCodeTimeline;
         charts.push(c);
 
-        data = commitsTimeline.generate(
+        data = newCodeProjectsBar.generate(
           {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
+            projects: this.props.Projects.data,
+            commits: this.props.Commits
           },
           this.props.Ui.periodFrom
         );
 
         c = new Chart(this.refs.chart2, {
-          type: "line",
+          type: "bar",
           options: {
             title: {
               display: true,
               fontSize: 16,
 
               text: "Most active new code projects"
+            },
+            legend: {
+              display: false
             }
           },
           data
         });
-        c.generator = commitsTimeline;
+        c.generator = newCodeProjectsBar;
         charts.push(c);
 
-        data = commitsTimeline.generate(
+        data = newCodeBranchesBar.generate(
           {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
+            projects: this.props.Projects.data,
+            commits: this.props.Commits
           },
           this.props.Ui.periodFrom
         );
 
         c = new Chart(this.refs.chart3, {
-          type: "line",
+          type: "bar",
           options: {
             title: {
               display: true,
               fontSize: 16,
 
               text: "Most active new code branches"
+            },
+            legend: {
+              display: false
             }
           },
           data
         });
-        c.generator = commitsTimeline;
+        c.generator = newCodeBranchesBar;
         charts.push(c);
         nrGraphs = 3;
         break;
 
       case "comments":
-        data = commitsTimeline.generate(
+        data = commentsTimeline.generate(
           {
             users: this.props.Users.data,
-            commits: this.props.Commits.data
+            comments: this.props.Comments.data
           },
           this.props.Ui.periodFrom
         );
@@ -362,28 +376,107 @@ class Graph extends Component {
         c.generator = commitsTimeline;
         charts.push(c);
 
-        data = commitsTimeline.generate(
+        data = commentsHours.generate(
           {
-            users: this.props.Users.data,
-            commits: this.props.Commits.data
+            comments: this.props.Comments.data
           },
           this.props.Ui.periodFrom
         );
 
         c = new Chart(this.refs.chart2, {
-          type: "line",
+          type: "bar",
           options: {
             title: {
               display: true,
               fontSize: 16,
-              text: "Most commented projects"
+              text: "Most common commenting hours"
+            },
+            legend: {
+              display: false
             }
           },
           data
         });
-        c.generator = commitsTimeline;
+        c.generator = commitsHours;
         charts.push(c);
-        nrGraphs = 2;
+
+        data = commentsDays.generate(
+          {
+            comments: this.props.Comments.data
+          },
+          this.props.Ui.periodFrom
+        );
+
+        c = new Chart(this.refs.chart3, {
+          type: "bar",
+          options: {
+            title: {
+              display: true,
+              fontSize: 16,
+
+              text: "Most common commenting days"
+            },
+            legend: {
+              display: false
+            }
+          },
+          data
+        });
+        c.generator = commentsDays;
+        charts.push(c);
+
+        data = commentsProjectsBar.generate(
+          {
+            projects: this.props.Projects.data,
+            comments: this.props.Comments.data
+          },
+          this.props.Ui.periodFrom
+        );
+
+        c = new Chart(this.refs.chart4, {
+          type: "bar",
+          options: {
+            title: {
+              display: true,
+              fontSize: 16,
+
+              text: "Top projects by commenting"
+            },
+            legend: {
+              display: false
+            }
+          },
+          data
+        });
+        c.generator = commentsProjectsBar;
+        charts.push(c);
+
+        data = commentsBranchesBar.generate(
+          {
+            projects: this.props.Projects.data,
+            comments: this.props.Comments.data
+          },
+          this.props.Ui.periodFrom
+        );
+
+        c = new Chart(this.refs.chart5, {
+          type: "bar",
+          options: {
+            title: {
+              display: true,
+              fontSize: 16,
+
+              text: "Top project branches by commenting"
+            },
+            legend: {
+              display: false
+            }
+          },
+          data
+        });
+        c.generator = commentsBranchesBar;
+        charts.push(c);
+        nrGraphs = 5;
         break;
 
       case "mergeRequests":
@@ -451,7 +544,7 @@ class Graph extends Component {
         });
         c.generator = commitsTimeline;
         charts.push(c);
-        nrGraphs = 3;
+        nrGraphs = 4;
         break;
 
       case "tests":

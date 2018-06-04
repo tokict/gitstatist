@@ -157,14 +157,15 @@ function* projectCommentsIterator(projects, pages, Api) {
   currentBranchPage = 1;
   for (let key in projects) {
     if (!projects[key]) continue;
-    let c = yield* fetchProjectComments(
+    let data = yield* fetchProjectComments(
       projects[key].id,
       projects[key].branches,
       pages,
       Api
     );
 
-    comments[projects[key].id] = c[projects[key].id];
+    comments[projects[key].id] = data.project[projects[key].id];
+    projects[key].commentsNr = data.branchesData;
   }
 
   return comments;
@@ -217,15 +218,18 @@ function* fetchProjectComments(id, branches, pages, Api) {
     [id]: []
   };
   const ui = yield select(getUi);
-
+  const branchesData = {};
   for (let key in branches) {
     try {
       const branchComments = yield iterateBranch(id, branches[key], pages, Api);
+      branchesData[branches[key]] = branchComments.length;
       branchComments.forEach(comment => {
         if (
           !commentExists(comment.created_at, project[id]) &&
           new moment(comment.created_at).isAfter(moment(ui.periodFrom.date))
         ) {
+          comment.branch = branches[key];
+          comment.projectId = id;
           project[id].push(comment);
         }
       });
@@ -234,7 +238,7 @@ function* fetchProjectComments(id, branches, pages, Api) {
     }
   }
 
-  return project;
+  return { project, branchesData };
 }
 
 //We are iterating over one branch here, going through pagination to fetch all comments

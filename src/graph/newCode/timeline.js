@@ -106,11 +106,12 @@ const parseHoursInDay = (data, since) => {
       let date =
         new moment(commits[projectId][commit].committed_at).format("HH") +
         ":00";
-      let refScore = calculateDifference(commitDetails[commitId]);
+
+      let newCodeScore = calculateDifference(commitDetails[commitId]);
 
       usersData[id].data[date] = usersData[id].data[date]
-        ? usersData[id].data[date] + refScore
-        : refScore;
+        ? usersData[id].data[date] + newCodeScore
+        : newCodeScore;
     }
   }
 
@@ -173,11 +174,11 @@ const parseDaysInWeek = (data, since) => {
       let date = new moment(commits[projectId][commit].committed_at).format(
         "DD.MM"
       );
-      let refScore = calculateDifference(commitDetails[commitId]);
+      let newCodeScore = calculateDifference(commitDetails[commitId]);
 
       usersData[id].data[date] = usersData[id].data[date]
-        ? usersData[id].data[date] + refScore
-        : refScore;
+        ? usersData[id].data[date] + newCodeScore
+        : newCodeScore;
     }
   }
 
@@ -241,11 +242,11 @@ const parseDaysInMonth = (data, since) => {
         "DD.MM"
       );
 
-      let refScore = calculateDifference(commitDetails[commitId]);
+      let newCodeScore = calculateDifference(commitDetails[commitId]);
 
       usersData[id].data[date] = usersData[id].data[date]
-        ? usersData[id].data[date] + refScore
-        : refScore;
+        ? usersData[id].data[date] + newCodeScore
+        : newCodeScore;
     }
   }
 
@@ -333,10 +334,11 @@ const parseWeeks = (data, since, weeks) => {
         let end = new moment(parts[1]);
 
         if (date.isBetween(start, end)) {
-          let refScore = calculateDifference(commitDetails[commitId]);
+          let newCodeScore = calculateDifference(commitDetails[commitId]);
+
           usersData[id].data[date] = usersData[id].data[date]
-            ? usersData[id].data[date] + refScore
-            : refScore;
+            ? usersData[id].data[date] + newCodeScore
+            : newCodeScore;
         }
       });
     }
@@ -356,7 +358,7 @@ const calculateDifference = commitDetails => {
   //This is probably file permission change or some other weird mass addition
   if (additions < 10000) {
     //Take difference between new code and deleted
-    score += additions > deletions ? deletions : additions;
+    score += Math.abs(additions - deletions);
   }
 
   return score;

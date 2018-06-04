@@ -40,7 +40,7 @@ class App extends Component {
     this.state = {
       usersModalShown: false,
       messagesModalShown: false,
-      activeGraph: "refactoring"
+      activeGraph: "comments"
     };
     this.startApp = this.startApp.bind(this);
     this.dismissMessage = this.dismissMessage.bind(this);
@@ -495,7 +495,7 @@ class App extends Component {
                       })
                     }
                   >
-                    Commit comments
+                    Comments
                   </h1>
                   {this.props.Comments.loading
                     ? this.renderLoader()

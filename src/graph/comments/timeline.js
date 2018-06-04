@@ -52,8 +52,7 @@ export const generate = (data, periodFrom) => {
 const parseHoursInDay = (data, since) => {
   let labels = [];
   let datasets = [];
-  const commits = data.commits.data;
-  const commitDetails = data.commits.details;
+  const comments = data.comments;
   const users = data.users;
   const usersData = {};
   let color;
@@ -72,21 +71,16 @@ const parseHoursInDay = (data, since) => {
     labels.push(a.add(i, "H").format("HH") + ":00");
   }
 
-  for (let projectId in commits) {
-    for (let commit in commits[projectId]) {
-      let id = commits[projectId][commit].userId;
-      let commitId = commits[projectId][commit].id;
+  for (let projectId in comments) {
+    for (let comment in comments[projectId]) {
+      let id = comments[projectId][comment].author.id;
+      let name = comments[projectId][comment].author.name;
 
       if (!id) continue;
 
       if (!usersData[id]) {
         color = cp[0];
         cp.splice(0, 1);
-
-        let name;
-        for (let user in users) {
-          if (users[user].id == id) name = users[user].name;
-        }
 
         let data = {};
 
@@ -104,13 +98,12 @@ const parseHoursInDay = (data, since) => {
       }
 
       let date =
-        new moment(commits[projectId][commit].committed_at).format("HH") +
+        new moment(comments[projectId][comment].created_at).format("HH") +
         ":00";
-      let refScore = calculateDifference(commitDetails[commitId]);
 
       usersData[id].data[date] = usersData[id].data[date]
-        ? usersData[id].data[date] + refScore
-        : refScore;
+        ? usersData[id].data[date] + 1
+        : 1;
     }
   }
 
@@ -124,8 +117,7 @@ const parseHoursInDay = (data, since) => {
 const parseDaysInWeek = (data, since) => {
   let labels = [];
   let datasets = [];
-  const commits = data.commits.data;
-  const commitDetails = data.commits.details;
+  const comments = data.comments;
   const users = data.users;
   const usersData = {};
   let color;
@@ -141,20 +133,14 @@ const parseDaysInWeek = (data, since) => {
     labels.push(a.add(i, "d").format("DD.MM"));
   }
 
-  for (let projectId in commits) {
-    for (let commit in commits[projectId]) {
-      let id = commits[projectId][commit].userId;
-      let commitId = commits[projectId][commit].id;
-      if (!id) continue;
+  for (let projectId in comments) {
+    for (let comment in comments[projectId]) {
+      let id = comments[projectId][comment].author.id;
+      let name = comments[projectId][comment].author.name;
 
       if (!usersData[id]) {
         color = cp[0];
         cp.splice(0, 1);
-
-        let name;
-        for (let user in users) {
-          if (users[user].id == id) name = users[user].name;
-        }
 
         let data = {};
 
@@ -170,14 +156,13 @@ const parseDaysInWeek = (data, since) => {
         };
       }
 
-      let date = new moment(commits[projectId][commit].committed_at).format(
+      let date = new moment(comments[projectId][comment].created_at).format(
         "DD.MM"
       );
-      let refScore = calculateDifference(commitDetails[commitId]);
 
       usersData[id].data[date] = usersData[id].data[date]
-        ? usersData[id].data[date] + refScore
-        : refScore;
+        ? usersData[id].data[date] + 1
+        : 1;
     }
   }
 
@@ -191,8 +176,7 @@ const parseDaysInWeek = (data, since) => {
 const parseDaysInMonth = (data, since) => {
   let labels = [];
   let datasets = [];
-  const commits = data.commits.data;
-  const commitDetails = data.commits.details;
+  const comments = data.comments;
   const users = data.users;
   const usersData = {};
   let color;
@@ -208,20 +192,14 @@ const parseDaysInMonth = (data, since) => {
     labels.push(a.add(i, "days").format("DD.MM"));
   }
 
-  for (let projectId in commits) {
-    for (let commit in commits[projectId]) {
-      let id = commits[projectId][commit].userId;
-      let commitId = commits[projectId][commit].id;
-      if (!id) continue;
+  for (let projectId in comments) {
+    for (let comment in comments[projectId]) {
+      let id = comments[projectId][comment].author.id;
+      let name = comments[projectId][comment].author.name;
 
       if (!usersData[id]) {
         color = cp[0];
         cp.splice(0, 1);
-
-        let name;
-        for (let user in users) {
-          if (users[user].id == id) name = users[user].name;
-        }
 
         let data = {};
 
@@ -237,15 +215,13 @@ const parseDaysInMonth = (data, since) => {
         };
       }
 
-      let date = new moment(commits[projectId][commit].committed_at).format(
+      let date = new moment(comments[projectId][comment].created_at).format(
         "DD.MM"
       );
 
-      let refScore = calculateDifference(commitDetails[commitId]);
-
       usersData[id].data[date] = usersData[id].data[date]
-        ? usersData[id].data[date] + refScore
-        : refScore;
+        ? usersData[id].data[date] + 1
+        : 1;
     }
   }
 
@@ -260,8 +236,7 @@ const parseWeeks = (data, since, weeks) => {
   const labels = [];
   const periods = [];
   let datasets = [];
-  const commits = data.commits.data;
-  const commitDetails = data.commits.details;
+  const comments = data.comments;
   const users = data.users;
   const usersData = {};
   let color;
@@ -296,20 +271,14 @@ const parseWeeks = (data, since, weeks) => {
     periods.push(start2 + " - " + finish2);
   }
 
-  for (let projectId in commits) {
-    for (let commit in commits[projectId]) {
-      let id = commits[projectId][commit].userId;
-      let commitId = commits[projectId][commit].id;
-      if (!id) continue;
+  for (let projectId in comments) {
+    for (let comment in comments[projectId]) {
+      let id = comments[projectId][comment].author.id;
+      let name = comments[projectId][comment].author.name;
 
       if (!usersData[id]) {
         color = cp[0];
         cp.splice(0, 1);
-
-        let name;
-        for (let user in users) {
-          if (users[user].id == id) name = users[user].name;
-        }
 
         let data = {};
 
@@ -325,7 +294,7 @@ const parseWeeks = (data, since, weeks) => {
         };
       }
 
-      let date = new moment(commits[projectId][commit].committed_at);
+      let date = new moment(comments[projectId][comment].created_at);
       periods.forEach((period, i) => {
         let parts = period.split(" - ");
 
@@ -333,10 +302,9 @@ const parseWeeks = (data, since, weeks) => {
         let end = new moment(parts[1]);
 
         if (date.isBetween(start, end)) {
-          let refScore = calculateDifference(commitDetails[commitId]);
-          usersData[id].data[date] = usersData[id].data[date]
-            ? usersData[id].data[date] + refScore
-            : refScore;
+          usersData[id].data[labels[i]] = usersData[id].data[labels[i]]
+            ? usersData[id].data[labels[i]] + 1
+            : 1;
         }
       });
     }
@@ -347,17 +315,4 @@ const parseWeeks = (data, since, weeks) => {
   }
 
   return { labels, datasets: Object.values(usersData) };
-};
-
-const calculateDifference = commitDetails => {
-  let score = 0;
-  let additions = commitDetails.stats.additions;
-  let deletions = commitDetails.stats.deletions;
-  //This is probably file permission change or some other weird mass addition
-  if (additions < 10000) {
-    //Take difference between new code and deleted
-    score += additions > deletions ? deletions : additions;
-  }
-
-  return score;
 };

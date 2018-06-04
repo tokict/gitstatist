@@ -29,7 +29,7 @@ const parseProjects = d => {
   let color;
 
   for (let projectId in commits) {
-    let refScore = 0;
+    let newCodeScore = 0;
     if (d.projects[projectId]) {
       for (let commit in commits[projectId]) {
         let additions =
@@ -38,12 +38,12 @@ const parseProjects = d => {
           commitDetails[commits[projectId][commit].id].stats.deletions;
         //This is probably file permission change or some other weird mass addition
         if (additions < 10000) {
-          //Taking the smaller number
-          refScore += additions > deletions ? deletions : additions;
+          //Take difference between new code and deleted
+          newCodeScore += Math.abs(additions - deletions);
         }
       }
 
-      data[d.projects[projectId].name] = refScore;
+      data[d.projects[projectId].name] = newCodeScore;
     }
   }
 

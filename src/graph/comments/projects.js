@@ -24,26 +24,14 @@ const parseProjects = d => {
 
   let projectsData;
   let data = {};
-  const commits = d.commits.data;
-  const commitDetails = d.commits.details;
+  const comments = d.comments;
   let color;
 
-  for (let projectId in commits) {
-    let refScore = 0;
-    if (d.projects[projectId]) {
-      for (let commit in commits[projectId]) {
-        let additions =
-          commitDetails[commits[projectId][commit].id].stats.additions;
-        let deletions =
-          commitDetails[commits[projectId][commit].id].stats.deletions;
-        //This is probably file permission change or some other weird mass addition
-        if (additions < 10000) {
-          //Taking the smaller number
-          refScore += additions > deletions ? deletions : additions;
-        }
+  for (let projectId in comments) {
+    for (let id in d.projects) {
+      if (d.projects[projectId]) {
+        data[d.projects[projectId].name] = comments[projectId].length;
       }
-
-      data[d.projects[projectId].name] = refScore;
     }
   }
 
