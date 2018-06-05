@@ -11,7 +11,7 @@ import { initialState } from "./initial";
 export const sagaMiddleware = createSagaMiddleware();
 let middleware = [sagaMiddleware];
 
-if (1) {
+if (process.env.NODE_ENV === "development") {
   const logger = createLogger({
     predicate: (getState, action) => action.type !== "UPDATE_PROGRESS",
     collapsed: true

@@ -2,14 +2,14 @@ import moment from "moment";
 import palette from "google-palette";
 
 let colorPallete;
-export const generate = (data, periodFrom) => {
+export const generate = data => {
   //take time distribution and make units of measurement
   let unitCount;
   let labels;
   let d;
   let datasets;
 
-  d = parseHoursInDay(data, periodFrom.date);
+  d = parseHoursInDay(data);
   labels = d.labels;
   datasets = d.datasets;
 

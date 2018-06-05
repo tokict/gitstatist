@@ -9,7 +9,7 @@ export const generate = (data, periodFrom) => {
   let d;
   let datasets;
 
-  d = parseHoursInDay(data, periodFrom.date);
+  d = parseHoursInDay(data);
   labels = d.labels;
   datasets = d.datasets;
 
@@ -48,7 +48,7 @@ const parseHoursInDay = d => {
       let hour = new moment(commits[projectId][commit].committed_at).format(
         "HH"
       );
-      console.log(hour);
+
       data[hour + ":00"] = data[hour + ":00"] + 1;
     }
   }
