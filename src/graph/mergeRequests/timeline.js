@@ -72,14 +72,12 @@ const parseHoursInDay = (data, since) => {
     labels.push(a.add(i, "H").format("HH") + ":00");
   }
 
-  for (let projectId in requests) {
-    for (let request in requests[projectId]) {
-      let id = requests[projectId][request].author.id;
-      let requestId = requests[projectId][request].id;
-      let name = requests[projectId][request].author.name;
-      if (!id) continue;
+  for (let userId in requests) {
+    for (let request in requests[userId]) {
+      let requestId = requests[userId][request].id;
+      let name = requests[userId][request].author.name;
 
-      if (!usersData[id]) {
+      if (!usersData[userId]) {
         color = cp[0];
         cp.splice(0, 1);
 
@@ -89,7 +87,7 @@ const parseHoursInDay = (data, since) => {
           data[item] = 0;
         });
 
-        usersData[id] = {
+        usersData[userId] = {
           label: name,
           backgroundColor: "transparent",
           data: data,
@@ -99,11 +97,10 @@ const parseHoursInDay = (data, since) => {
       }
 
       let date =
-        new moment(requests[projectId][request].created_at).format("HH") +
-        ":00";
+        new moment(requests[userId][request].created_at).format("HH") + ":00";
 
-      usersData[id].data[date] = usersData[id].data[date]
-        ? usersData[id].data[date]++
+      usersData[userId].data[date] = usersData[userId].data[date]
+        ? usersData[userId].data[date]++
         : 1;
     }
   }
@@ -134,14 +131,12 @@ const parseDaysInWeek = (data, since) => {
     labels.push(a.add(i, "d").format("DD.MM"));
   }
 
-  for (let projectId in requests) {
-    for (let request in requests[projectId]) {
-      let id = requests[projectId][request].author.id;
-      let requestId = requests[projectId][request].id;
-      let name = requests[projectId][request].author.name;
-      if (!id) continue;
+  for (let userId in requests) {
+    for (let request in requests[userId]) {
+      let requestId = requests[userId][request].id;
+      let name = requests[userId][request].author.name;
 
-      if (!usersData[id]) {
+      if (!usersData[userId]) {
         color = cp[0];
         cp.splice(0, 1);
 
@@ -150,7 +145,7 @@ const parseDaysInWeek = (data, since) => {
         labels.forEach(item => {
           data[item] = 0;
         });
-        usersData[id] = {
+        usersData[userId] = {
           label: name,
           backgroundColor: "transparent",
           data: data,
@@ -159,12 +154,12 @@ const parseDaysInWeek = (data, since) => {
         };
       }
 
-      let date = new moment(requests[projectId][request].created_at).format(
+      let date = new moment(requests[userId][request].created_at).format(
         "DD.MM"
       );
 
-      usersData[id].data[date] = usersData[id].data[date]
-        ? usersData[id].data[date]++
+      usersData[userId].data[date] = usersData[userId].data[date]
+        ? usersData[userId].data[date]++
         : 1;
     }
   }
@@ -195,14 +190,12 @@ const parseDaysInMonth = (data, since) => {
     labels.push(a.add(i, "days").format("DD.MM"));
   }
 
-  for (let projectId in requests) {
-    for (let request in requests[projectId]) {
-      let id = requests[projectId][request].author.id;
-      let requestId = requests[projectId][request].id;
-      let name = requests[projectId][request].author.name;
-      if (!id) continue;
+  for (let userId in requests) {
+    for (let request in requests[userId]) {
+      let requestId = requests[userId][request].id;
+      let name = requests[userId][request].author.name;
 
-      if (!usersData[id]) {
+      if (!usersData[userId]) {
         color = cp[0];
         cp.splice(0, 1);
 
@@ -211,7 +204,8 @@ const parseDaysInMonth = (data, since) => {
         labels.forEach(item => {
           data[item] = 0;
         });
-        usersData[id] = {
+
+        usersData[userId] = {
           label: name,
           backgroundColor: "transparent",
           data: data,
@@ -220,12 +214,12 @@ const parseDaysInMonth = (data, since) => {
         };
       }
 
-      let date = new moment(requests[projectId][request].created_at).format(
+      let date = new moment(requests[userId][request].created_at).format(
         "DD.MM"
       );
 
-      usersData[id].data[date] = usersData[id].data[date]
-        ? usersData[id].data[date]++
+      usersData[userId].data[date] = usersData[userId].data[date]
+        ? usersData[userId].data[date]++
         : 1;
     }
   }
@@ -276,14 +270,12 @@ const parseWeeks = (data, since, weeks) => {
     periods.push(start2 + " - " + finish2);
   }
 
-  for (let projectId in requests) {
-    for (let request in requests[projectId]) {
-      let id = requests[projectId][request].author.id;
-      let requestId = requests[projectId][request].id;
-      let name = requests[projectId][request].author.name;
-      if (!id) continue;
+  for (let userId in requests) {
+    for (let request in requests[userId]) {
+      let requestId = requests[userId][request].id;
+      let name = requests[userId][request].author.name;
 
-      if (!usersData[id]) {
+      if (!usersData[userId]) {
         color = cp[0];
         cp.splice(0, 1);
 
@@ -292,7 +284,7 @@ const parseWeeks = (data, since, weeks) => {
         labels.forEach(item => {
           data[item] = 0;
         });
-        usersData[id] = {
+        usersData[userId] = {
           label: name,
           backgroundColor: "transparent",
           data: data,
@@ -301,7 +293,7 @@ const parseWeeks = (data, since, weeks) => {
         };
       }
 
-      let date = new moment(requests[projectId][request].created_at);
+      let date = new moment(requests[userId][request].created_at);
       periods.forEach((period, i) => {
         let parts = period.split(" - ");
 
@@ -309,8 +301,8 @@ const parseWeeks = (data, since, weeks) => {
         let end = new moment(parts[1]);
 
         if (date.isBetween(start, end)) {
-          usersData[id].data[date] = usersData[id].data[date]
-            ? usersData[id].data[date]++
+          usersData[userId].data[labels[i]] = usersData[userId].data[labels[i]]
+            ? usersData[userId].data[labels[i]]++
             : 1;
         }
       });

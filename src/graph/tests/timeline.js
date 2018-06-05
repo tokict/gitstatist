@@ -123,7 +123,7 @@ const parseHoursInDay = (data, since) => {
 const parseDaysInWeek = (data, since) => {
   let labels = [];
   let datasets = [];
-  const commits = data.commits;
+  const commits = data.commits.data;
   const commitDetails = data.commits.details;
   const users = data.users;
   const usersData = {};
@@ -189,7 +189,7 @@ const parseDaysInWeek = (data, since) => {
 const parseDaysInMonth = (data, since) => {
   let labels = [];
   let datasets = [];
-  const commits = data.commits;
+  const commits = data.commits.data;
   const commitDetails = data.commits.details;
   const users = data.users;
   const usersData = {};
@@ -256,7 +256,7 @@ const parseWeeks = (data, since, weeks) => {
   const labels = [];
   const periods = [];
   let datasets = [];
-  const commits = data.commits;
+  const commits = data.commits.data;
   const commitDetails = data.commits.details;
   const users = data.users;
   const usersData = {};

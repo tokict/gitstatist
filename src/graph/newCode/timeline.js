@@ -336,8 +336,8 @@ const parseWeeks = (data, since, weeks) => {
         if (date.isBetween(start, end)) {
           let newCodeScore = calculateDifference(commitDetails[commitId]);
 
-          usersData[id].data[date] = usersData[id].data[date]
-            ? usersData[id].data[date] + newCodeScore
+          usersData[id].data[labels[i]] = usersData[id].data[labels[i]]
+            ? usersData[id].data[labels[i]] + newCodeScore
             : newCodeScore;
         }
       });

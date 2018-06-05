@@ -24,7 +24,7 @@ const parseHoursInDay = d => {
 
   let hoursData;
   let data = {};
-  const comments = d.comments;
+  const comments = d.comments.data;
   let color;
 
   //We create labels by taking earliest day and adding a day on every loop

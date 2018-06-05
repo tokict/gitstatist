@@ -185,8 +185,17 @@ function* mapCommitsToUsers(commits, users) {
 function* remapUsersToCommits() {
   const commits = yield select(getCommits);
   const users = yield select(getUsers);
+  const details = yield select(getDetails);
   const data = yield mapCommitsToUsers(commits, users);
   const updatedUsers = data.users;
+
+  yield put({
+    type: "COMMITS_FETCHED",
+    commits: data.commits,
+    details: details,
+    earliestDateFetched: getEarliestDateFetched(commits),
+    loading: false
+  });
   yield put({
     type: "USERS_COMMITS_UPDATED",
     users: updatedUsers,

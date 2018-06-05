@@ -1,1 +1,1 @@
-# gitstatista
+# gitstatist

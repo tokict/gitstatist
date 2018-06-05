@@ -32,7 +32,7 @@ const parseWeekdays = d => {
 
   let daysData;
   let data = {};
-  const commits = d.commits;
+  const commits = d.commits.data;
   let color;
 
   labels.forEach(item => {

@@ -40,7 +40,7 @@ class App extends Component {
     this.state = {
       usersModalShown: false,
       messagesModalShown: false,
-      activeGraph: "mergeRequests"
+      activeGraph: "commits"
     };
     this.startApp = this.startApp.bind(this);
     this.dismissMessage = this.dismissMessage.bind(this);
@@ -571,4 +571,7 @@ function mapDispatchToProps(dispatch, props) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);

@@ -29,7 +29,6 @@ const parseBranches = d => {
 
   for (let projectId in commits) {
     for (let commit in commits[projectId]) {
-      console.log(details[commits[projectId][commit].id].status);
       if (details[commits[projectId][commit].id].status === "failed") {
         let name =
           projects[details[commits[projectId][commit].id].project_id].name +

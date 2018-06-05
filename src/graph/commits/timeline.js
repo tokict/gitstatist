@@ -52,7 +52,7 @@ export const generate = (data, periodFrom) => {
 const parseHoursInDay = (data, since) => {
   let labels = [];
   let datasets = [];
-  const commits = data.commits;
+  const commits = data.commits.data;
   const users = data.users;
   const usersData = {};
   let color;
@@ -121,7 +121,7 @@ const parseHoursInDay = (data, since) => {
 const parseDaysInWeek = (data, since) => {
   let labels = [];
   let datasets = [];
-  const commits = data.commits;
+  const commits = data.commits.data;
   const users = data.users;
   const usersData = {};
   let color;
@@ -185,7 +185,7 @@ const parseDaysInWeek = (data, since) => {
 const parseDaysInMonth = (data, since) => {
   let labels = [];
   let datasets = [];
-  const commits = data.commits;
+  const commits = data.commits.data;
   const users = data.users;
   const usersData = {};
   let color;
@@ -204,6 +204,7 @@ const parseDaysInMonth = (data, since) => {
   for (let projectId in commits) {
     for (let commit in commits[projectId]) {
       let id = commits[projectId][commit].userId;
+
       if (!id) continue;
 
       if (!usersData[id]) {
@@ -250,7 +251,7 @@ const parseWeeks = (data, since, weeks) => {
   const labels = [];
   const periods = [];
   let datasets = [];
-  const commits = data.commits;
+  const commits = data.commits.data;
   const users = data.users;
   const usersData = {};
   let color;

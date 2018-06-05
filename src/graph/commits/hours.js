@@ -24,7 +24,7 @@ const parseHoursInDay = d => {
 
   let hoursData;
   let data = {};
-  const commits = d.commits;
+  const commits = d.commits.data;
   let color;
 
   //We create labels by taking earliest day and adding a day on every loop
@@ -48,7 +48,7 @@ const parseHoursInDay = d => {
       let hour = new moment(commits[projectId][commit].committed_at).format(
         "HH"
       );
-
+      console.log(hour);
       data[hour + ":00"] = data[hour + ":00"] + 1;
     }
   }

@@ -40,7 +40,7 @@ class Graph extends Component {
         let data = c.generator.generate(
           {
             users: this.props.Users.data,
-            commits: this.props.Commits.data,
+            commits: this.props.Commits,
             projects: this.props.Projects.data,
             mergeRequests: this.props.MergeRequests
           },
@@ -106,7 +106,7 @@ class Graph extends Component {
         data = commitsHours.generate(
           {
             users: this.props.Users.data,
-            commits: this.props.Commits.data
+            commits: this.props.Commits
           },
           this.props.Ui.periodFrom
         );
@@ -131,7 +131,7 @@ class Graph extends Component {
         data = commitsDays.generate(
           {
             users: this.props.Users.data,
-            commits: this.props.Commits.data
+            commits: this.props.Commits
           },
           this.props.Ui.periodFrom
         );

@@ -240,7 +240,7 @@ const parseDaysInMonth = (data, since) => {
       let date = new moment(commits[projectId][commit].committed_at).format(
         "DD.MM"
       );
-
+      console.log(commitDetails, commit);
       let refScore = calculateDifference(commitDetails[commitId]);
 
       usersData[id].data[date] = usersData[id].data[date]
@@ -334,8 +334,8 @@ const parseWeeks = (data, since, weeks) => {
 
         if (date.isBetween(start, end)) {
           let refScore = calculateDifference(commitDetails[commitId]);
-          usersData[id].data[date] = usersData[id].data[date]
-            ? usersData[id].data[date] + refScore
+          usersData[id].data[labels[i]] = usersData[id].data[labels[i]]
+            ? usersData[id].data[labels[i]] + refScore
             : refScore;
         }
       });
