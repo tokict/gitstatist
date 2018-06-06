@@ -13,6 +13,7 @@ export const generate = (data, periodFrom) => {
   switch (periodFrom.id) {
     case 0:
       d = parseHoursInDay(data, periodFrom.date);
+
       labels = d.labels;
       datasets = d.datasets;
       break;
@@ -59,7 +60,7 @@ const parseHoursInDay = (data, since) => {
   let cp = colorPallete.map(item => item);
 
   //Get all hours between midnight and now as labels
-  let nrHours = new moment().format("HH") * 1;
+  let nrHours = new moment().format("H") * 1;
 
   if (since instanceof moment == false) {
     since = new moment(since);
@@ -82,6 +83,7 @@ const parseHoursInDay = (data, since) => {
         cp.splice(0, 1);
 
         let name;
+
         for (let user in users) {
           if (users[user].id == id) name = users[user].name;
         }

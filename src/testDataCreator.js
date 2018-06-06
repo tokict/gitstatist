@@ -3,6 +3,7 @@ const createTestObject = (type, one, two) => {
   switch (type) {
     case "commits":
       data = generateCommits(one, two);
+      data.users = generateUsers().data;
       break;
 
     case "comments":
@@ -11,7 +12,7 @@ const createTestObject = (type, one, two) => {
           data: {
             27: [
               {
-                author: { name: "test name", id: 1 },
+                author: { name: "test name1", id: 1 },
                 created_at: one.format()
               },
               {
@@ -21,7 +22,7 @@ const createTestObject = (type, one, two) => {
             ],
             28: [
               {
-                author: { name: "test name", id: 1 },
+                author: { name: "test name1", id: 1 },
                 created_at: one.format()
               },
               {
@@ -46,47 +47,78 @@ const createTestObject = (type, one, two) => {
   return data;
 };
 
+const generateUsers = () => ({
+  data: {
+    1: {
+      id: 1,
+      name: "test name1"
+    },
+    2: {
+      id: 2,
+      name: "test name2"
+    },
+    3: {
+      id: 3,
+      name: "test name3"
+    },
+    4: {
+      id: 4,
+      name: "test name4"
+    },
+    5: {
+      id: 5,
+      name: "test name5"
+    }
+  }
+});
+
 const generateCommits = (one, two) => ({
   commits: {
     data: {
       27: [
         {
-          author: "test name",
+          author: "test name1",
           committed_at: one.format(),
           branch: "test",
-          id: "id1"
+          id: "id1",
+          userId: 1
         },
         {
           author: "test name2",
           committed_at: two.format(),
           branch: "test",
-          id: "id2"
+          id: "id2",
+          userId: 2
         }
       ],
       28: [
         {
-          author: "test name",
+          author: "test name1",
           committed_at: one.format(),
           branch: "test",
-          id: "id3"
+          id: "id3",
+          userId: 1
         },
         {
           author: "test name2",
           committed_at: two.format(),
           branch: "test",
-          id: "id4"
+          id: "id4",
+          userId: 2
         },
         {
           author: "test name3",
           committed_at: two.format(),
           branch: "test",
-          id: "id4"
+          id: "id4",
+          userId: 3
         },
         {
           author: "test name5",
           committed_at: one.format(),
           branch: "test",
-          id: "id5"
+          id: "id5",
+          userId: 5
         }
       ]
     },
