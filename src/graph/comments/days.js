@@ -9,7 +9,7 @@ export const generate = (data, periodFrom) => {
   let d;
   let datasets;
 
-  d = parseWeekdays(data, periodFrom.date);
+  d = parseWeekdays(data);
   labels = d.labels;
   datasets = d.datasets;
 

@@ -46,7 +46,7 @@ const parseHoursInDay = d => {
   for (let projectId in comments) {
     for (let comment in comments[projectId]) {
       let hour = new moment(comments[projectId][comment].created_at).format(
-        "HH"
+        "H"
       );
 
       data[hour + ":00"] = data[hour + ":00"] + 1;

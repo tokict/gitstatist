@@ -48,7 +48,7 @@ const parseHoursInDay = d => {
     for (let commit in commits[projectId]) {
       if (details[commits[projectId][commit].id].status === "failed") {
         let hour = new moment(commits[projectId][commit].committed_at).format(
-          "HH"
+          "H"
         );
 
         data[hour + ":00"] = data[hour + ":00"] + 1;
