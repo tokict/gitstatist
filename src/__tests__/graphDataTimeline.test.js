@@ -29,25 +29,25 @@ test("commitTimeline has a proper data object", () => {
   runTest("commits");
 });
 
-// test("commentsTimeline has a proper data object", () => {
-//   runTest("comments");
-// });
+test("commentsTimeline has a proper data object", () => {
+  runTest("comments");
+});
 
-// test("testTimeline graph has a proper data object", () => {
-//   runTest("tests");
-// });
+test("testTimeline graph has a proper data object", () => {
+  runTest("tests");
+});
 
-// test("refactoringtimelines has a proper data object", () => {
-//   runTest("refactoring");
-// });
+test("refactoringtimelines has a proper data object", () => {
+  runTest("refactoring");
+});
 
-// test("newCodeTimeline has a proper data object", () => {
-//   runTest("newCode");
-// });
+test("newCodeTimeline has a proper data object", () => {
+  runTest("newCode");
+});
 
-// test("mergeRequestsTimeline graph has a proper data object", () => {
-//   runTest("mergeRequests");
-// });
+test("mergeRequestsTimeline graph has a proper data object", () => {
+  runTest("mergeRequests");
+});
 
 const runTest = type => {
   let periods = {
@@ -63,18 +63,10 @@ const runTest = type => {
     case "commits":
       for (let period in periods) {
         //Set commit times for tracking
-        let times = generateTimes(period);
+        let times = setupTest(period, "commits");
         let { one, two, expectedLabel, expectedValue } = times;
 
-        console.warn(expectedValue);
-
-        const containObj = {
-          label: "test name1",
-          backgroundColor: "transparent",
-          data: expectedValue,
-          borderColor: "#7fc97f",
-          borderWidth: 2
-        };
+        const containObj = buildObject(expectedValue);
 
         let data = createTestObject(type, one, two);
         run = commitsTimeline.generate(data, {
@@ -88,34 +80,118 @@ const runTest = type => {
       }
       break;
     case "refactoring":
-      run = refactoringTimeline.generate(data);
-      expectedValue[one.format("k")] = 3;
-      expectedValue[two.format("k")] = 3;
+      for (let period in periods) {
+        //Set commit times for tracking
+        let times = setupTest(period, "refactoring");
+        let { one, two, expectedLabel, expectedValue } = times;
+
+        const containObj = buildObject(expectedValue);
+
+        let data = createTestObject(type, one, two);
+        run = refactoringTimeline.generate(data, {
+          id: period * 1,
+          date: periods[period]
+        });
+
+        //Check
+        expect(run.labels).toContain(expectedLabel);
+        expect(run.datasets).toContainEqual(containObj);
+      }
       break;
     case "newCode":
-      run = newCodeTimeline.generate(data);
-      expectedValue[one.format("k")] = 3;
-      expectedValue[two.format("k")] = 3;
+      for (let period in periods) {
+        //Set commit times for tracking
+        let times = setupTest(period, "newCode");
+        let { one, two, expectedLabel, expectedValue } = times;
+
+        const containObj = buildObject(expectedValue);
+
+        let data = createTestObject(type, one, two);
+        run = newCodeTimeline.generate(data, {
+          id: period * 1,
+          date: periods[period]
+        });
+
+        //Check
+        expect(run.labels).toContain(expectedLabel);
+        expect(run.datasets).toContainEqual(containObj);
+      }
       break;
     case "mergeRequests":
-      run = mergeRequestsTimeline.generate(data);
-      expectedValue[one.format("k")] = 3;
-      expectedValue[two.format("k")] = 3;
+      for (let period in periods) {
+        //Set commit times for tracking
+        let times = setupTest(period, "mergeRequests");
+        let { one, two, expectedLabel, expectedValue } = times;
+
+        const containObj = buildObject(expectedValue);
+
+        let data = createTestObject(type, one, two);
+
+        run = mergeRequestsTimeline.generate(data, {
+          id: period * 1,
+          date: periods[period]
+        });
+
+        //Check
+        expect(run.labels).toContain(expectedLabel);
+        expect(run.datasets).toContainEqual(containObj);
+      }
       break;
     case "comments":
-      run = commentsTimeline.generate(data);
-      expectedValue[one.format("k")] = 2;
-      expectedValue[two.format("k")] = 3;
+      for (let period in periods) {
+        //Set commit times for tracking
+        let times = setupTest(period, "comments");
+        let { one, two, expectedLabel, expectedValue } = times;
+
+        const containObj = buildObject(expectedValue);
+
+        let data = createTestObject(type, one, two);
+
+        run = commentsTimeline.generate(
+          { comments: data.comments.data, users: data.users },
+          {
+            id: period * 1,
+            date: periods[period]
+          }
+        );
+
+        //Check
+        expect(run.labels).toContain(expectedLabel);
+        expect(run.datasets).toContainEqual(containObj);
+      }
       break;
     case "tests":
-      run = testsTimeline.generate(data);
-      expectedValue[one.format("k")] = 2;
-      expectedValue[two.format("k")] = 3;
+      for (let period in periods) {
+        //Set commit times for tracking
+        let times = setupTest(period, "tests");
+        let { one, two, expectedLabel, expectedValue } = times;
+
+        const containObj = buildObject(expectedValue);
+
+        let data = createTestObject(type, one, two);
+
+        run = testsTimeline.generate(data, {
+          id: period * 1,
+          date: periods[period]
+        });
+
+        //Check
+        expect(run.labels).toContain(expectedLabel);
+        expect(run.datasets).toContainEqual(containObj);
+      }
       break;
   }
 };
 
-const generateTimes = id => {
+const buildObject = expectedValue => ({
+  label: "test name1",
+  backgroundColor: "transparent",
+  data: expectedValue,
+  borderColor: "#7fc97f",
+  borderWidth: 2
+});
+
+const setupTest = (id, type) => {
   let one;
   let two;
   let expectedLabel;
@@ -134,7 +210,20 @@ const generateTimes = id => {
       }
 
       //Expected to contain
-      expectedValue[one.format("H") * 1] = 2;
+      switch (type) {
+        case "newCode":
+          expectedValue[one.format("H") * 1] = 4;
+          break;
+        case "refactoring":
+          expectedValue[one.format("H") * 1] = 6;
+          break;
+        case "mergeRequests":
+          expectedValue[one.format("H") * 1] = 1;
+          expectedValue[one.format("H") * 1 + 1] = 1;
+          break;
+        default:
+          expectedValue[one.format("H") * 1] = 2;
+      }
 
       break;
 
@@ -149,7 +238,20 @@ const generateTimes = id => {
         expectedValue.push(0);
       }
       //Expected to contain
-      expectedValue[expectedValue.length - 2] = 2;
+      switch (type) {
+        case "newCode":
+          expectedValue[expectedValue.length - 2] = 4;
+          break;
+        case "refactoring":
+          expectedValue[expectedValue.length - 2] = 6;
+          break;
+        case "mergeRequests":
+          expectedValue[expectedValue.length - 2] = 1;
+          expectedValue[expectedValue.length - 1] = 1;
+          break;
+        default:
+          expectedValue[expectedValue.length - 2] = 2;
+      }
 
       break;
 
@@ -164,8 +266,20 @@ const generateTimes = id => {
         expectedValue.push(0);
       }
       //Expected to contain
-      expectedValue[expectedValue.length - 6] = 2;
-      console.warn(labelNr, expectedValue, two.format("e") * 1);
+      switch (type) {
+        case "newCode":
+          expectedValue[expectedValue.length - 6] = 4;
+          break;
+        case "refactoring":
+          expectedValue[expectedValue.length - 6] = 6;
+          break;
+        case "mergeRequests":
+          expectedValue[expectedValue.length - 6] = 1;
+          expectedValue[expectedValue.length - 1] = 1;
+          break;
+        default:
+          expectedValue[expectedValue.length - 6] = 2;
+      }
 
       break;
 
@@ -184,7 +298,20 @@ const generateTimes = id => {
         expectedValue.push(0);
       }
       //Expected to contain
-      expectedValue[expectedValue.length - 2] = 2;
+      switch (type) {
+        case "newCode":
+          expectedValue[expectedValue.length - 2] = 4;
+          break;
+        case "refactoring":
+          expectedValue[expectedValue.length - 2] = 6;
+          break;
+        case "mergeRequests":
+          expectedValue[expectedValue.length - 2] = 1;
+          expectedValue[expectedValue.length - 1] = 1;
+          break;
+        default:
+          expectedValue[expectedValue.length - 2] = 2;
+      }
 
       break;
 
@@ -203,7 +330,19 @@ const generateTimes = id => {
         expectedValue.push(0);
       }
       //Expected to contain
-      expectedValue[expectedValue.length - 6] = 2;
+      switch (type) {
+        case "newCode":
+          expectedValue[expectedValue.length - 6] = 4;
+          break;
+        case "refactoring":
+          expectedValue[expectedValue.length - 6] = 6;
+          break;
+        case "mergeRequests":
+          expectedValue[expectedValue.length - 6] = 1;
+          break;
+        default:
+          expectedValue[expectedValue.length - 6] = 2;
+      }
 
       break;
   }

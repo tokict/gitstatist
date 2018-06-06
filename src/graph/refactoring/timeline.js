@@ -240,7 +240,7 @@ const parseDaysInMonth = (data, since) => {
       let date = new moment(commits[projectId][commit].committed_at).format(
         "DD.MM"
       );
-      console.log(commitDetails, commit);
+
       let refScore = calculateDifference(commitDetails[commitId]);
 
       usersData[id].data[date] = usersData[id].data[date]
