@@ -41,7 +41,7 @@ const runTest = type => {
   let one = new moment();
   let two = new moment().subtract(1, "days");
 
-  let data = createTestObject(type, one, two);
+  let data = createTestObject(one, two);
   const expectedLabel = one.format("dddd");
 
   const d = {};

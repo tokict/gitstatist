@@ -51,7 +51,7 @@ test("mergeRequestsProjects has a proper data object", () => {
 const runTest = type => {
   let one = new moment().subtract(1, "h");
   let two = new moment().subtract(2, "h");
-  let data = createTestObject(type, one, two);
+  let data = createTestObject(one, two);
 
   const expectedLabel = "Project2";
   const expectedValue = [0, 0];

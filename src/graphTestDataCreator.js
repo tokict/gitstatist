@@ -2,23 +2,43 @@ const Users = {
   data: {
     1: {
       id: 1,
-      name: "test name1"
+      name: "test name1",
+      commits: [1, 2, 3],
+      comments: [1, 2, 3],
+      mergeRequests: 12,
+      failedTests: 12
     },
     2: {
       id: 2,
-      name: "test name2"
+      name: "test name2",
+      commits: [1, 2],
+      comments: [1, 2],
+      mergeRequests: 23,
+      failedTests: 3
     },
     3: {
       id: 3,
-      name: "test name3"
+      name: "test name3",
+      commits: [1, 2, 3, 4],
+      comments: [1, 2, 3, 4],
+      mergeRequests: 1,
+      failedTests: 14
     },
     4: {
       id: 4,
-      name: "test name4"
+      name: "test name4",
+      commits: [1, 2, 3, 4, 5],
+      comments: [1, 2, 3, 4, 5],
+      mergeRequests: 3,
+      failedTests: 66
     },
     5: {
       id: 5,
-      name: "test name5"
+      name: "test name5",
+      commits: [],
+      comments: [],
+      mergeRequests: [],
+      failedTests: 0
     }
   }
 };
@@ -90,7 +110,7 @@ const Projects = {
   }
 };
 
-const createTestObject = (type, one, two) => {
+const createTestObject = (one, two) => {
   let data = generateCommits(one, two);
   data.users = Users.data;
   data.comments = generateComments(one, two).data;

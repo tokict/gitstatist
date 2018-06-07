@@ -68,7 +68,7 @@ const runTest = type => {
 
         const containObj = buildObject(expectedValue);
 
-        let data = createTestObject(type, one, two);
+        let data = createTestObject(one, two);
 
         run = commitsTimeline.generate(data, {
           id: period * 1,
@@ -88,7 +88,7 @@ const runTest = type => {
 
         const containObj = buildObject(expectedValue);
 
-        let data = createTestObject(type, one, two);
+        let data = createTestObject(one, two);
         run = refactoringTimeline.generate(data, {
           id: period * 1,
           date: periods[period]
@@ -107,7 +107,7 @@ const runTest = type => {
 
         const containObj = buildObject(expectedValue);
 
-        let data = createTestObject(type, one, two);
+        let data = createTestObject(one, two);
         run = newCodeTimeline.generate(data, {
           id: period * 1,
           date: periods[period]
@@ -126,7 +126,7 @@ const runTest = type => {
 
         const containObj = buildObject(expectedValue);
 
-        let data = createTestObject(type, one, two);
+        let data = createTestObject(one, two);
 
         run = mergeRequestsTimeline.generate(data, {
           id: period * 1,
@@ -146,7 +146,7 @@ const runTest = type => {
 
         const containObj = buildObject(expectedValue);
 
-        let data = createTestObject(type, one, two);
+        let data = createTestObject(one, two);
 
         run = commentsTimeline.generate(
           { comments: data.comments, users: data.users },
@@ -169,7 +169,7 @@ const runTest = type => {
 
         const containObj = buildObject(expectedValue);
 
-        let data = createTestObject(type, one, two);
+        let data = createTestObject(one, two);
 
         run = testsTimeline.generate(data, {
           id: period * 1,
