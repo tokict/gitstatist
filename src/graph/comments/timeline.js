@@ -53,6 +53,7 @@ const parseHoursInDay = (data, since) => {
   let labels = [];
   let datasets = [];
   const comments = data.comments;
+
   const users = data.users;
   const usersData = {};
   let color;

@@ -37,7 +37,7 @@ test("testTimeline graph has a proper data object", () => {
   runTest("tests");
 });
 
-test("refactoringtimelines has a proper data object", () => {
+test("refactoringTimelines has a proper data object", () => {
   runTest("refactoring");
 });
 
@@ -69,6 +69,7 @@ const runTest = type => {
         const containObj = buildObject(expectedValue);
 
         let data = createTestObject(type, one, two);
+
         run = commitsTimeline.generate(data, {
           id: period * 1,
           date: periods[period]
@@ -148,7 +149,7 @@ const runTest = type => {
         let data = createTestObject(type, one, two);
 
         run = commentsTimeline.generate(
-          { comments: data.comments.data, users: data.users },
+          { comments: data.comments, users: data.users },
           {
             id: period * 1,
             date: periods[period]
@@ -202,7 +203,7 @@ const setupTest = (id, type) => {
     case 0:
       one = new moment().subtract(1, "h");
       two = new moment().subtract(2, "h");
-      expectedLabel = one.format("H") + ":00";
+      expectedLabel = one.format("HH") + ":00";
       labelNr = new moment().format("H") * 1 + 1;
 
       for (let i = 0; i < labelNr; i++) {

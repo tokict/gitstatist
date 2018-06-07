@@ -9,7 +9,7 @@ export const generate = (data, periodFrom) => {
   let d;
   let datasets;
 
-  d = parseBranches(data, periodFrom.date);
+  d = parseBranches(data);
   labels = d.labels;
   datasets = d.datasets;
 

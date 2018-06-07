@@ -66,6 +66,7 @@ class App extends Component {
   dismissMessage(type) {
     this.actions.dismissMessage(type);
   }
+  s;
 
   logoutUser = () => this.props.actions.logoutUser();
 

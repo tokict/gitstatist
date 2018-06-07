@@ -32,7 +32,7 @@ const parseWeekdays = d => {
 
   let daysData;
   let data = {};
-  const comments = d.comments.data;
+  const comments = d.comments;
   let color;
 
   labels.forEach(item => {

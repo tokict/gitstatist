@@ -23,118 +23,127 @@ const Users = {
   }
 };
 
-const createTestObject = (type, one, two) => {
-  let data;
-  switch (type) {
-    case "commits":
-      data = generateCommits(one, two);
-      data.users = Users.data;
-      break;
-
-    case "comments":
-      data = {
-        comments: {
-          data: {
-            27: [
-              {
-                author: { name: "test name1", id: 1 },
-                created_at: one.format()
-              },
-              {
-                author: { name: "test name2", id: 2 },
-                created_at: two.format()
-              }
-            ],
-            28: [
-              {
-                author: { name: "test name1", id: 1 },
-                created_at: one.format()
-              },
-              {
-                author: { name: "test name2", id: 2 },
-                created_at: two.format()
-              },
-              {
-                author: { name: "test name3", id: 3 },
-                created_at: two.format()
-              }
-            ]
-          }
-        }
-      };
-
-      data.users = Users.data;
-
-      break;
-    case "tests":
-      data = generateCommits(one, two);
-      data.users = Users.data;
-      break;
-
-    case "refactoring":
-      data = generateCommits(one, two);
-      data.users = Users.data;
-      break;
-
-    case "newCode":
-      data = generateCommits(one, two);
-      data.users = Users.data;
-      break;
-
-    case "mergeRequests":
-      data = generateMergeRequests(one, two);
-      data.users = Users.data;
-      break;
+const generateComments = (one, two) => ({
+  data: {
+    1: [
+      {
+        author: { name: "test name1", id: 1 },
+        created_at: one.format()
+      },
+      {
+        author: { name: "test name2", id: 2 },
+        created_at: two.format()
+      }
+    ],
+    2: [
+      {
+        author: { name: "test name1", id: 1 },
+        created_at: one.format()
+      },
+      {
+        author: { name: "test name2", id: 2 },
+        created_at: two.format()
+      },
+      {
+        author: { name: "test name3", id: 3 },
+        created_at: two.format()
+      }
+    ]
   }
+});
 
+const Projects = {
+  data: {
+    1: {
+      id: 1,
+      name: "Project1",
+      branches: ["dev", "master"],
+      branchCommitNr: {
+        dev: 2
+      },
+      commentsNr: {
+        dev: 2
+      }
+    },
+    2: {
+      id: 2,
+      name: "Project2",
+      branches: ["dev", "master"],
+      branchCommitNr: {
+        dev: 1,
+        master: 3
+      },
+      commentsNr: {
+        master: 3
+      }
+    },
+    3: {
+      id: 3,
+      name: "Project3",
+      branches: ["dev", "master"]
+    },
+    4: {
+      id: 4,
+      name: "Project4",
+      branches: ["dev", "master"]
+    }
+  }
+};
+
+const createTestObject = (type, one, two) => {
+  let data = generateCommits(one, two);
+  data.users = Users.data;
+  data.comments = generateComments(one, two).data;
+  data.projects = Projects.data;
+  data.mergeRequests = generateMergeRequests(one, two);
   return data;
 };
 
 const generateCommits = (one, two) => ({
   commits: {
     data: {
-      27: [
+      1: [
         {
           author: "test name1",
           committed_at: one.format(),
-          branch: "test",
+          branch: "dev",
           id: "id1",
           userId: 1
         },
         {
           author: "test name2",
           committed_at: two.format(),
-          branch: "test",
+          branch: "dev",
           id: "id2",
           userId: 2
         }
       ],
-      28: [
+      2: [
         {
           author: "test name1",
           committed_at: one.format(),
-          branch: "test",
+          branch: "master",
           id: "id3",
           userId: 1
         },
         {
           author: "test name2",
           committed_at: two.format(),
-          branch: "test",
+          branch: "master",
           id: "id4",
           userId: 2
         },
         {
           author: "test name3",
           committed_at: two.format(),
-          branch: "test",
+          branch: "master",
           id: "id4",
           userId: 3
         },
         {
           author: "test name5",
           committed_at: one.format(),
-          branch: "test",
+          branch: "dev",
           id: "id5",
           userId: 5
         }
@@ -143,6 +152,7 @@ const generateCommits = (one, two) => ({
     details: {
       id1: {
         status: "failed",
+        project_id: 1,
         stats: {
           additions: 5,
           deletions: 3
@@ -150,6 +160,7 @@ const generateCommits = (one, two) => ({
       },
       id2: {
         status: "failed",
+        project_id: 1,
         stats: {
           additions: 5,
           deletions: 3
@@ -157,6 +168,7 @@ const generateCommits = (one, two) => ({
       },
       id3: {
         status: "failed",
+        project_id: 2,
         stats: {
           additions: 5,
           deletions: 3
@@ -164,6 +176,7 @@ const generateCommits = (one, two) => ({
       },
       id4: {
         status: "failed",
+        project_id: 2,
         stats: {
           additions: 5,
           deletions: 3
@@ -171,6 +184,7 @@ const generateCommits = (one, two) => ({
       },
       id5: {
         status: "passed",
+        project_id: 2,
         stats: {
           additions: 5,
           deletions: 3
@@ -181,58 +195,56 @@ const generateCommits = (one, two) => ({
 });
 
 const generateMergeRequests = (one, two) => ({
-  mergeRequests: {
-    data: {
-      1: [
-        {
-          id: 1,
-          target_branch: "master",
-          target_project_id: 1,
-          author: { name: "test name1", id: 1 },
-          created_at: one.format(),
-          branch: "test"
-        },
-        {
-          id: 2,
-          target_branch: "master",
-          target_project_id: 1,
-          author: { name: "test name1", id: 1 },
-          committed_at: two.format()
-        }
-      ],
-      2: [
-        {
-          id: 4,
-          target_branch: "master",
-          target_project_id: 2,
-          author: { name: "test name2", id: 2 },
-          created_at: one.format()
-        },
-        {
-          id: 5,
-          target_branch: "master",
-          target_project_id: 2,
-          author: { name: "test name2", id: 2 },
-          committed_at: two.format()
-        },
-        {
-          id: 6,
-          target_branch: "dev",
-          target_project_id: 3,
-          author: "test name3",
-          created_at: two.format(),
-          author: { name: "test name2", id: 2 }
-        },
-        {
-          id: 7,
-          target_branch: "dev",
-          target_project_id: 3,
-          author: "test name5",
-          created_at: one.format(),
-          author: { name: "test name2", id: 2 }
-        }
-      ]
-    }
+  data: {
+    1: [
+      {
+        id: 1,
+        target_branch: "master",
+        target_project_id: 1,
+        author: { name: "test name1", id: 1 },
+        created_at: one.format(),
+        branch: "test"
+      },
+      {
+        id: 2,
+        target_branch: "master",
+        target_project_id: 1,
+        author: { name: "test name1", id: 1 },
+        committed_at: two.format()
+      }
+    ],
+    2: [
+      {
+        id: 4,
+        target_branch: "master",
+        target_project_id: 2,
+        author: { name: "test name2", id: 2 },
+        created_at: one.format()
+      },
+      {
+        id: 5,
+        target_branch: "master",
+        target_project_id: 2,
+        author: { name: "test name2", id: 2 },
+        committed_at: two.format()
+      },
+      {
+        id: 6,
+        target_branch: "dev",
+        target_project_id: 3,
+        author: "test name3",
+        created_at: two.format(),
+        author: { name: "test name2", id: 2 }
+      },
+      {
+        id: 7,
+        target_branch: "dev",
+        target_project_id: 3,
+        author: "test name5",
+        created_at: one.format(),
+        author: { name: "test name2", id: 2 }
+      }
+    ]
   }
 });
 

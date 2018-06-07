@@ -9,7 +9,7 @@ export const generate = (data, periodFrom) => {
   let d;
   let datasets;
 
-  d = parseProjects(data, periodFrom.date);
+  d = parseProjects(data);
   labels = d.labels;
   datasets = d.datasets;
 
@@ -29,6 +29,7 @@ const parseProjects = d => {
 
   for (let projectId in comments) {
     for (let id in d.projects) {
+      // console.warn(d.projects[projectId]);
       if (d.projects[projectId]) {
         data[d.projects[projectId].name] = comments[projectId].length;
       }
