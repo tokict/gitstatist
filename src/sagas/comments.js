@@ -15,6 +15,8 @@ const getEarliest = state => state.Comments.earliestDateFetched;
 const getUi = state => state.Ui;
 let currentBranchPage = 1;
 
+var Api;
+
 function* fetchComments(params) {
   yield put({
     type: "UPDATE_PROGRESS",
@@ -32,7 +34,7 @@ function* fetchComments(params) {
     let comments = yield select(getComments);
     const projects = yield select(getProjects);
 
-    const Api = new ApiAdapter({ provider, url, token });
+    Api = new ApiAdapter({ provider, url, token });
 
     yield put({ type: "FETCHING_COMMENTS" }); //foreach odi
 
@@ -51,7 +53,7 @@ function* fetchComments(params) {
 
     //Map data to our format
 
-    const map = yield mapCommentsToUsers(commentsData, users);
+    const map = yield Api.mapCommentsToUsers(commentsData, users);
 
     const updatedUsers = map.users;
 
@@ -114,36 +116,17 @@ function getEarliestDateFetched(comments) {
   return new moment(formatted);
 }
 
-function* mapCommentsToUsers(comments, users) {
-  for (let projectId in comments) {
-    if (!comments[projectId] || !comments[projectId].length) continue;
-
-    for (let index in comments[projectId]) {
-      let found = false;
-      for (let userId in users) {
-        if (
-          comments[projectId][index].author.id == users[userId].id ||
-          users[userId].aliases.includes(comments[projectId][index].author.name)
-        ) {
-          found = true;
-          let val = comments[projectId][index].created_at;
-
-          //Make sure we dont have this comment id already
-          if (!commentExists(val, users[userId].comments)) {
-            users[userId].comments.push(comments[projectId][index]);
-          }
-        }
-      }
-    }
-  }
-
-  return { users, comments };
-}
-
 function* remapUsersToComments() {
+  const provider = yield select(getProvider);
+  const url = yield select(getUrl);
+
+  const token = yield select(getToken);
+
+  Api = new ApiAdapter({ provider, url, token });
+
   const comments = yield select(getComments);
   const users = yield select(getUsers);
-  const data = yield mapCommentsToUsers(comments, users);
+  const data = yield Api.mapCommentsToUsers(comments, users);
   const updatedUsers = data.users;
   yield put({
     type: "USERS_COMMENTS_UPDATED",

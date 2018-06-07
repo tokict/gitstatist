@@ -1,8 +1,5 @@
 import axios from "axios";
 import moment from "moment";
-const getToken = state => state.Server.token;
-const getUrl = state => state.Server.url + "/api/v4/";
-const getProvider = state => state.Server.provider;
 
 class Gitlab {
   constructor(params) {
@@ -15,6 +12,10 @@ class Gitlab {
     const baseUrl = this.url;
     const url2 = baseUrl + url;
     const token = this.token;
+
+    if (process.env.NODE_ENV === "test") {
+      return true;
+    }
     try {
       return axios
         .get(url2, {
@@ -185,6 +186,57 @@ class Gitlab {
     }
 
     return formatted;
+  };
+
+  mapCommentsToUsers = (comments, users) => {
+    for (let projectId in comments) {
+      if (!comments[projectId] || !comments[projectId].length) continue;
+
+      for (let index in comments[projectId]) {
+        let found = false;
+        for (let userId in users) {
+          if (
+            comments[projectId][index].author.id == users[userId].id ||
+            users[userId].aliases.includes(
+              comments[projectId][index].author.name
+            )
+          ) {
+            found = true;
+            let val = comments[projectId][index].created_at;
+
+            //Make sure we dont have this comment id already
+            if (!this.commentExists(val, users[userId].comments)) {
+              users[userId].comments.push(comments[projectId][index]);
+            }
+          }
+        }
+      }
+    }
+
+    return { users, comments };
+  };
+
+  mapMergeRequestsToUsers = (requests, users) => {
+    for (let userId in requests) {
+      for (let request in requests[userId]) {
+        users[userId].mergeRequests.push(requests[userId][request].id);
+      }
+    }
+
+    return { mergeRequests: requests, users };
+  };
+
+  //Check if we already have this comment saved so we dont duplicate it
+  commentExists = (id, comments) => {
+    let exists = false;
+    if (comments) {
+      for (let key in comments) {
+        if (comments[key].created_at == id) {
+          exists = true;
+        }
+      }
+    }
+    return exists;
   };
 }
 export default Gitlab;

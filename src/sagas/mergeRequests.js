@@ -12,6 +12,8 @@ const getMergeRequests = state => state.MergeRequests.data;
 const getUi = state => state.Ui;
 let currentUser = 1;
 
+var Api;
+
 function* fetchMergeRequests(params) {
   yield put({
     type: "UPDATE_PROGRESS",
@@ -25,7 +27,7 @@ function* fetchMergeRequests(params) {
     const token = yield select(getToken);
     const users = yield select(getUsers);
 
-    const Api = new ApiAdapter({ provider, url, token });
+    Api = new ApiAdapter({ provider, url, token });
 
     yield put({ type: "FETCHING_MERGE_REQUESTS" }); //foreach odi
     for (let key in users) {
@@ -41,7 +43,7 @@ function* fetchMergeRequests(params) {
       Api
     );
 
-    const map = yield mapMergeRequestsToUsers(mergeRequestsData, users);
+    const map = yield Api.mapMergeRequestsToUsers(mergeRequestsData, users);
 
     const updatedUsers = map.users;
 
@@ -72,20 +74,11 @@ function* fetchMergeRequests(params) {
   }
 }
 
-function* mapMergeRequestsToUsers(requests, users) {
-  for (let userId in requests) {
-    for (let request in requests[userId]) {
-      users[userId].mergeRequests.push(requests[userId][request].id);
-    }
-  }
-
-  return { mergeRequests: requests, users };
-}
-
 function* remapUsersToMergeRequests() {
   const requests = yield select(getMergeRequests);
+
   const users = yield select(getUsers);
-  const data = yield mapMergeRequestsToUsers(requests, users);
+  const data = yield Api.mapMergeRequestsToUsers(requests, users);
   const updatedUsers = data.users;
   // yield put({
   //   type: "USERS_COMMENTS_UPDATED",

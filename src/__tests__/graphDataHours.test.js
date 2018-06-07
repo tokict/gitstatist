@@ -22,7 +22,7 @@ import * as testsHours from "../graph/tests/hours";
 import * as testsDays from "../graph/tests/days";
 import * as testsProjectsBar from "../graph/tests/projects";
 import * as testsBranchesBar from "../graph/tests/branches";
-import createTestObject from "../testDataCreator";
+import createTestObject from "../graphTestDataCreator";
 import moment from "moment";
 
 test("commitHours has a proper data object", () => {
