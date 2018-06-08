@@ -88,7 +88,7 @@ const mapsProjects = () => {
 const mapsComments = () => {
   const users = Adapter.mapUsers(apiMock.usersMock);
 
-  const comments = Adapter.mapCommentsToUsers(apiMock.commentMock, users);
+  const comments = Adapter.mapCommentsToUsers([apiMock.commentMock], users);
 
   const expected = {
     note: "fesafsefsg",

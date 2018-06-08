@@ -68,44 +68,42 @@ export const commitsMock = [
 ];
 
 export const commentMock = [
-  [
-    {
-      note: "fesafsefsg",
-      path: "apps/admin/controllers/Controller.php",
-      line: 20,
-      line_type: "new",
-      author: {
-        id: 1,
-        name: "test user1",
-        username: "ttokic",
-        state: "active",
-        avatar_url:
-          "http://gitlab.com/uploads/-/system/user/avatar/30/avatar.png",
-        web_url: "http://gitlab.com/tokict"
-      },
-      created_at: "2018-06-07T12:00:13.455Z",
-      branch: "master",
-      projectId: 1
+  {
+    note: "fesafsefsg",
+    path: "apps/admin/controllers/Controller.php",
+    line: 20,
+    line_type: "new",
+    author: {
+      id: 1,
+      name: "test user1",
+      username: "ttokic",
+      state: "active",
+      avatar_url:
+        "http://gitlab.com/uploads/-/system/user/avatar/30/avatar.png",
+      web_url: "http://gitlab.com/tokict"
     },
-    {
-      note: "feaf",
-      path: "apps/admin/controllers/Controller.php",
-      line: 75,
-      line_type: null,
-      author: {
-        id: 2,
-        name: "test user2",
-        username: "ttokic",
-        state: "active",
-        avatar_url:
-          "http://gitlab.com/uploads/-/system/user/avatar/30/avatar.png",
-        web_url: "http://gitlab.com/tokict"
-      },
-      created_at: "2018-06-07T12:00:18.227Z",
-      branch: "master",
-      projectId: 2
-    }
-  ]
+    created_at: "2018-06-07T12:00:13.455Z",
+    branch: "master",
+    projectId: 1
+  },
+  {
+    note: "feaf",
+    path: "apps/admin/controllers/Controller.php",
+    line: 75,
+    line_type: null,
+    author: {
+      id: 2,
+      name: "test user2",
+      username: "ttokic",
+      state: "active",
+      avatar_url:
+        "http://gitlab.com/uploads/-/system/user/avatar/30/avatar.png",
+      web_url: "http://gitlab.com/tokict"
+    },
+    created_at: "2018-06-07T12:00:18.227Z",
+    branch: "master",
+    projectId: 2
+  }
 ];
 
 export const mergeRequestsMock = {
