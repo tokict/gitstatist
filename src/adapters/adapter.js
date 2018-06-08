@@ -4,6 +4,7 @@ import Github from "./Github";
 
 const ApiAdapter = params => {
   let adapter;
+
   switch (params.provider) {
     case "bitbucket":
       adapter = new Bitbucket(params);

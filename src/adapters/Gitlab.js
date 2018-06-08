@@ -1,20 +1,21 @@
 import axios from "axios";
 import moment from "moment";
+import * as apiMock from "../apiMock";
 
-class Gitlab {
+export default class Gitlab {
   constructor(params) {
     this.url = params.url + "/api/v4";
     this.token = params.token;
     this.provider = params.provider;
   }
 
-  call = url => {
+  call = (url, type) => {
     const baseUrl = this.url;
     const url2 = baseUrl + url;
     const token = this.token;
 
     if (process.env.NODE_ENV === "test") {
-      return true;
+      return fakeResponse(type);
     }
     try {
       return axios
@@ -40,12 +41,12 @@ class Gitlab {
   };
   fetchUsers = () => {
     let url = "/users?per_page=1000&active=true";
-    return this.call(url);
+    return this.call(url, "users");
   };
 
   fetchProjects = () => {
     let url = "/projects?statistics=true&per_page=200";
-    return this.call(url);
+    return this.call(url, "projects");
   };
 
   saveCommits = data => {
@@ -87,7 +88,7 @@ class Gitlab {
       url += "&until=" + to.format("YYYY-MM-DD");
     }
 
-    return this.call(url);
+    return this.call(url, "commits");
   };
 
   fetchComments = (id, branch, page) => {
@@ -99,7 +100,7 @@ class Gitlab {
       "/comments?per_page=100&page=" +
       page;
 
-    return this.call(url);
+    return this.call(url, "comments");
   };
 
   fetchMergeRequests = (id, start, page) => {
@@ -107,19 +108,19 @@ class Gitlab {
     let url = "/merge_requests?author_id=" + id + "&created_after=" + from;
     "&page=" + page;
 
-    return this.call(url);
+    return this.call(url, "mergeRequests");
   };
 
   fetchCommitDetails = (sha, projectId) => {
     let url = "/projects/" + projectId + "/repository/commits/" + sha;
 
-    return this.call(url);
+    return this.call(url, "commitDetails");
   };
 
   fetchBranches = projectId => {
     let url = "/projects/" + projectId + "/repository/branches";
 
-    return this.call(url);
+    return this.call(url, "branches");
   };
 
   mapUsers = data => {
@@ -148,6 +149,9 @@ class Gitlab {
     const projects = {};
 
     data.forEach(p => {
+      if (!p.statistics) {
+        console.log(p);
+      }
       let ret = {
         name: p.name,
         id: p.id,
@@ -239,4 +243,36 @@ class Gitlab {
     return exists;
   };
 }
-export default Gitlab;
+
+const fakeResponse = type => {
+  const response = {
+    headers: {
+      "x-total-pages": 1
+    }
+  };
+  switch (type) {
+    case "commits":
+      response.data = apiMock.commitsMock;
+      break;
+
+    case "mergeRequests":
+      response.data = apiMock.mergeRequestsMock;
+      break;
+
+    case "comments":
+      response.data = apiMock.commentMock;
+      break;
+
+    case "projects":
+      response.data = apiMock.projectsMock;
+      break;
+
+    case "users":
+      response.data = apiMock.usersMock;
+      break;
+  }
+
+  return new Promise(function(resolve, reject) {
+    setTimeout(resolve, 10, response);
+  });
+};

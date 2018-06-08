@@ -1,357 +1,73 @@
-const Users = {
-  data: {
-    1: {
-      id: 1,
-      name: "test name1",
-      aliases: [],
-      commits: [1, 2, 3],
-      comments: [1, 2, 3],
-      mergeRequests: 12,
-      failedTests: 12
-    },
-    2: {
-      id: 2,
-      name: "test name2",
-      aliases: [],
-      commits: [1, 2],
-      comments: [1, 2],
-      mergeRequests: 23,
-      failedTests: 3
-    },
-    3: {
-      id: 3,
-      name: "test name3",
-      aliases: [],
-      commits: [1, 2, 3, 4],
-      comments: [1, 2, 3, 4],
-      mergeRequests: 1,
-      failedTests: 14
-    },
-    4: {
-      id: 4,
-      name: "test name4",
-      aliases: [],
-      commits: [1, 2, 3, 4, 5],
-      comments: [1, 2, 3, 4, 5],
-      mergeRequests: 3,
-      failedTests: 66
-    },
-    5: {
-      id: 5,
-      name: "test name5",
-      aliases: [],
-      commits: [],
-      comments: [],
-      mergeRequests: [],
-      failedTests: 0
-    }
-  }
-};
-
-const generateComments = (one, two) => ({
-  data: {
-    1: [
-      {
-        author: { name: "test name1", id: 1 },
-        created_at: one.format()
-      },
-      {
-        author: { name: "test name2", id: 2 },
-        created_at: two.format()
-      }
+export const commitsMock = [
+  {
+    id: "dcab708c589af522c674d34876681c33fd8c3870",
+    short_id: "dcab708c",
+    title: "Merging Local",
+    created_at: "2018-06-07T15:26:32.000+03:00",
+    parent_ids: [
+      "916c90aab874b8958c8627fbab37f63c0f1d5d20",
+      "faf0a0b42bc108b1df5085e229af1c498f8a2042"
     ],
-    2: [
-      {
-        author: { name: "test name1", id: 1 },
-        created_at: one.format()
-      },
-      {
-        author: { name: "test name2", id: 2 },
-        created_at: two.format()
-      },
-      {
-        author: { name: "test name3", id: 3 },
-        created_at: two.format()
-      }
-    ]
-  }
-});
-
-const Projects = {
-  data: {
-    1: {
-      id: 1,
-      name: "Project1",
-      branches: ["dev", "master"],
-      branchCommitNr: {
-        dev: 2
-      },
-      commentsNr: {
-        dev: 2
-      }
-    },
-    2: {
-      id: 2,
-      name: "Project2",
-      branches: ["dev", "master"],
-      branchCommitNr: {
-        dev: 1,
-        master: 3
-      },
-      commentsNr: {
-        master: 3
-      }
-    },
-    3: {
-      id: 3,
-      name: "Project3",
-      branches: ["dev", "master"]
-    },
-    4: {
-      id: 4,
-      name: "Project4",
-      branches: ["dev", "master"]
-    }
-  }
-};
-
-const createTestObject = (one, two) => {
-  let data = generateCommits(one, two);
-  data.users = Users.data;
-  data.comments = generateComments(one, two).data;
-  data.projects = Projects.data;
-  data.mergeRequests = generateMergeRequests(one, two);
-  data.mocks = {
-    users: usersMock,
-    commits: commitsMock,
-    comments: commentMock,
-    mergeRequests: mergeRequestsMock,
-    projects: projectsMock
-  };
-  return data;
-};
-
-const generateCommits = (one, two) => ({
-  commits: {
-    data: {
-      1: [
-        {
-          author: "test name1",
-          committed_at: one.format(),
-          branch: "dev",
-          id: "id1",
-          userId: 1
-        },
-        {
-          author: "test name2",
-          committed_at: two.format(),
-          branch: "dev",
-          id: "id2",
-          userId: 2
-        }
-      ],
-      2: [
-        {
-          author: "test name1",
-          committed_at: one.format(),
-          branch: "master",
-          id: "id3",
-          userId: 1
-        },
-        {
-          author: "test name2",
-          committed_at: two.format(),
-          branch: "master",
-          id: "id4",
-          userId: 2
-        },
-        {
-          author: "test name3",
-          committed_at: two.format(),
-          branch: "master",
-          id: "id4",
-          userId: 3
-        },
-        {
-          author: "test name5",
-          committed_at: one.format(),
-          branch: "dev",
-          id: "id5",
-          userId: 5
-        }
-      ]
-    },
-    details: {
-      id1: {
-        status: "failed",
-        project_id: 1,
-        stats: {
-          additions: 5,
-          deletions: 3
-        }
-      },
-      id2: {
-        status: "failed",
-        project_id: 1,
-        stats: {
-          additions: 5,
-          deletions: 3
-        }
-      },
-      id3: {
-        status: "failed",
-        project_id: 2,
-        stats: {
-          additions: 5,
-          deletions: 3
-        }
-      },
-      id4: {
-        status: "failed",
-        project_id: 2,
-        stats: {
-          additions: 5,
-          deletions: 3
-        }
-      },
-      id5: {
-        status: "passed",
-        project_id: 2,
-        stats: {
-          additions: 5,
-          deletions: 3
-        }
-      }
-    }
-  }
-});
-
-const generateMergeRequests = (one, two) => ({
-  data: {
-    1: [
-      {
-        id: 1,
-        target_branch: "master",
-        target_project_id: 1,
-        author: { name: "test name1", id: 1 },
-        created_at: one.format(),
-        branch: "test"
-      },
-      {
-        id: 2,
-        target_branch: "master",
-        target_project_id: 1,
-        author: { name: "test name1", id: 1 },
-        committed_at: two.format()
-      }
+    message: "Merging Local\n",
+    author_name: "test user1",
+    author_email: "test@gitlab.com",
+    authored_date: "2018-06-07T15:26:32.000+03:00",
+    committer_name: "test user1",
+    committer_email: "test@gitlab.com",
+    committed_date: "2018-06-07T15:26:32.000+03:00",
+    branch: "dev"
+  },
+  {
+    id: "916c90aab874b8958c8627fbab37f63c0f1d5d20",
+    short_id: "916c90aa",
+    title: "test title",
+    created_at: "2018-06-07T14:57:17.000+03:00",
+    parent_ids: ["982035dc6c78c4a4e1d3c68beed0c245906e30bc"],
+    message: "test title \n",
+    author_name: "test user1",
+    author_email: "test@gitlab.com",
+    authored_date: "2018-06-07T14:57:17.000+03:00",
+    committer_name: "test user1",
+    committer_email: "test@gitlab.com",
+    committed_date: "2018-06-07T14:57:17.000+03:00",
+    branch: "dev"
+  },
+  {
+    id: "faf0a0b42bc108b1df5085e229af1c498f8a2042",
+    short_id: "faf0a0b4",
+    title: "description in array",
+    created_at: "2018-06-07T11:22:36.000+03:00",
+    parent_ids: ["c1e2ba16d21281f7e590cea4fb03091d2e029b84"],
+    message: "Redmine #5242 - Affiliate API update - description in array\n",
+    author_name: "test user2",
+    author_email: "test2@gitlab.com",
+    authored_date: "2018-06-07T11:22:36.000+03:00",
+    committer_name: "test user2",
+    committer_email: "test2@gitlab.com",
+    committed_date: "2018-06-07T11:22:36.000+03:00",
+    branch: "dev"
+  },
+  {
+    id: "020ff1ce5743a730559e5d7b36570b64e4955805",
+    short_id: "020ff1ce",
+    title: "Merge remote-tracking branch ",
+    created_at: "2018-06-07T11:58:23.000+03:00",
+    parent_ids: [
+      "faf0a0b42bc108b1df5085e229af1c498f8a2042",
+      "d2903e690eacb6293ed7910cf99c8d68eb3ea81f"
     ],
-    2: [
-      {
-        id: 4,
-        target_branch: "master",
-        target_project_id: 2,
-        author: { name: "test name2", id: 2 },
-        created_at: one.format()
-      },
-      {
-        id: 5,
-        target_branch: "master",
-        target_project_id: 2,
-        author: { name: "test name2", id: 2 },
-        committed_at: two.format()
-      },
-      {
-        id: 6,
-        target_branch: "dev",
-        target_project_id: 3,
-        author: "test name3",
-        created_at: two.format(),
-        author: { name: "test name2", id: 2 }
-      },
-      {
-        id: 7,
-        target_branch: "dev",
-        target_project_id: 3,
-        author: "test name5",
-        created_at: one.format(),
-        author: { name: "test name2", id: 2 }
-      }
-    ]
+    message: "Merge remote-tracking branch 'remo\n",
+    author_name: "test user2",
+    author_email: "test2@gitlab.com",
+    authored_date: "2018-06-07T11:58:23.000+03:00",
+    committer_name: "test user2",
+    committer_email: "test2@gitlab.com",
+    committed_date: "2018-06-07T11:58:23.000+03:00",
+    branch: "dev"
   }
-});
-
-const commitsMock = [
-  [
-    {
-      id: "dcab708c589af522c674d34876681c33fd8c3870",
-      short_id: "dcab708c",
-      title: "Merging Local",
-      created_at: "2018-06-07T15:26:32.000+03:00",
-      parent_ids: [
-        "916c90aab874b8958c8627fbab37f63c0f1d5d20",
-        "faf0a0b42bc108b1df5085e229af1c498f8a2042"
-      ],
-      message: "Merging Local\n",
-      author_name: "test user1",
-      author_email: "test@gitlab.com",
-      authored_date: "2018-06-07T15:26:32.000+03:00",
-      committer_name: "test user1",
-      committer_email: "test@gitlab.com",
-      committed_date: "2018-06-07T15:26:32.000+03:00",
-      branch: "dev"
-    },
-    {
-      id: "916c90aab874b8958c8627fbab37f63c0f1d5d20",
-      short_id: "916c90aa",
-      title: "test title",
-      created_at: "2018-06-07T14:57:17.000+03:00",
-      parent_ids: ["982035dc6c78c4a4e1d3c68beed0c245906e30bc"],
-      message: "test title \n",
-      author_name: "test user1",
-      author_email: "test@gitlab.com",
-      authored_date: "2018-06-07T14:57:17.000+03:00",
-      committer_name: "test user1",
-      committer_email: "test@gitlab.com",
-      committed_date: "2018-06-07T14:57:17.000+03:00",
-      branch: "dev"
-    },
-    {
-      id: "faf0a0b42bc108b1df5085e229af1c498f8a2042",
-      short_id: "faf0a0b4",
-      title: "description in array",
-      created_at: "2018-06-07T11:22:36.000+03:00",
-      parent_ids: ["c1e2ba16d21281f7e590cea4fb03091d2e029b84"],
-      message: "Redmine #5242 - Affiliate API update - description in array\n",
-      author_name: "test user2",
-      author_email: "test2@gitlab.com",
-      authored_date: "2018-06-07T11:22:36.000+03:00",
-      committer_name: "test user2",
-      committer_email: "test2@gitlab.com",
-      committed_date: "2018-06-07T11:22:36.000+03:00",
-      branch: "dev"
-    },
-    {
-      id: "020ff1ce5743a730559e5d7b36570b64e4955805",
-      short_id: "020ff1ce",
-      title: "Merge remote-tracking branch ",
-      created_at: "2018-06-07T11:58:23.000+03:00",
-      parent_ids: [
-        "faf0a0b42bc108b1df5085e229af1c498f8a2042",
-        "d2903e690eacb6293ed7910cf99c8d68eb3ea81f"
-      ],
-      message: "Merge remote-tracking branch 'remo\n",
-      author_name: "test user2",
-      author_email: "test2@gitlab.com",
-      authored_date: "2018-06-07T11:58:23.000+03:00",
-      committer_name: "test user2",
-      committer_email: "test2@gitlab.com",
-      committed_date: "2018-06-07T11:58:23.000+03:00",
-      branch: "dev"
-    }
-  ]
 ];
 
-const commentMock = [
+export const commentMock = [
   [
     {
       note: "fesafsefsg",
@@ -392,7 +108,7 @@ const commentMock = [
   ]
 ];
 
-const mergeRequestsMock = {
+export const mergeRequestsMock = {
   1: [
     {
       id: 12,
@@ -488,7 +204,7 @@ const mergeRequestsMock = {
   ]
 };
 
-const projectsMock = [
+export const projectsMock = [
   {
     id: 1,
     description: "test Calculator",
@@ -623,7 +339,7 @@ const projectsMock = [
   }
 ];
 
-const usersMock = [
+export const usersMock = [
   {
     id: 1,
     name: "test user1",
@@ -657,5 +373,3 @@ const usersMock = [
     web_url: "http://gitlab.com/test4"
   }
 ];
-
-export default createTestObject;
