@@ -12,206 +12,229 @@ const getMergeRequests = state => state.MergeRequests.data;
 const getUi = state => state.Ui;
 let currentUser = 1;
 
-var Api;
+export default class MergeRequests {
+  constructor() {
+    this.stored = null;
 
-function* fetchMergeRequests(params) {
-  yield put({
-    type: "UPDATE_PROGRESS",
-    mergeRequests: { current: 0, total: 0, timing: 0 },
-    fetchingData: true
-  });
-  try {
-    const provider = yield select(getProvider);
-    const url = yield select(getUrl);
-    const ui = yield select(getUi);
-    const token = yield select(getToken);
-    const users = yield select(getUsers);
+    this.fetchMergeRequests = this.fetchMergeRequests.bind(this);
+    this.remapUsersToMergeRequests = this.remapUsersToMergeRequests.bind(this);
+    this.mergeRequestsIterator = this.mergeRequestsIterator.bind(this);
+    this.fetchPagesNumber = this.fetchPagesNumber.bind(this);
+    this.fetchUsersMergeRequests = this.fetchUsersMergeRequests.bind(this);
+    this.iterateUser = this.iterateUser.bind(this);
+    this.requestExists = this.requestExists.bind(this);
+  }
 
-    Api = new ApiAdapter({ provider, url, token });
-
-    yield put({ type: "FETCHING_MERGE_REQUESTS" }); //foreach odi
-    for (let key in users) {
-      if (!users[key]) continue;
-      users[key].mergeRequests = [];
-    }
-    const pagesNumber = yield call(fetchPagesNumber, users, Api);
-
-    const mergeRequestsData = yield call(
-      mergeRequestsIterator,
-      users,
-      pagesNumber,
-      Api
-    );
-
-    const map = yield Api.mapMergeRequestsToUsers(mergeRequestsData, users);
-
-    const updatedUsers = map.users;
-
-    const mergeRequests = map.mergeRequests;
-
-    yield put({
-      type: "USERS_UPDATED",
-      users: updatedUsers,
-      loading: false
-    });
-
-    yield put({
-      type: "MERGE_REQUESTS_FETCHED",
-      mergeRequests: mergeRequests,
-      loading: false
-    });
+  *fetchMergeRequests(params) {
     yield put({
       type: "UPDATE_PROGRESS",
-      fetchingData: false
+      mergeRequests: { current: 0, total: 0, timing: 0 },
+      fetchingData: true
     });
-  } catch (error) {
-    console.log(error);
-    yield put({ type: "MERGE_REQUESTS_FETCHED", loading: false });
-    yield put({
-      type: "UPDATE_PROGRESS",
-      fetchingData: false
-    });
-  }
-}
+    try {
+      const provider = yield select(getProvider);
+      const url = yield select(getUrl);
+      const ui = yield select(getUi);
+      const token = yield select(getToken);
+      const users = yield select(getUsers);
 
-function* remapUsersToMergeRequests() {
-  const requests = yield select(getMergeRequests);
+      this.stored = {
+        url,
+        provider,
+        token,
+        ui,
+        users
+      };
 
-  const users = yield select(getUsers);
-  const data = yield Api.mapMergeRequestsToUsers(requests, users);
-  const updatedUsers = data.users;
-  // yield put({
-  //   type: "USERS_COMMENTS_UPDATED",
-  //   users: updatedUsers,
-  //   loading: false
-  // });
-}
-// For each branch in project do while to fetch through pagination all comments and then add those comments to the comments in redux for normal processing Make sure we dont duplicate comments (Maybe quit when we find first similar as its probably merge point)
-function* mergeRequestsIterator(users, pages, Api) {
-  let requests = [];
-  currentUser = 1;
-  for (let key in users) {
-    if (!users[key]) continue;
-    let c = yield* fetchUsersMergeRequests(users[key].id, pages, Api);
+      this.Api = ApiAdapter(this.stored);
 
-    requests[users[key].id] = c[users[key].id];
-  }
+      yield put({ type: "FETCHING_MERGE_REQUESTS" }); //foreach odi
+      for (let key in users) {
+        if (!users[key]) continue;
+        users[key].mergeRequests = [];
+      }
+      const pagesNumber = yield call(this.fetchPagesNumber, users);
 
-  return requests;
-}
-
-function* fetchPagesNumber(users, Api) {
-  let nr = 0;
-  let current = 0;
-  const ui = yield select(getUi);
-  const start = ui.periodFrom.date;
-  let total = 0;
-  for (let key in users) {
-    if (!users[key]) continue;
-    total++;
-  }
-  try {
-    for (let key in users) {
-      if (!users[key]) continue;
-      const started = new Date().getTime();
-
-      const calling = yield call(
-        Api.fetchMergeRequests,
-        users[key].id,
-        start,
-        1
+      const mergeRequestsData = yield call(
+        this.mergeRequestsIterator,
+        users,
+        pagesNumber
       );
 
-      const ended = new Date().getTime();
-      if (calling) {
-        nr += calling.headers["x-total-pages"] * 1;
-      }
-      current++;
+      const map = yield this.Api.mapMergeRequestsToUsers(
+        mergeRequestsData,
+        users
+      );
+
+      const updatedUsers = map.users;
+
+      const mergeRequests = map.mergeRequests;
+
+      yield put({
+        type: "USERS_UPDATED",
+        users: updatedUsers,
+        loading: false
+      });
+
+      yield put({
+        type: "MERGE_REQUESTS_FETCHED",
+        mergeRequests: mergeRequests,
+        loading: false
+      });
       yield put({
         type: "UPDATE_PROGRESS",
-        mergeRequestsMeta: { current, total, timing: ended - started }
+        fetchingData: false
+      });
+
+      return mergeRequests;
+    } catch (error) {
+      console.log(error);
+      yield put({ type: "MERGE_REQUESTS_FETCHED", loading: false });
+      yield put({
+        type: "UPDATE_PROGRESS",
+        fetchingData: false
       });
     }
-  } catch (error) {
-    console.log(error);
   }
-  return nr;
-}
 
-function* fetchUsersMergeRequests(id, pages, Api) {
-  let requests = {
-    [id]: []
-  };
-  const ui = yield select(getUi);
+  *remapUsersToMergeRequests() {
+    const requests = yield select(getMergeRequests);
 
-  try {
-    const userRequests = yield iterateUser(id, pages, Api);
+    const users = yield select(getUsers);
+    const data = yield this.Api.mapMergeRequestsToUsers(requests, users);
+    const updatedUsers = data.users;
+    // yield put({
+    //   type: "USERS_COMMENTS_UPDATED",
+    //   users: updatedUsers,
+    //   loading: false
+    // });
+  }
+  // For each branch in project do while to fetch through pagination all comments and then add those comments to the comments in redux for normal processing Make sure we dont duplicate comments (Maybe quit when we find first similar as its probably merge point)
+  *mergeRequestsIterator(users, pages) {
+    let requests = [];
+    currentUser = 1;
+    for (let key in users) {
+      if (!users[key]) continue;
+      let c = yield* this.fetchUsersMergeRequests(users[key].id, pages);
 
-    userRequests.forEach(request => {
-      if (!requestExists(request.id, id)) {
-        requests[id].push(request);
+      requests[users[key].id] = c[users[key].id];
+    }
+
+    return requests;
+  }
+
+  *fetchPagesNumber(users) {
+    let nr = 0;
+    let current = 0;
+    const ui = yield select(getUi);
+    const start = ui.periodFrom.date;
+    let total = 0;
+    for (let key in users) {
+      if (!users[key]) continue;
+      total++;
+    }
+    try {
+      for (let key in users) {
+        if (!users[key]) continue;
+        const started = new Date().getTime();
+
+        const calling = yield call(
+          this.Api.fetchMergeRequests,
+          users[key].id,
+          start,
+          1
+        );
+
+        const ended = new Date().getTime();
+        if (calling) {
+          nr += calling.headers["x-total-pages"] * 1;
+        }
+        current++;
+        yield put({
+          type: "UPDATE_PROGRESS",
+          mergeRequestsMeta: { current, total, timing: ended - started }
+        });
       }
-    });
-  } catch (error) {
-    console.log(error);
+    } catch (error) {
+      console.log(error);
+    }
+    return nr;
   }
 
-  return requests;
-}
+  *fetchUsersMergeRequests(id, pages, Api) {
+    let requests = {
+      [id]: []
+    };
+    const ui = yield select(getUi);
 
-//We are iterating over one branch here, going through pagination to fetch all comments
-function* iterateUser(id, total, Api) {
-  const ui = yield select(getUi);
-  const start = ui.periodFrom.date;
-  let page = 1;
-  let calling;
+    try {
+      const userRequests = yield this.iterateUser(id, pages);
 
-  const cd = yield call(Api.fetchMergeRequests, id, start, page);
+      userRequests.forEach(request => {
+        if (!this.requestExists(request.id, id)) {
+          requests[id].push(request);
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
 
-  const requestsData = cd ? cd.data : [];
-  let requests = requestsData;
-
-  const totalPages = cd.headers["x-total-pages"] * 1;
-
-  while (page <= totalPages) {
-    const started = new Date().getTime();
-    // yield new Promise(resolve => setTimeout(resolve, 30));
-
-    calling = yield call(Api.fetchMergeRequests, id, start, page);
-
-    const ended = new Date().getTime();
-    requests =
-      calling && totalPages > 1 ? requests.concat(calling.data) : requests;
-    page++;
-
-    yield put({
-      type: "UPDATE_PROGRESS",
-      mergeRequests: {
-        current: currentUser,
-        total: total,
-        timing: ended - started
-      }
-    });
-    currentUser++;
+    return requests;
   }
 
-  return requests;
-}
+  //We are iterating over one branch here, going through pagination to fetch all comments
+  *iterateUser(id, total) {
+    const ui = yield select(getUi);
+    const start = ui.periodFrom.date;
+    let page = 1;
+    let calling;
 
-//Check if we already have this comment saved so we dont duplicate it
-function requestExists(id, requests) {
-  let exists = false;
-  if (requests) {
-    for (let key in requests) {
-      if (requests[key].id == id) {
-        exists = true;
+    const cd = yield call(this.Api.fetchMergeRequests, id, start, page);
+
+    const requestsData = cd ? cd.data : [];
+    let requests = requestsData;
+
+    const totalPages = cd.headers["x-total-pages"] * 1;
+
+    while (page <= totalPages) {
+      const started = new Date().getTime();
+      // yield new Promise(resolve => setTimeout(resolve, 30));
+
+      calling = yield call(this.Api.fetchMergeRequests, id, start, page);
+
+      const ended = new Date().getTime();
+      requests =
+        calling && totalPages > 1 ? requests.concat(calling.data) : requests;
+      page++;
+
+      yield put({
+        type: "UPDATE_PROGRESS",
+        mergeRequests: {
+          current: currentUser,
+          total: total,
+          timing: ended - started
+        }
+      });
+      currentUser++;
+    }
+
+    return requests;
+  }
+
+  //Check if we already have this comment saved so we dont duplicate it
+  requestExists(id, requests) {
+    let exists = false;
+    if (requests) {
+      for (let key in requests) {
+        if (requests[key].id == id) {
+          exists = true;
+        }
       }
     }
+    return exists;
   }
-  return exists;
 }
-
 export const MergeRequestsSagas = [
-  takeLatest("FETCH_MERGE_REQUESTS", fetchMergeRequests)
+  takeLatest("FETCH_MERGE_REQUESTS", new MergeRequests().fetchMergeRequests)
   //takeLatest("USERS_UPDATED", remapUsersToMergeRequests)
 ];

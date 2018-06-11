@@ -106,101 +106,96 @@ export const commentMock = [
   }
 ];
 
-export const mergeRequestsMock = {
-  1: [
-    {
-      id: 12,
-      iid: 2,
-      project_id: 1,
-      title: "Dev",
-      description: "",
-      state: "merged",
-      created_at: "2018-03-23T12:38:40.524Z",
-      updated_at: "2018-03-23T12:38:45.277Z",
-      target_branch: "master",
-      source_branch: "dev",
-      upvotes: 0,
-      downvotes: 0,
-      author: {
-        id: 2,
-        name: "test user2",
-        username: "ttokic",
-        state: "active",
-        avatar_url:
-          "http://gitlab.com/uploads/-/system/user/avatar/30/avatar.png",
-        web_url: "http://gitlab.com/tokict"
-      },
-      assignee: null,
-      source_project_id: 54,
-      target_project_id: 54,
-      labels: [],
-      work_in_progress: false,
-      milestone: null,
-      merge_when_pipeline_succeeds: false,
-      merge_status: "can_be_merged",
-      sha: "55ca660bd2b4d6022475eb78b40bb0a783d00c6a",
-      merge_commit_sha: "ac4d43e5a58985858f95ea0f9ab1b4e385d61174",
-      user_notes_count: 0,
-      discussion_locked: null,
-      should_remove_source_branch: null,
-      force_remove_source_branch: false,
-      web_url: "http://gitlab.com/test/merge_requests/2",
-      time_stats: {
-        time_estimate: 0,
-        total_time_spent: 0,
-        human_time_estimate: null,
-        human_total_time_spent: null
-      }
+export const mergeRequestsMock = [
+  {
+    id: 12,
+    iid: 2,
+    project_id: 1,
+    title: "Dev",
+    description: "",
+    state: "merged",
+    created_at: "2018-03-23T12:38:40.524Z",
+    updated_at: "2018-03-23T12:38:45.277Z",
+    target_branch: "master",
+    source_branch: "dev",
+    upvotes: 0,
+    downvotes: 0,
+    author: {
+      id: 2,
+      name: "test user2",
+      username: "ttokic",
+      state: "active",
+      avatar_url:
+        "http://gitlab.com/uploads/-/system/user/avatar/30/avatar.png",
+      web_url: "http://gitlab.com/tokict"
+    },
+    assignee: null,
+    source_project_id: 54,
+    target_project_id: 54,
+    labels: [],
+    work_in_progress: false,
+    milestone: null,
+    merge_when_pipeline_succeeds: false,
+    merge_status: "can_be_merged",
+    sha: "55ca660bd2b4d6022475eb78b40bb0a783d00c6a",
+    merge_commit_sha: "ac4d43e5a58985858f95ea0f9ab1b4e385d61174",
+    user_notes_count: 0,
+    discussion_locked: null,
+    should_remove_source_branch: null,
+    force_remove_source_branch: false,
+    web_url: "http://gitlab.com/test/merge_requests/2",
+    time_stats: {
+      time_estimate: 0,
+      total_time_spent: 0,
+      human_time_estimate: null,
+      human_total_time_spent: null
     }
-  ],
-
-  2: [
-    {
-      id: 11,
-      iid: 1,
-      project_id: 2,
-      title: "Dev",
-      description: "",
-      state: "merged",
-      created_at: "2018-03-20T15:46:12.766Z",
-      updated_at: "2018-03-22T15:53:51.633Z",
-      target_branch: "master",
-      source_branch: "dev",
-      upvotes: 0,
-      downvotes: 0,
-      author: {
-        id: 1,
-        name: "test user1",
-        username: "ttokic",
-        state: "active",
-        avatar_url:
-          "http://gitlab.com/uploads/-/system/user/avatar/30/avatar.png",
-        web_url: "http://gitlab.com/tokict"
-      },
-      assignee: null,
-      source_project_id: 54,
-      target_project_id: 54,
-      labels: [],
-      work_in_progress: false,
-      milestone: null,
-      merge_when_pipeline_succeeds: false,
-      merge_status: "can_be_merged",
-      sha: "03e9fea9f2a982bcafa36ac8d25e222b78835187",
-      merge_commit_sha: "db97f8cf98c4931d3d28f42f832d46e5d54375b1",
-      user_notes_count: 0,
-      discussion_locked: null,
-      should_remove_source_branch: null,
-      force_remove_source_branch: false,
-      web_url: "http://gitlab.com/test/merge_requests/1",
-      time_stats: {
-        time_estimate: 0,
-        total_time_spent: 0,
-        human_time_estimate: null,
-        human_total_time_spent: null
-      }
+  },
+  {
+    id: 11,
+    iid: 1,
+    project_id: 2,
+    title: "Dev",
+    description: "",
+    state: "merged",
+    created_at: "2018-03-20T15:46:12.766Z",
+    updated_at: "2018-03-22T15:53:51.633Z",
+    target_branch: "master",
+    source_branch: "dev",
+    upvotes: 0,
+    downvotes: 0,
+    author: {
+      id: 1,
+      name: "test user1",
+      username: "ttokic",
+      state: "active",
+      avatar_url:
+        "http://gitlab.com/uploads/-/system/user/avatar/30/avatar.png",
+      web_url: "http://gitlab.com/tokict"
+    },
+    assignee: null,
+    source_project_id: 54,
+    target_project_id: 54,
+    labels: [],
+    work_in_progress: false,
+    milestone: null,
+    merge_when_pipeline_succeeds: false,
+    merge_status: "can_be_merged",
+    sha: "03e9fea9f2a982bcafa36ac8d25e222b78835187",
+    merge_commit_sha: "db97f8cf98c4931d3d28f42f832d46e5d54375b1",
+    user_notes_count: 0,
+    discussion_locked: null,
+    should_remove_source_branch: null,
+    force_remove_source_branch: false,
+    web_url: "http://gitlab.com/test/merge_requests/1",
+    time_stats: {
+      time_estimate: 0,
+      total_time_spent: 0,
+      human_time_estimate: null,
+      human_total_time_spent: null
     }
-  ]
-};
+  }
+];
 
 export const projectsMock = [
   {

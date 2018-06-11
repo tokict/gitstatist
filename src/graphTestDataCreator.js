@@ -1,3 +1,5 @@
+import moment, { isMoment } from "moment";
+
 const Users = {
   data: {
     1: {
@@ -116,6 +118,11 @@ const Projects = {
 };
 
 const createTestObject = (one, two) => {
+  if (!one) {
+    one = new moment().subtract(1, "h");
+    two = new moment().subtract(2, "h");
+  }
+
   let data = generateCommits(one, two);
   data.users = Users.data;
   data.comments = generateComments(one, two).data;

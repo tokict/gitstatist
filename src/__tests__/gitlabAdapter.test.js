@@ -1,5 +1,7 @@
 import Gitlab from "../adapters/Gitlab";
 import * as apiMock from "../apiMock";
+import createTestObject from "../graphTestDataCreator";
+
 test("gitlab adapter fetches and maps", () => {
   let test = Adapter.fetchUsers();
   expect(test).toBeInstanceOf(Promise);
@@ -113,22 +115,12 @@ const mapsComments = () => {
 };
 
 const mapsMergeRequests = () => {
+  let data = createTestObject();
   const users = Adapter.mapUsers(apiMock.usersMock);
-
   const mergeRequests = Adapter.mapMergeRequestsToUsers(
-    apiMock.mergeRequestsMock,
+    data.mergeRequests.data,
     users
   );
 
-  const expected = {
-    name: "calculator",
-    id: 1,
-    image: null,
-    path: "test/calculator",
-    commitCount: 1,
-    branches: [],
-    branchCommitNr: {}
-  };
-
-  expect(mergeRequests.mergeRequests[1][0].title).toBe("Dev");
+  expect(mergeRequests.mergeRequests[1][0].branch).toBe("test");
 };

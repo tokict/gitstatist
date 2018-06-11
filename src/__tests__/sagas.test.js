@@ -94,43 +94,80 @@ it("fetches comments", () => {
     });
 });
 
-// it("fetches users", () => {
-//   let UsersSagas = new Users();
+it("fetches users", () => {
+  let UsersSagas = new Users({
+    url: "test",
+    provider: "gitlab",
+    token: "taefgedg"
+  });
 
-//   return expectSaga(UsersSagas.fetchUsers)
-//     .withState(fakeState)
-//     .run()
-//     .then(result => {
-//       expect(result.returnValue[1][0]).toEqual({
-//         author: "test user1",
-//         created_at: "2018-06-07T15:26:32.000+03:00",
-//         committer: "test user1",
-//         committed_at: "2018-06-07T15:26:32.000+03:00",
-//         id: "dcab708c589af522c674d34876681c33fd8c3870",
-//         title: "Merging Local",
-//         branch: "dev"
-//       });
-//     });
-// });
+  return expectSaga(UsersSagas.fetchUsers)
+    .run()
+    .then(result => {
+      expect(result.returnValue[0]).toEqual({
+        avatar_url: null,
+        id: 1,
+        name: "test user1",
+        state: "active",
+        username: "test user1",
+        web_url: "http://gitlab.com/test1"
+      });
+    });
+});
 
-// it("fetches  merge requests", () => {
-//   let MergeRequestsSagas = new Requests();
+it("fetches  merge requests", () => {
+  let MergeRequestsSagas = new Requests();
 
-//   return expectSaga(MergeRequestsSagas.fetchMergeRequests)
-//     .withState(fakeState)
-//     .run()
-//     .then(result => {
-//       expect(result.returnValue[1][0]).toEqual({
-//         author: "test user1",
-//         created_at: "2018-06-07T15:26:32.000+03:00",
-//         committer: "test user1",
-//         committed_at: "2018-06-07T15:26:32.000+03:00",
-//         id: "dcab708c589af522c674d34876681c33fd8c3870",
-//         title: "Merging Local",
-//         branch: "dev"
-//       });
-//     });
-// });
+  return expectSaga(MergeRequestsSagas.fetchMergeRequests)
+    .withState(fakeState)
+    .run()
+    .then(result => {
+      expect(result.returnValue[1][0]).toEqual({
+        assignee: null,
+        author: {
+          avatar_url:
+            "http://gitlab.com/uploads/-/system/user/avatar/30/avatar.png",
+          id: 2,
+          name: "test user2",
+          state: "active",
+          username: "ttokic",
+          web_url: "http://gitlab.com/tokict"
+        },
+        created_at: "2018-03-23T12:38:40.524Z",
+        description: "",
+        discussion_locked: null,
+        downvotes: 0,
+        force_remove_source_branch: false,
+        id: 12,
+        iid: 2,
+        labels: [],
+        merge_commit_sha: "ac4d43e5a58985858f95ea0f9ab1b4e385d61174",
+        merge_status: "can_be_merged",
+        merge_when_pipeline_succeeds: false,
+        milestone: null,
+        project_id: 1,
+        sha: "55ca660bd2b4d6022475eb78b40bb0a783d00c6a",
+        should_remove_source_branch: null,
+        source_branch: "dev",
+        source_project_id: 54,
+        state: "merged",
+        target_branch: "master",
+        target_project_id: 54,
+        time_stats: {
+          human_time_estimate: null,
+          human_total_time_spent: null,
+          time_estimate: 0,
+          total_time_spent: 0
+        },
+        title: "Dev",
+        updated_at: "2018-03-23T12:38:45.277Z",
+        upvotes: 0,
+        user_notes_count: 0,
+        web_url: "http://gitlab.com/test/merge_requests/2",
+        work_in_progress: false
+      });
+    });
+});
 
 const fakeState = {
   Users: {

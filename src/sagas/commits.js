@@ -65,7 +65,6 @@ export default class Commits {
         provider,
         token,
         ui,
-        token,
         users,
         earliest,
         commits,
