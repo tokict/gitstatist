@@ -60,8 +60,8 @@ class App extends Component {
       this.props.actions.fetchProjects();
     }
   }
-  startApp = (url, token, provider) => {
-    this.props.actions.fetchUsers(url, token, provider);
+  startApp = (url, token, provider, projects) => {
+    this.props.actions.fetchUsers(url, token, provider, projects);
   };
   dismissMessage(type) {
     this.actions.dismissMessage(type);
@@ -536,6 +536,9 @@ class App extends Component {
             url={this.props.Server.url}
             token={this.props.Server.token}
             provider={this.props.Server.provider}
+            searchProjectResults={this.props.Projects.searchResults}
+            filteredProjects={this.props.Projects.filter}
+            searchProjects={params => this.props.actions.searchProjects(params)}
           />
         )}
         <UsersModal

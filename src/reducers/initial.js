@@ -12,6 +12,8 @@ export const initialState = {
   },
   Projects: {
     data: null,
+    selected: null,
+    searchResults: null,
     loading: false
   },
   Commits: {

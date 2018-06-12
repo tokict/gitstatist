@@ -48,6 +48,7 @@ export default class SearchComponent extends Component {
         onSearchChange={_.debounce(this.handleSearchChange, 500, {
           leading: true
         })}
+        placeholder={this.props.placeholder}
         results={results}
         value={value}
         resultRenderer={this.props.resultRenderer}

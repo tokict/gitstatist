@@ -1,6 +1,6 @@
 const userActions = {
-  fetchUsers: function(url, token, provider) {
-    return { type: "FETCH_USERS", url, token, provider };
+  fetchUsers: function(url, token, provider, projects) {
+    return { type: "FETCH_USERS", url, token, provider, projects };
   },
   updateUsers: function(users) {
     return { type: "USERS_UPDATED", users: users };

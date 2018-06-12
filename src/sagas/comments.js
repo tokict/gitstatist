@@ -50,7 +50,7 @@ export default class Comments {
         provider,
         token,
         ui,
-        token,
+
         users,
         earliest,
         comments
@@ -149,9 +149,20 @@ export default class Comments {
     const url = yield select(getUrl);
 
     const token = yield select(getToken);
-
-    const comments = yield select(getComments);
     const users = yield select(getUsers);
+    let comments = yield select(getComments);
+
+    this.stored = {
+      url,
+      provider,
+      token,
+
+      users,
+
+      comments
+    };
+
+    this.Api = ApiAdapter(this.stored);
     const data = yield this.Api.mapCommentsToUsers(comments, users);
     const updatedUsers = data.users;
     yield put({

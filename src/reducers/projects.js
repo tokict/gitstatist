@@ -8,7 +8,12 @@ export default function(state = initialState.Projects, action) {
         data: action.projects,
         loading: false
       };
-
+    case "SELECTED_PROJECTS_UPDATED":
+      return {
+        ...state,
+        selected: action.selected
+      };
+      break;
     case "FETCHING_PROJECTS":
       return {
         ...state,

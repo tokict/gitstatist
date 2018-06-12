@@ -48,6 +48,23 @@ export default class Gitlab {
     let url = "/projects?statistics=true&per_page=200";
     return this.call(url, "projects");
   };
+  fetchProject = id => {
+    let url = "/projects/" + id + "?statistics=true";
+
+    return this.call(url, "projects");
+  };
+
+  fetchProjectUsers = (project, page) => {
+    let url = "/projects/" + project + "/users?per_page=100&page=" + page;
+
+    return this.call(url, "users");
+  };
+
+  searchProjects = search => {
+    let url = "/projects?search=" + search + "&order_by=name";
+
+    return this.call(url, "projects");
+  };
 
   saveCommits = data => {
     axios.post("http://meandish.lo/api/scrap/saveData", data);
@@ -147,7 +164,6 @@ export default class Gitlab {
 
   mapProjects = data => {
     const projects = {};
-
     data.forEach(p => {
       if (!p.statistics) {
         console.log(p);

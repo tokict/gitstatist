@@ -3,12 +3,14 @@ import ApiAdapter from "../adapters/adapter";
 const getToken = state => state.Server.token;
 const getUrl = state => state.Server.url;
 const getProvider = state => state.Server.provider;
+const getSelectedProjects = state => state.Projects.selected;
 
 export default class Projects {
   constructor() {
     this.stored = null;
 
     this.fetchProjects = this.fetchProjects.bind(this);
+
     this.fetchBranches = this.fetchBranches.bind(this);
     this.fetchProjectBranches = this.fetchProjectBranches.bind(this);
   }
@@ -17,6 +19,7 @@ export default class Projects {
     let provider = yield select(getProvider);
     let url = yield select(getUrl);
     let token = yield select(getToken);
+    let selected = yield select(getSelectedProjects);
     this.stored = { url, provider, token };
 
     this.Api = ApiAdapter(this.stored);
@@ -27,9 +30,16 @@ export default class Projects {
         type: "UPDATE_PROGRESS",
         fetchingData: true
       });
-      const pd = yield call(this.Api.fetchProjects);
+      let pd;
+
+      if (selected && selected.length) {
+        pd = yield this.getSelectedProjects(selected);
+      } else {
+        pd = yield call(this.Api.fetchProjects);
+      }
 
       const projectsData = pd.data;
+
       let projects = this.Api.mapProjects(projectsData);
 
       // projects = {
@@ -93,6 +103,17 @@ export default class Projects {
       branches.push(branchesData);
     }
     return branches;
+  }
+
+  *getSelectedProjects(selected) {
+    const data = [];
+
+    for (let i = 0; i < selected.length; i++) {
+      const pd = yield call(this.Api.fetchProject, selected[i].id);
+      console.log(55555, pd.data);
+      data.push(pd.data);
+    }
+    return { data };
   }
 
   *fetchProjectBranches(id) {
