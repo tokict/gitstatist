@@ -387,7 +387,8 @@ class App extends Component {
                 <Grid.Column
                   style={{ paddingLeft: "50px", paddingRight: "50px" }}
                 >
-                  {this.props.Ui.messages && this.props.Ui.messages.new[0] ? (
+                  {this.props.Ui.messages &&
+                  this.props.Ui.messages.new.length ? (
                     <Message
                       onDismiss={() =>
                         this.dismissMessage(this.props.Ui.messages.new[0].type)

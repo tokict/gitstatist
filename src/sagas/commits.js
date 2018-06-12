@@ -184,9 +184,12 @@ export default class Commits {
       for (let index in commits[projectId]) {
         let found = false;
         for (let userId in users) {
+          var author = commits[projectId][index].author
+            ? commits[projectId][index].author
+            : commits[projectId][index].author_name;
           if (
-            commits[projectId][index].author == users[userId].name ||
-            users[userId].aliases.includes(commits[projectId][index].author)
+            author == users[userId].name ||
+            users[userId].aliases.includes(author)
           ) {
             found = true;
             let val = commits[projectId][index].id;
@@ -201,8 +204,8 @@ export default class Commits {
           }
         }
         if (!found) {
-          if (!unknown.includes(commits[projectId][index].author)) {
-            unknown.push(commits[projectId][index].author);
+          if (!unknown.includes(author)) {
+            unknown.push(author);
           }
         }
       }

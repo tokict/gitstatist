@@ -110,7 +110,6 @@ export default class Projects {
 
     for (let i = 0; i < selected.length; i++) {
       const pd = yield call(this.Api.fetchProject, selected[i].id);
-      console.log(55555, pd.data);
       data.push(pd.data);
     }
     return { data };
