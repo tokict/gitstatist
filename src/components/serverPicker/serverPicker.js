@@ -14,17 +14,13 @@ import {
   Search
 } from "semantic-ui-react";
 
-const resultRenderer = ({ title, id, owner, avatar }) => {
+const resultRenderer = ({ title, id, owner, avatar, customkey }) => {
   return (
-    <Grid key={"aaa" + title} columns={1}>
-      <Grid.Row>
-        <Grid.Column>
-          <span className="projectTitle">{title}</span>
-          <br />
-          <span className="ownerName">{owner ? "by " + owner : null}</span>
-        </Grid.Column>
-      </Grid.Row>
-    </Grid>
+    <div key={title + owner}>
+      <span className="projectTitle">{title}</span>
+      <br />
+      <span className="ownerName">{owner ? "by " + owner : null}</span>
+    </div>
   );
 };
 
@@ -80,7 +76,6 @@ class ServerPicker extends Component {
   }
 
   handleUrlChange(e, { name, value }) {
-    console.log(333, value);
     if (value.search("gitlab.com") !== -1) {
       this.handleProviderChange(null, { name: null, value: "gitlab" });
     }
@@ -96,6 +91,9 @@ class ServerPicker extends Component {
     if (!this.refs.gitUrl || !this.refs) return false;
     const url = this.refs.gitUrl.inputRef.value;
     const token = this.refs.gitToken.inputRef.value;
+    const username = this.refs.gitUsername
+      ? this.refs.gitUsername.inputRef.value
+      : null;
 
     if (!this.isUrlValid(url) || url == "undefined" || url == "") {
       return false;
@@ -106,6 +104,10 @@ class ServerPicker extends Component {
     }
 
     if (!this.state.providerName) {
+      return false;
+    }
+
+    if (this.state.providerName == "github" && username == "") {
       return false;
     }
 
@@ -127,7 +129,8 @@ class ServerPicker extends Component {
     if (
       (value.search("gitlab.com") !== -1 ||
         value.search("github.com") !== -1 ||
-        value.search("bitbucket.com") !== -1) &&
+        value.search("bitbucket.com") !== -1 ||
+        this.state.providerName == "github") &&
       !this.state.selectedProjects.length
     ) {
       return false;
@@ -137,6 +140,9 @@ class ServerPicker extends Component {
   handleButtonPress() {
     const url = this.refs.gitUrl.inputRef.value;
     const token = this.refs.gitToken.inputRef.value;
+    const username = this.refs.gitUsername
+      ? this.refs.gitUsername.inputRef.value
+      : null;
     const provider = this.refs.providerPicker.props.value;
 
     if (!this.isUrlValid(url) || url == "undefined" || url == "") {
@@ -146,6 +152,11 @@ class ServerPicker extends Component {
 
     if (token == "undefined" || token == "") {
       this.setState({ errors: "Missing token" });
+      return;
+    }
+
+    if (this.state.providerName == "github" && username == "") {
+      this.setState({ errors: "Missing username" });
       return;
     }
 
@@ -162,7 +173,13 @@ class ServerPicker extends Component {
       return;
     }
 
-    this.props.startApp(url, token, provider, this.state.selectedProjects);
+    this.props.startApp(
+      url,
+      token,
+      provider,
+      username,
+      this.state.selectedProjects
+    );
   }
 
   isUrlValid(userInput) {
@@ -182,12 +199,14 @@ class ServerPicker extends Component {
   handleResultSelect = (e, { result }) => {
     let exists = false;
     let p = this.state.selectedProjects;
+
     for (let project in p) {
       if (p[project].id == result.id) exists = true;
     }
 
     if (!exists) {
       p.push(result);
+
       this.setState({ selectedProjects: p });
       this.resetSearch();
     }
@@ -200,20 +219,32 @@ class ServerPicker extends Component {
     const Api = ApiAdapter({
       provider: this.state.providerName,
       url: this.refs.gitUrl.inputRef.value,
-      token: this.refs.gitToken.inputRef.value
+      token: this.refs.gitToken.inputRef.value,
+      username: this.refs.gitUsername.inputRef.value
     });
 
     let projects = Api.searchProjects(value);
+
     var data;
     projects.then(res => {
       if (res.status == 200) {
-        let parsed = res.data.map(item => ({
-          id: item.id,
-          title: item.path_with_namespace,
-          owner: item.owner ? item.owner.name : null,
+        let d = !res.data.items ? res.data : res.data.items;
+        let parsed = d.map((item, i) => {
+          const owner = item.owner.name ? item.owner.name : item.owner.login;
+          let title = item.name ? item.name : item.path_with_namespace;
+          title = title;
 
-          avatar: item.avatar_url
-        }));
+          return {
+            id: item.id,
+            title: title,
+            customkey: item.id + title,
+            owner: owner,
+
+            avatar: item.owner.avatar_url
+              ? item.owner.avatar_url
+              : item.avatar_url
+          };
+        });
         this.setState({
           searchIsLoading: false,
           results: parsed
@@ -223,7 +254,7 @@ class ServerPicker extends Component {
   };
 
   render() {
-    const { searchValue, results } = this.state;
+    const { searchValue, results, selectedProjects } = this.state;
     return (
       <Grid columns={3} padded>
         <Grid.Row>
@@ -240,78 +271,94 @@ class ServerPicker extends Component {
             <br />
             <br />
             <div className="container">
-              <Input
-                ref="gitUrl"
-                placeholder="Git url"
-                iconPosition="left"
-                defaultValue={this.props.url}
-                onChange={this.handleUrlChange}
-                size="massive"
-                fluid
-                className="url"
-              />
-              <Input
-                ref="gitToken"
-                placeholder="Git token"
-                iconPosition="left"
-                size="massive"
-                defaultValue={this.props.token}
-                type="password"
-                fluid
-                className="token"
-              />
-              <Dropdown
-                placeholder="Select provider"
-                icon="server"
-                floating
-                selection
-                labeled
-                ref="providerPicker"
-                button
-                value={this.state.providerName}
-                className="icon"
-                onChange={this.handleProviderChange}
-                options={[
-                  {
-                    text: "Gitlab",
-                    value: "gitlab",
-                    image: { src: "/images/gitlab-logo-small.png" }
-                  },
-                  {
-                    text: "Bitbucket",
-                    value: "bitbucket",
-                    image: { src: "/images/bitbucket-logo-small.png" }
-                  },
-                  {
-                    text: "Github",
-                    value: "github",
-                    image: { src: "/images/github-logo-small.png", width: 30 }
-                  }
-                ]}
-              />
-              <Button
-                onClick={this.handleButtonPress}
-                icon
-                loading={this.props.loading}
-                labelPosition="right"
-                className="nextButton"
-                size="massive"
-                floated="right"
-                disabled={!this.checkServerDetails() && this.checkProjects()}
-                positive
-              >
-                Next
-                <Icon name="right arrow" />
-              </Button>
-
-              {this.state.errors.length ? (
-                <Message
-                  style={{ marginTop: "150px" }}
-                  error
-                  header="There were some errors with your entries"
-                  list={[this.state.errors]}
+              <form name="serverPickerForm">
+                <Input
+                  ref="gitUrl"
+                  placeholder="Git url"
+                  iconPosition="left"
+                  defaultValue={this.props.url}
+                  onChange={this.handleUrlChange}
+                  size="massive"
+                  fluid
+                  className="url"
                 />
-              ) : null}
+                {this.state.providerName == "github" ? (
+                  <Input
+                    ref="gitUsername"
+                    placeholder="Git username"
+                    onChange={() => this.forceUpdate()}
+                    iconPosition="left"
+                    size="massive"
+                    defaultValue={this.props.username}
+                    fluid
+                    className="username"
+                  />
+                ) : null}
+                <Input
+                  ref="gitToken"
+                  placeholder="Git token"
+                  iconPosition="left"
+                  size="massive"
+                  onChange={() => this.forceUpdate()}
+                  defaultValue={this.props.token}
+                  type="password"
+                  fluid
+                  className="token"
+                />
+                <Dropdown
+                  placeholder="Select provider"
+                  icon="server"
+                  floating
+                  selection
+                  labeled
+                  ref="providerPicker"
+                  button
+                  value={this.state.providerName}
+                  className="icon"
+                  onChange={this.handleProviderChange}
+                  options={[
+                    {
+                      text: "Gitlab",
+                      value: "gitlab",
+                      image: { src: "/images/gitlab-logo-small.png" }
+                    },
+                    // {
+                    //   text: "Bitbucket",
+                    //   value: "bitbucket",
+                    //   image: { src: "/images/bitbucket-logo-small.png" }
+                    // },
+                    {
+                      text: "Github",
+                      value: "github",
+                      image: { src: "/images/github-logo-small.png", width: 30 }
+                    }
+                  ]}
+                />
+                <Button
+                  onClick={this.handleButtonPress}
+                  type="button"
+                  icon
+                  loading={this.props.loading}
+                  labelPosition="right"
+                  className="nextButton"
+                  size="massive"
+                  floated="right"
+                  disabled={!this.checkServerDetails() && this.checkProjects()}
+                  positive
+                >
+                  Next
+                  <Icon name="right arrow" />
+                </Button>
+
+                {this.state.errors.length ? (
+                  <Message
+                    style={{ marginTop: "150px" }}
+                    error
+                    header="There were some errors with your entries"
+                    list={[this.state.errors]}
+                  />
+                ) : null}
+              </form>
             </div>
           </Grid.Column>
           <Grid.Column>
@@ -342,16 +389,22 @@ class ServerPicker extends Component {
                 placeholder="Limit to projects"
               />
             </div>
-            {this.state.selectedProjects.length
-              ? this.state.selectedProjects.map(project => (
-                  <div
-                    key={"result" + project.namespace}
-                    style={{ marginLeft: "200px", marginTop: "50px" }}
-                  >
-                    {resultRenderer(project)}
-                  </div>
-                ))
-              : null}
+            <Grid columns={1}>
+              <Grid.Row>
+                <Grid.Column>
+                  {selectedProjects.length
+                    ? selectedProjects.map(project => (
+                        <div
+                          key={project.title + project.owner}
+                          style={{ marginLeft: "200px", marginTop: "50px" }}
+                        >
+                          {resultRenderer(project)}
+                        </div>
+                      ))
+                    : null}
+                </Grid.Column>
+              </Grid.Row>
+            </Grid>
           </Grid.Column>
         </Grid.Row>
       </Grid>
@@ -363,6 +416,7 @@ ServerPicker.propTypes = {
   startApp: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
   url: PropTypes.string,
+  username: PropTypes.string,
   token: PropTypes.string
 };
 

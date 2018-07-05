@@ -18,6 +18,7 @@ const ApiAdapter = params => {
       adapter = new Github(params);
       break;
   }
+
   return adapter;
 };
 

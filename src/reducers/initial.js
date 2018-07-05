@@ -8,7 +8,8 @@ export const initialState = {
   Server: {
     url: null,
     token: null,
-    provider: null
+    provider: null,
+    username: null
   },
   Projects: {
     data: null,

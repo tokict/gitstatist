@@ -15,11 +15,13 @@ export default class Users {
       const url = params ? params.url : this.stored.url;
       const token = params ? params.token : this.stored.token;
       const projects = params ? params.projects : null;
+      const username = params ? params.username : null;
 
       this.stored = {
         url,
         provider,
-        token
+        token,
+        username
       };
 
       this.Api = ApiAdapter(this.stored);
@@ -27,8 +29,11 @@ export default class Users {
       yield put({ type: "FETCHING_USERS" });
 
       let ud;
-      if (projects) {
-        const pagesNumber = yield call(this.fetchPagesNumber, projects);
+      if (projects && projects.length) {
+        const pagesNumber =
+          this.stored.provider == "github"
+            ? yield call(this.fetchPagesNumber, projects)
+            : projects.length;
         ud = yield this.iterateProjectsUsers(projects, pagesNumber);
 
         //Save selected projects
@@ -70,7 +75,12 @@ export default class Users {
     currentProjectPage = 1;
     for (let key in projects) {
       if (!projects[key]) continue;
-      let data = yield this.fetchProjectUsers(projects[key].id, pages);
+      const projectIdentifier =
+        this.stored.provider === "github"
+          ? `${projects[key].owner}/${projects[key].title}`
+          : projects[key].id;
+
+      let data = yield this.fetchProjectUsers(projectIdentifier, pages);
 
       users = [...users, ...data.users];
     }

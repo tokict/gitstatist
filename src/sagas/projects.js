@@ -42,6 +42,19 @@ export default class Projects {
 
       let projects = this.Api.mapProjects(projectsData);
 
+      if (provider === "github") {
+        for (let project in projects) {
+          let stats = yield* this.Api.getContributorStatistics(
+            `${projects[project].owner}/${projects[project].name}`
+          );
+          console.log(111, stats, projects[project]);
+
+          projects[project].commit_count = stats.reduce(
+            (total, user) => total + user.total
+          );
+        }
+      }
+
       // projects = {
       //   48: projects[48],
       //   47: projects[47]
@@ -89,8 +102,13 @@ export default class Projects {
     for (let key in projects) {
       if (!projects[key]) continue;
       const started = new Date().getTime();
+      const projectIdentifier =
+        this.stored.provider === "github"
+          ? `${projects[key].owner}/${projects[key].title}`
+          : projects[key].id;
+
       const branchesData = yield* this.fetchProjectBranches(
-        projects[key].id,
+        projectIdentifier,
         this.Api
       );
       const ended = new Date().getTime();
@@ -109,7 +127,11 @@ export default class Projects {
     const data = [];
 
     for (let i = 0; i < selected.length; i++) {
-      const pd = yield call(this.Api.fetchProject, selected[i].id);
+      const projectIdentifier =
+        this.stored.provider === "github"
+          ? `${selected[i].owner}/${selected[i].title}`
+          : selected[i].id;
+      const pd = yield call(this.Api.fetchProject, projectIdentifier);
       data.push(pd.data);
     }
     return { data };
@@ -128,5 +150,5 @@ export default class Projects {
 }
 
 export const ProjectsSagas = [
-  takeLatest("FETCH_PROJECTS", new Projects().fetchProjects)
+  takeLatest(["FETCH_PROJECTS"], new Projects().fetchProjects)
 ];

@@ -8,7 +8,10 @@
 .url {
   margin-bottom: 50px;
 }
-
+.username {
+  margin: auto;
+  margin-bottom: 50px;
+}
 .token {
   margin: auto;
   margin-bottom: 50px;

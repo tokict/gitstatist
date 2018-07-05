@@ -28,7 +28,6 @@ import Slider from "rc-slider";
 import Tooltip from "rc-tooltip";
 import "rc-slider/assets/index.css";
 import Graph from "./graph/graph";
-import faker from "faker";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
@@ -57,11 +56,11 @@ class App extends Component {
   }
   componentDidMount() {
     if (this.props.Server.token) {
-      this.props.actions.fetchProjects();
+      this.startApp();
     }
   }
-  startApp = (url, token, provider, projects) => {
-    this.props.actions.fetchUsers(url, token, provider, projects);
+  startApp = (url, token, provider, username, projects) => {
+    this.props.actions.fetchUsers(url, token, provider, username, projects);
   };
   dismissMessage(type) {
     this.actions.dismissMessage(type);
